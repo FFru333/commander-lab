@@ -827,6 +827,22 @@ select,input[type=text],input[type=search],input[type=number],input:not([type]){
   .topin{min-height:0}
 }
 
+/* commander suggestions */
+.acwrap{position:relative}
+.aclist{position:absolute;left:0;right:0;top:100%;margin:6px 0 0;padding:6px;list-style:none;background:var(--card);border-radius:16px;box-shadow:0 18px 50px rgba(13,17,23,.22);z-index:60;max-height:340px;overflow:auto;text-transform:none;letter-spacing:0;font-family:var(--fb)}
+.aclist[hidden]{display:none}
+.aclist li{display:grid;grid-template-columns:44px minmax(0,1fr) auto;gap:10px;align-items:center;padding:6px 8px;border-radius:12px;cursor:pointer}
+.aclist li[aria-selected="true"]{background:color-mix(in srgb,var(--a2) 22%,var(--card))}
+.acimg{width:44px;height:32px;border-radius:8px;background:var(--head) center/cover no-repeat}
+.actx{display:flex;flex-direction:column;min-width:0}
+.actx b{font-size:14px;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.actx small{font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:400}
+.acci{display:flex;gap:2px}.acci .ms{width:16px;height:16px}
+.aclist .acnote{display:block;color:var(--muted);font-size:13px;cursor:default;padding:10px}
+.imgrid label{min-width:0}
+.imgrid input,.imgrid select{width:100%;min-width:0;box-sizing:border-box}
+.tkin{box-sizing:border-box;max-width:100%}
+
 </style>
 </head>
 <body>
@@ -1033,7 +1049,7 @@ select,input[type=text],input[type=search],input[type=number],input:not([type]){
     <p class="note">Accepted formats: "1 Sol Ring", "1x Sol Ring (CMM) 400", lines with categories in square brackets (Archidekt, e.g. "[Ramp]") or section titles ("Creatures", "// Ramp", "Lands (35)"). A set code and collector number, when present, become the chosen printing.</p>
     <div class="imgrid">
       <label>Deck name<input id="imName" placeholder="e.g. Atraxa superfriends"></label>
-      <label>Commander (if the list does not mark it)<input id="imCmd" placeholder="e.g. Atraxa, Praetors' Voice"></label>
+      <label class="acwrap">Commander (if the list does not mark it)<input id="imCmd" placeholder="Start typing, e.g. atraxa" autocomplete="off" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="cmdList"><ul id="cmdList" class="aclist" role="listbox" hidden></ul></label>
       <label>Categories<select id="imCat"><option value="auto">From the list when present, otherwise by card type</option><option value="type">Always by card type</option></select></label>
     </div>
     <textarea id="imText" class="tkin" style="height:260px" aria-label="Decklist" placeholder="1 Atraxa, Praetors' Voice&#10;1 Sol Ring&#10;1 Arcane Signet&#10;..."></textarea>
@@ -2520,6 +2536,40 @@ async function exportPDF(){
   btn.disabled=false;
 }
 document.getElementById("pxPdf").addEventListener("click",exportPDF);
+
+/* ---------- commander suggestions while typing (Scryfall) ---------- */
+(function(){const inp=document.getElementById("imCmd"),list=document.getElementById("cmdList");let timer=null,ctl=null,items=[],act=-1,lastQ="";
+  const segInfo=()=>{const v=inp.value,cut=v.lastIndexOf(";");return {head:cut>=0?v.slice(0,cut+1)+" ":"",q:(cut>=0?v.slice(cut+1):v).trim()};};
+  const close=()=>{list.hidden=true;inp.setAttribute("aria-expanded","false");act=-1;};
+  const pick=i=>{const c=items[i];if(!c)return;const {head}=segInfo();inp.value=head+c.name;close();inp.dispatchEvent(new Event("change"));inp.focus();};
+  const mark=()=>{[...list.children].forEach((li,i)=>{li.setAttribute("aria-selected",i===act);if(i===act)li.scrollIntoView({block:"nearest"});});};
+  function render(note){list.innerHTML="";
+    if(!items.length){if(note){const li=document.createElement("li");li.className="acnote";li.textContent=note;list.appendChild(li);list.hidden=false;inp.setAttribute("aria-expanded","true");}else close();return;}
+    items.forEach((c,i)=>{const li=document.createElement("li");li.role="option";li.id="cmdOpt"+i;
+      const iu=c.image_uris||(c.card_faces&&c.card_faces[0].image_uris)||{};
+      li.innerHTML='<span class="acimg"></span><span class="actx"><b></b><small></small></span><span class="acci"></span>';
+      if(iu.art_crop)li.querySelector(".acimg").style.backgroundImage="url('"+iu.art_crop+"')";
+      li.querySelector("b").textContent=c.name;li.querySelector("small").textContent=c.type_line||"";
+      li.querySelector(".acci").innerHTML=(c.color_identity&&c.color_identity.length?c.color_identity:["C"]).map(x=>'<img class="ms" alt="'+x+'" src="https://svgs.scryfall.io/card-symbols/'+x+'.svg">').join("");
+      li.addEventListener("mousedown",e=>{e.preventDefault();pick(i);});li.addEventListener("mousemove",()=>{act=i;mark();});
+      list.appendChild(li);});
+    list.hidden=false;inp.setAttribute("aria-expanded","true");act=0;mark();}
+  async function lookup(q){if(ctl)ctl.abort();ctl=new AbortController();
+    try{const url="https://api.scryfall.com/cards/search?order=edhrec&q="+encodeURIComponent(q.split(/\s+/).map(w=>'name:"'+w.replace(/"/g,"")+'"').join(" ")+" is:commander game:paper");
+      let r=await fetch(url,{signal:ctl.signal});let data=r.ok?(await r.json()).data||[]:[];
+      if(!data.length){/* typos: fall back to fuzzy single match */const f=await fetch("https://api.scryfall.com/cards/named?fuzzy="+encodeURIComponent(q),{signal:ctl.signal});if(f.ok)data=[await f.json()];}
+      if(q!==segInfo().q)return;items=data.slice(0,8);render("No commander found for “"+q+"”.");}
+    catch(e){if(e.name!=="AbortError"){items=[];render("Suggestions need an internet connection.");}}}
+  inp.addEventListener("input",()=>{const {q}=segInfo();clearTimeout(timer);if(q.length<2){items=[];close();return;}
+    if(q===lastQ&&!list.hidden)return;lastQ=q;timer=setTimeout(()=>lookup(q),220);});
+  inp.addEventListener("keydown",e=>{if(list.hidden)return;
+    if(e.key==="ArrowDown"){e.preventDefault();act=Math.min(items.length-1,act+1);mark();}
+    else if(e.key==="ArrowUp"){e.preventDefault();act=Math.max(0,act-1);mark();}
+    else if(e.key==="Enter"&&items[act]){e.preventDefault();pick(act);}
+    else if(e.key==="Escape"){e.stopPropagation();close();}});
+  inp.addEventListener("blur",()=>setTimeout(close,120));
+  document.getElementById("imClose").addEventListener("click",close);
+})();
 
 
 /* ---------- mazzi: import, cambio, modifica ---------- */
