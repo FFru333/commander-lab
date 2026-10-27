@@ -2365,7 +2365,7 @@ function renderColl(){
   L.sort(by[S]||by.name);
   const tb=document.querySelector("#ctbl tbody");
   const copies=L.reduce((a,r)=>a+r.qty,0),val=L.reduce((a,r)=>a+(r.price!=null?r.price*r.qty:0),0);
-  document.getElementById("ccount").textContent=L.length+(L.length===1?" card":" different cards")+" · "+copies+" copies · "+fmtE0(val);
+  document.getElementById("ccount").textContent=L.length+(L.length===1?" card":" different cards")+" · "+copies+(copies===1?" copy · ":" copies · ")+fmtE0(val);
   if(!L.length){tb.innerHTML='<tr class="none"><td colspan="9">'+(COLL.length?"No cards match these filters.":"No cards yet. Mark cards as Owned in a deck and they appear here.")+'</td></tr>';return;}
   const dkTitle=r=>r.decks.map(d=>d.name+" — "+STATUS[d.status].toLowerCase()).join("\n");
   tb.innerHTML=L.map((r,i)=>'<tr data-i="'+i+'">'+
