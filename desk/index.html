@@ -925,17 +925,88 @@ label select,label input,label textarea,.cmrow select,.cmnew input{font-family:v
 }
 @media (max-width:520px){.listbar{align-items:stretch}.lbtools{width:100%;justify-content:space-between}}
 
+/* ===== navigation with icons; bottom tab bar on phones ===== */
+.tab{display:inline-flex;align-items:center;gap:8px}
+.tab svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.brand{text-decoration:none}
+@media (max-width:820px){
+  .tabs{position:fixed;z-index:30;left:50%;transform:translateX(-50%);bottom:calc(14px + env(safe-area-inset-bottom,0px));top:auto;width:min(420px,calc(100vw - 24px));display:grid!important;grid-template-columns:repeat(4,1fr);padding:6px;margin:0!important;box-shadow:0 14px 40px rgba(13,17,23,.3);overflow:visible!important;grid-row:auto!important;grid-column:auto!important}
+  .tab{flex-direction:column;gap:3px;height:52px;padding:0 4px;font-size:10.5px;justify-content:center;border-radius:18px}
+  .tab svg{width:21px;height:21px}
+  .tab[aria-current="page"]{background:var(--a2);color:var(--ink)}
+  main.wrap{padding-bottom:calc(110px + env(safe-area-inset-bottom,0px))}
+  .bulkbar{bottom:calc(84px + env(safe-area-inset-bottom,0px))}
+}
+@media (max-width:640px){.topin{grid-template-columns:minmax(0,1fr) auto}.navr{grid-row:1;grid-column:2;display:flex}.navr select{display:none!important}}
+
+/* ===== home ===== */
+.hhead{min-height:220px}
+.bento{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
+.btile{all:unset;box-sizing:border-box;cursor:pointer;display:flex;flex-direction:column;justify-content:space-between;min-height:150px;padding:18px 20px;border-radius:var(--r);background:var(--tbg,var(--card));color:var(--tink,var(--ink));box-shadow:var(--shadow);transition:transform .15s}
+.btile:hover{transform:translateY(-2px)}
+.btile:focus-visible{outline:2px solid var(--focus);outline-offset:3px}
+.btile[data-tone="1"]{--tbg:var(--tile-1);--tink:var(--tile-1-ink)}.btile[data-tone="2"]{--tbg:var(--tile-2);--tink:var(--tile-2-ink)}.btile[data-tone="3"]{--tbg:var(--tile-3);--tink:var(--tile-3-ink)}.btile[data-tone="4"]{--tbg:var(--tile-4);--tink:var(--tile-4-ink)}
+.btile .bl{font-family:var(--fm);font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;opacity:.75}
+.btile .bv{font-size:clamp(34px,3.4vw,50px);font-weight:400;letter-spacing:-.045em;line-height:1}
+.btile .bv .u{font-size:.42em;vertical-align:.95em;margin:0 .08em;opacity:.75}
+.btile .bs{font-family:var(--fm);font-size:11px;letter-spacing:.04em;opacity:.72}
+.hsec{display:flex;align-items:baseline;justify-content:space-between;margin:var(--s4) 0 0}
+.hsec h2{margin:0;font-size:24px;font-weight:600;letter-spacing:-.025em}
+
+/* deck cards */
+.deckcards{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px}
+.dcard{position:relative;display:flex;flex-direction:column;background:var(--card);border-radius:var(--r);box-shadow:var(--shadow);overflow:hidden;cursor:pointer;transition:transform .15s,box-shadow .15s;text-align:left;border:0;padding:0;min-height:0;font:inherit;color:var(--ink)}
+.dcard:hover{transform:translateY(-2px);box-shadow:0 14px 34px rgba(13,17,23,.10)}
+.dcard:focus-visible{outline:2px solid var(--focus);outline-offset:3px}
+.dcard.cur{box-shadow:0 0 0 2px var(--ink),var(--shadow)}
+.dart{height:120px;background:linear-gradient(135deg,var(--a3),var(--a2) 60%,var(--accent)) center/cover no-repeat}
+.dbody{display:flex;flex-direction:column;gap:12px;padding:16px 18px 18px}
+.dtop{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.dname{display:flex;flex-direction:column;min-width:0}
+.dname b{font-size:17px;font-weight:650;letter-spacing:-.015em;line-height:1.25;overflow-wrap:anywhere}
+.dname small{font-size:12.5px;color:var(--muted);margin-top:2px}
+.dring{position:relative;width:52px;height:52px;flex:none;display:grid;place-items:center}
+.dring .ring{position:absolute;inset:0;transform:rotate(-90deg)}
+.ring circle{fill:none;stroke-width:3.4;stroke-linecap:round}
+.ring .rb{stroke:var(--head)}.ring .rp{stroke:var(--a2)}.ring .rh{stroke:var(--have)}
+.dring span{font-size:14px;font-weight:600;letter-spacing:-.02em}.dring i{font-style:normal;font-size:9px;opacity:.7}
+.dmeta{display:flex;flex-wrap:wrap;gap:4px 14px;font-family:var(--fm);font-size:11px;letter-spacing:.03em;color:var(--muted)}
+.dmeta b{color:var(--ink);font-weight:500}
+.dact{display:flex;gap:6px;flex-wrap:wrap}
+.dact button{height:32px;min-height:0;padding:0 14px;font-size:12.5px}
+.dcard.add{align-items:flex-start;justify-content:flex-end;gap:4px;min-height:200px;padding:20px;background:transparent;box-shadow:none;outline:1.5px dashed var(--line2);outline-offset:-1.5px}
+.dcard.add .plus{width:40px;height:40px;border-radius:50%;background:var(--ink);color:var(--card);display:grid;place-items:center;font-size:22px;margin-bottom:auto}
+.dcard.add b{font-size:17px}.dcard.add small{font-size:12.5px;color:var(--muted)}
+
+/* print house tools */
+.toolcards{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px}
+.tcard{display:flex;flex-direction:column;gap:12px;padding:22px;border-radius:var(--r);background:var(--card);box-shadow:var(--shadow)}
+.tcard .tico{width:44px;height:44px;border-radius:14px;display:grid;place-items:center;font-size:20px;background:var(--tile-3);color:var(--tile-3-ink)}
+.tcard[data-k="tokens"] .tico{background:var(--tile-1);color:var(--tile-1-ink)}
+.tcard[data-k="export"] .tico{background:var(--tile-4);color:var(--tile-4-ink)}
+.tcard h3{margin:0;font-size:20px;font-weight:600;letter-spacing:-.02em}
+.tcard p{margin:0;font-size:13.5px;color:var(--muted);line-height:1.5;flex:1}
+.tcard .tsel{display:flex;flex-direction:column;gap:6px;font-family:var(--fm);font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
+.tcard .btn-acc{align-self:flex-start}
+.toolcards.mini .tcard{padding:18px;gap:8px}
+.toolcards.mini .tcard p{font-size:12.5px}
+.toolcards.mini .tcard .btn-acc{background:transparent;color:var(--ink);border-color:var(--line2);height:32px;min-height:0}
+@media (max-width:1060px){.bento{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:520px){.btile{min-height:120px;padding:16px}.btile .bv{font-size:34px}.deckcards{grid-template-columns:1fr}.dart{height:96px}}
+@media (max-width:820px){.top{backdrop-filter:none;-webkit-backdrop-filter:none;background:var(--bg)}}
+.vtools .btn-acc{background:var(--ink);color:var(--card);border-color:var(--ink)}
+.vtools .btn-acc:hover{background:color-mix(in srgb,var(--ink) 85%,var(--accent))}
+
 </style>
 </head>
 <body>
 <nav class="top" aria-label="Sections"><div class="wrap topin">
-  <span class="brand"><span class="mark" aria-hidden="true"></span>Commander Desk</span>
-  <div class="tabs" role="tablist">
-    <button class="tab" type="button" data-view="deck">Deck</button>
-    <button class="tab" type="button" data-view="coll">Collection</button>
-    <button class="tab" type="button" id="openProxy">Proxy sheet</button>
-    <button class="tab" type="button" id="openTokens">Tokens</button>
-    <button class="tab" type="button" id="openExport">Export</button>
+  <a class="brand" href="#home" data-go="home"><span class="mark" aria-hidden="true"></span>Commander Desk</a>
+  <div class="tabs" role="navigation" aria-label="Main">
+    <button class="tab" type="button" data-view="home"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 11.5 12 5l8 6.5V19a1 1 0 0 1-1 1h-4.5v-5h-5v5H5a1 1 0 0 1-1-1z"/></svg><span>Home</span></button>
+    <button class="tab" type="button" data-view="decks"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="7" y="3.5" width="11" height="15" rx="2"/><path d="M5 7v11.5A2.5 2.5 0 0 0 7.5 21H15"/></svg><span>Decks</span></button>
+    <button class="tab" type="button" data-view="coll"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="7" height="7" rx="1.6"/><rect x="13" y="4" width="7" height="7" rx="1.6"/><rect x="4" y="13" width="7" height="7" rx="1.6"/><rect x="13" y="13" width="7" height="7" rx="1.6"/></svg><span>Collection</span></button>
+    <button class="tab" type="button" data-view="print"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 9V4h10v5"/><rect x="4" y="9" width="16" height="7" rx="2"/><path d="M7 14h10v6H7z"/></svg><span>Print House</span></button>
   </div>
   <div class="navr">
     <select id="deckSel" aria-label="Current deck"></select>
@@ -944,10 +1015,46 @@ label select,label input,label textarea,.cmrow select,.cmnew input{font-family:v
   </div>
 </div></nav>
 <main class="wrap">
-<section class="empty" id="emptyState" hidden>
+<section class="empty" id="emptyState" hidden data-old="1">
   <h2>No decks yet</h2>
   <p>Paste a decklist from Moxfield, Archidekt or one card per line. The page builds the checklist, the mana curve, the proxy sheet, the token list and your collection.</p>
   <button id="emptyImport" type="button" class="btn-acc">Import a deck</button>
+</section>
+
+<section id="vHome" class="view" aria-labelledby="homeTitle" hidden>
+  <div class="vhead hhead">
+    <div class="vtitle" data-eyebrow="Commander Desk">
+      <h1 class="ttl" id="homeTitle">Good evening</h1>
+      <p class="sub" id="homeSub"></p>
+    </div>
+    <div class="vtools"><button type="button" class="btn-acc" data-act="new">New deck</button><button type="button" data-go="coll">My collection</button></div>
+  </div>
+  <div class="bento" id="homeStats"></div>
+  <div class="hsec"><h2>My decks</h2><button type="button" class="ghostbtn" data-go="decks">See all</button></div>
+  <div class="deckcards" id="homeDecks"></div>
+  <div class="hsec"><h2>Print House</h2><button type="button" class="ghostbtn" data-go="print">Open</button></div>
+  <div class="toolcards mini" id="homeTools"></div>
+</section>
+
+<section id="vDecks" class="view" aria-labelledby="decksTitle" hidden>
+  <div class="vhead">
+    <div class="vtitle" data-eyebrow="Library">
+      <h1 class="ttl" id="decksTitle">My decks</h1>
+      <p class="sub" id="decksSub">Every deck you imported. Open one to mark cards, print proxies or find its tokens.</p>
+    </div>
+    <div class="vtools"><button type="button" class="btn-acc" data-act="new">New deck</button></div>
+  </div>
+  <div class="deckcards big" id="allDecks"></div>
+</section>
+
+<section id="vPrint" class="view" aria-labelledby="printHouseTitle" hidden>
+  <div class="vhead">
+    <div class="vtitle" data-eyebrow="Toolkit">
+      <h1 class="ttl" id="printHouseTitle">Print House</h1>
+      <p class="sub">Proxy sheets at real size, token lists and exports. Pick a deck here, or start the same tools from inside a deck.</p>
+    </div>
+  </div>
+  <div class="toolcards" id="printTools"></div>
 </section>
 
 <section id="vDeck" class="view" aria-labelledby="deckTitle">
@@ -957,6 +1064,9 @@ label select,label input,label textarea,.cmrow select,.cmnew input{font-family:v
       <p class="sub">Mark each card as Owned, Proxy, Missing or Alternative. Proxy plus Missing means you own one copy but need a proxy for this deck. Hover a name to see the card.</p>
     </div>
     <div class="vtools">
+      <button id="openProxy" type="button">Proxy sheet</button>
+      <button id="openTokens" type="button">Tokens</button>
+      <button id="openExport" type="button">Export</button>
       <button id="editLDeck" type="button" class="editL" data-grid="deck" aria-pressed="false">Edit layout</button>
       <button id="deckEdit" type="button">Edit list</button>
       <button id="restore" type="button">Restore my data</button>
@@ -1478,7 +1588,7 @@ const cmenu=document.getElementById("cmenu");let cmName=null,cmAnchor=null;
 function catOf(name){const c=DECK.find(([,cards])=>cards.includes(name));return c?c[0]:null;}
 function deckChanged(focus){CUR.src=null;saveDecks();
   try{sessionStorage.setItem(NS+"-focus",JSON.stringify({name:focus||null,y:window.scrollY}))}catch(e){}
-  lsSet(NS+"-view","deck");location.reload();}
+  lsSet(NS+"-view","deck");history.replaceState(null,"","#deck");location.reload();}
 function removeFromCats(name){DECK.forEach(d=>{const i=d[1].indexOf(name);if(i>=0)d[1].splice(i,1);});
   for(let i=DECK.length-1;i>=0;i--)if(!DECK[i][1].length)DECK.splice(i,1);}
 function addToCat(name,cat,top){let c=DECK.find(d=>d[0]===cat);
@@ -2523,18 +2633,88 @@ function flashC(m){const p=document.getElementById("ccount");const o=p.textConte
 
 function renderChip(id,ext,clear){const el=document.getElementById(id);if(!el)return;el.hidden=!ext;if(!ext)return;
   el.innerHTML='<span>Filtered by <b></b></span><button type="button" aria-label="Remove this filter">✕</button>';el.querySelector("b").textContent=ext.label;el.querySelector("button").onclick=clear;}
-/* ---------- views ---------- */
-let view=lsGet(NS+"-view")||"deck";
-function setView(v){view=v;lsSet(NS+"-view",v);
-  const has=!!CUR,any=Object.keys(DECKS.list).length>0;
-  document.getElementById("vDeck").hidden=!(v==="deck"&&has);
-  document.getElementById("vColl").hidden=!(v==="coll"&&any);
-  document.getElementById("emptyState").hidden=any;
-  document.querySelectorAll(".tab[data-view]").forEach(t=>{if(t.dataset.view===v)t.setAttribute("aria-current","page");else t.removeAttribute("aria-current");});
-  ["openProxy","openTokens","openExport"].forEach(id=>document.getElementById(id).hidden=!has);
-  refreshViews();}
+/* ---------- per-deck figures (for home, decks and print house) ---------- */
+function deckStats(id){const d=DECKS.list[id];const S=id===DECKS.current?state:loadState(id);const Q=d.qty||{};
+  const o={id,name:d.name,cmd:(d.cmd||[])[0]||null,total:0,have:0,proxy:0,buy:0,u:0,buyCost:0,value:0,proxyItems:0};
+  d.deck.forEach(([,cards])=>cards.forEach(n=>{const x=S[n]||{},k=clsOf(x),qn=Q[n]||1;o.total+=qn;o[k]+=qn;
+    const alt=x.alt&&x.altName&&x.altName.trim();const nm=alt?x.altName.trim():n;const p=priceOf(nm,alt?x.altPrint:x.print);
+    if(p!=null){o.value+=p*qn;if(k==="buy")o.buyCost+=p*qn;}}));
+  o.pct=o.total?Math.round(o.have/o.total*100):0;o.ready=o.total?Math.round((o.have+o.proxy)/o.total*100):0;return o;}
+const artURL=n=>"https://api.scryfall.com/cards/named?exact="+encodeURIComponent(front(n))+"&format=image&version=art_crop";
+function openDeck(id,intent){if(id===DECKS.current){setView("deck");if(intent)runIntent(intent);return;}
+  DECKS.current=id;saveDecks();lsSet(NS+"-view","deck");if(intent)try{sessionStorage.setItem(NS+"-intent",intent)}catch(e){}history.replaceState(null,"","#deck");location.reload();}
+function runIntent(k){const b={proxy:"openProxy",tokens:"openTokens",export:"openExport"}[k];if(b)setTimeout(()=>document.getElementById(b).click(),60);}
+function deckCard(st,big){const el=document.createElement("article");el.className="dcard";el.tabIndex=0;el.setAttribute("aria-label","Open "+st.name);
+  const ring='<svg class="ring" viewBox="0 0 36 36" aria-hidden="true"><circle cx="18" cy="18" r="15.5" class="rb"/><circle cx="18" cy="18" r="15.5" class="rp" stroke-dasharray="'+(st.ready*0.974).toFixed(1)+' 100"/><circle cx="18" cy="18" r="15.5" class="rh" stroke-dasharray="'+(st.pct*0.974).toFixed(1)+' 100"/></svg>';
+  el.innerHTML='<div class="dart"'+(st.cmd?' style="background-image:url(\''+esc(artURL(st.cmd))+'\'),linear-gradient(135deg,var(--a3),var(--a2) 60%,var(--accent))"':'')+'></div>'+
+    '<div class="dbody"><div class="dtop"><div class="dname"><b></b><small></small></div><div class="dring">'+ring+'<span>'+st.pct+'<i>%</i></span></div></div>'+
+    '<div class="dmeta"><span><b>'+st.have+'</b>/'+st.total+' owned</span><span><b>'+st.proxy+'</b> to proxy</span><span><b>'+st.buy+'</b> to buy'+(st.buyCost?' · '+esc(fmtE0(st.buyCost)):'')+'</span></div>'+
+    (big?'<div class="dact"><button type="button" class="btn-acc" data-i="">Open</button><button type="button" data-i="proxy">Proxies</button><button type="button" data-i="tokens">Tokens</button></div>':'')+'</div>';
+  el.querySelector(".dname b").textContent=st.name;el.querySelector(".dname small").textContent=st.cmd||"No commander set";
+  el.addEventListener("click",e=>{const b=e.target.closest("button[data-i]");openDeck(st.id,b?b.dataset.i:"");});
+  el.addEventListener("keydown",e=>{if(e.key==="Enter"&&e.target===el)openDeck(st.id,"");});
+  if(st.id===DECKS.current)el.classList.add("cur");return el;}
+function newDeckCard(){const el=document.createElement("button");el.type="button";el.className="dcard add";el.innerHTML='<span class="plus" aria-hidden="true">+</span><b>New deck</b><small>Paste a list from Moxfield or Archidekt</small>';el.addEventListener("click",()=>openImport(false));return el;}
+function statTile(tone,label,val,sub,go){const el=document.createElement(go?"button":"div");if(go){el.type="button";el.addEventListener("click",go);}
+  el.className="btile";el.dataset.tone=tone;el.innerHTML='<span class="bl"></span><span class="bv"></span><span class="bs"></span>';
+  el.querySelector(".bl").textContent=label;setVal(el.querySelector(".bv"),val);el.querySelector(".bs").textContent=sub;return el;}
+const TOOLS=[
+  {k:"proxy",t:"Proxy sheet",d:"Every card marked Proxy in a deck, at 63 × 88 mm with cut marks. Change printings, add your own art, download a PDF.",ico:"▦",b:"Open sheet"},
+  {k:"tokens",t:"Token finder",d:"Every token a deck creates, from Treasures to copies, with printable token cards.",ico:"◎",b:"Find tokens"},
+  {k:"export",t:"Lists and exports",d:"Moxfield list, shopping list with prices, proxy list and a summary to share.",ico:"⇩",b:"Export"}];
+function toolCard(T,mini){const el=document.createElement("article");el.className="tcard";el.dataset.k=T.k;
+  const ids=Object.keys(DECKS.list).sort((a,b)=>DECKS.list[a].name.localeCompare(DECKS.list[b].name));
+  el.innerHTML='<div class="tico" aria-hidden="true">'+T.ico+'</div><h3></h3><p></p>'+(mini?'':'<label class="tsel">Deck<select></select></label>')+'<button type="button" class="btn-acc">'+T.b+'</button>';
+  el.querySelector("h3").textContent=T.t;el.querySelector("p").textContent=T.d;
+  const sel=el.querySelector("select");if(sel){ids.forEach(id=>{const o=document.createElement("option");o.value=id;o.textContent=DECKS.list[id].name;o.selected=id===DECKS.current;sel.appendChild(o);});
+    if(T.k==="tokens"){const o=document.createElement("option");o.value="__paste";o.textContent="Paste any list…";sel.appendChild(o);}}
+  el.querySelector("button").addEventListener("click",()=>{if(mini){setView("print");return;}const id=sel.value;
+    if(T.k==="tokens"){if(id==="__paste"){document.getElementById("openTokens").click();document.getElementById("tkInput").value="";document.getElementById("tkInput").focus();return;}
+      const d=DECKS.list[id],S=id===DECKS.current?state:loadState(id);const lines=[];d.deck.forEach(([,cards])=>cards.forEach(n=>{const x=S[n]||{};const alt=x.alt&&x.altName&&x.altName.trim();lines.push(((d.qty||{})[n]||1)+" "+(alt?x.altName.trim():n));}));
+      document.getElementById("openTokens").click();document.getElementById("tkInput").value=lines.join("\n");document.getElementById("tkScan").click();return;}
+    openDeck(id,T.k);});
+  return el;}
+function greet(){const h=new Date().getHours();return h<5?"Good night":h<12?"Good morning":h<18?"Good afternoon":"Good evening";}
+function renderHome(){const ids=Object.keys(DECKS.list);const R=collRecords();const stats=ids.map(deckStats).sort((a,b)=>(b.id===DECKS.current)-(a.id===DECKS.current)||a.name.localeCompare(b.name));
+  document.getElementById("homeTitle").textContent=greet();
+  const own=R.filter(r=>r.status==="have"),val=own.reduce((a,r)=>a+(r.price!=null?r.price*r.qty:0),0),buy=R.filter(r=>r.status==="buy").reduce((a,r)=>a+(r.price!=null?r.price*r.qty:0),0);
+  const avg=stats.length?Math.round(stats.reduce((a,s)=>a+s.pct,0)/stats.length):0;
+  document.getElementById("homeSub").textContent=ids.length?(ids.length+(ids.length===1?" deck":" decks")+" · "+own.length+(own.length===1?" card":" cards")+" in your collection · "+fmtE0(val)+" in value."):"Import your first deck to start. Your collection builds itself from the cards you mark as Owned.";
+  const B=document.getElementById("homeStats");B.innerHTML="";
+  B.append(statTile("2","Collection value",fmtE0(val),own.length+(own.length===1?" card owned":" cards owned"),()=>setView("coll")),
+    statTile("1","Decks",String(ids.length),stats.filter(s=>s.pct===100).length+" complete",()=>setView("decks")),
+    statTile("3","Average completion",avg+"%","owned cards across decks",()=>setView("decks")),
+    statTile("4","Still to buy",fmtE0(buy),(n=>n+(n===1?" card":" cards"))(R.filter(r=>r.status==="buy").length),()=>{setView("coll");setCollFilter("status","buy");}));
+  const H=document.getElementById("homeDecks");H.innerHTML="";stats.slice(0,6).forEach(st=>H.appendChild(deckCard(st,false)));H.appendChild(newDeckCard());
+  const T=document.getElementById("homeTools");T.innerHTML="";TOOLS.forEach(t=>T.appendChild(toolCard(t,true)));}
+function renderDecks(){const A=document.getElementById("allDecks");A.innerHTML="";const ids=Object.keys(DECKS.list).sort((a,b)=>DECKS.list[a].name.localeCompare(DECKS.list[b].name));
+  ids.map(deckStats).forEach(st=>A.appendChild(deckCard(st,true)));A.appendChild(newDeckCard());
+  document.getElementById("decksSub").textContent=ids.length?ids.length+(ids.length===1?" deck":" decks")+". Open one to mark cards, print proxies or find its tokens.":"No decks yet. Import one to begin.";}
+function renderPrint(){const P=document.getElementById("printTools");P.innerHTML="";
+  if(!Object.keys(DECKS.list).length){P.innerHTML='<p class="w-empty">Import a deck first: the tools work on its cards.</p>';return;}
+  TOOLS.forEach(t=>P.appendChild(toolCard(t,false)));}
+
+/* ---------- views and navigation ---------- */
+const VIEWS={home:"vHome",decks:"vDecks",deck:"vDeck",coll:"vColl",print:"vPrint"};
+let view=(location.hash||"").slice(1);if(view==="collection")view="coll";if(!VIEWS[view])view=lsGet(NS+"-view")||"home";if(!VIEWS[view])view="home";
+function setView(v){if(!VIEWS[v])v="home";const has=!!CUR,any=Object.keys(DECKS.list).length>0;
+  if(v==="deck"&&!has)v=any?"decks":"home";if(v==="coll"&&!any)v="home";
+  view=v;lsSet(NS+"-view",v);
+  Object.entries(VIEWS).forEach(([k,id])=>document.getElementById(id).hidden=k!==v);
+  document.getElementById("emptyState").hidden=true;
+  const navKey=v==="deck"?"decks":v;
+  document.querySelectorAll(".tab[data-view]").forEach(t=>{if(t.dataset.view===navKey)t.setAttribute("aria-current","page");else t.removeAttribute("aria-current");});
+  document.getElementById("deckSel").hidden=!(v==="deck"&&Object.keys(DECKS.list).length>1);
+  const h="#"+(v==="coll"?"collection":v);if(location.hash!==h)history.replaceState(null,"",h);
+  document.title=(v==="deck"&&CUR?CUR.name:{home:"Home",decks:"My decks",coll:"Collection",print:"Print House"}[v]||"")+" · Commander Desk";
+  refreshViews();if(v!=="deck")window.scrollTo(0,0);}
 document.querySelectorAll(".tab[data-view]").forEach(t=>t.addEventListener("click",()=>setView(t.dataset.view)));
+document.addEventListener("click",e=>{const g=e.target.closest("[data-go]");if(g){e.preventDefault();setView(g.dataset.go);}const a=e.target.closest('[data-act="new"]');if(a)openImport(false);});
+window.addEventListener("hashchange",()=>{let v=location.hash.slice(1);if(v==="collection")v="coll";if(VIEWS[v]&&v!==view)setView(v);});
 function refreshViews(){
+  if(view==="home")renderHome();
+  if(view==="decks")renderDecks();
+  if(view==="print")renderPrint();
   if(view==="deck"&&CUR){const G=gridFor("deck");if(!G.built){buildGrid(G);G.built=true;}else renderWidgets(G);}
   if(view==="coll"&&Object.keys(DECKS.list).length){const G=gridFor("coll");if(!G.built){buildGrid(G);G.built=true;}else renderWidgets(G);renderColl();}
 }
@@ -2789,7 +2969,7 @@ async function doImport(){
     lsSet(stateKey(id),s);}
   const msg=(offline?"Scryfall could not be reached: names were kept as written. ":"")+(nf.length?"Not found on Scryfall: "+nf.join(", ")+". ":"");
   if(msg){try{sessionStorage.setItem(NS+"-msg",msg)}catch(e){}}
-  lsSet(NS+"-view","deck");location.reload();
+  lsSet(NS+"-view","deck");history.replaceState(null,"","#deck");location.reload();
 }
 function deckToText(d){return d.deck.map(([cat,cards])=>"// "+cat+"\n"+cards.map(n=>((d.qty||{})[n]||1)+" "+n+((d.prints||{})[n]&&d.prints[n].set?" ("+d.prints[n].set.toUpperCase()+") "+d.prints[n].cn:"")).join("\n")).join("\n\n");}
 function openImport(edit){
@@ -2818,14 +2998,16 @@ document.getElementById("cfNo").addEventListener("keydown",e=>{if(e.key==="Escap
   const ids=Object.keys(DECKS.list).sort((a,b)=>DECKS.list[a].name.localeCompare(DECKS.list[b].name));
   ids.forEach(id=>{const o=document.createElement("option");o.value=id;o.textContent=DECKS.list[id].name;o.selected=id===DECKS.current;sel.appendChild(o);});
   sel.hidden=!ids.length;
-  sel.addEventListener("change",()=>{DECKS.current=sel.value;saveDecks();lsSet(NS+"-view","deck");location.reload();});
+  sel.addEventListener("change",()=>{DECKS.current=sel.value;saveDecks();lsSet(NS+"-view","deck");history.replaceState(null,"","#deck");location.reload();});
   const has=!!CUR;
   document.getElementById("restore").hidden=!(has&&SEED&&DECKS.current===SEED.id);
-  if(has){document.getElementById("deckTitle").textContent=CUR.name;document.title=CUR.name+" · Commander Desk";}
+  if(has){document.getElementById("deckTitle").textContent=CUR.name;}
   let msg=null;try{msg=sessionStorage.getItem(NS+"-msg");sessionStorage.removeItem(NS+"-msg")}catch(e){}
   if(msg)flash(msg);
-  if(!ids.length){setView("deck");setTimeout(()=>openImport(false),0);}
-  else setView(view==="coll"||!has?"coll":"deck");
+  if(!ids.length){setView("home");setTimeout(()=>openImport(false),0);}
+  else setView(view);
+  let intent=null;try{intent=sessionStorage.getItem(NS+"-intent");sessionStorage.removeItem(NS+"-intent")}catch(e){}
+  if(intent&&has){setView("deck");runIntent(intent);}
 })();
 update();
 (function(){let f=null;try{f=JSON.parse(sessionStorage.getItem(NS+"-focus"));sessionStorage.removeItem(NS+"-focus")}catch(e){}
