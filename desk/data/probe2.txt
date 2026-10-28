@@ -21,7 +21,7 @@ access-control-allow-origin: http://localhost:3000
 access-control-allow-methods: GET, POST, PUT, PATCH, OPTIONS, DELETE, HEAD
 access-control-allow-headers: Content-Type, X-CSRFToken, Accept, Authorization, Content-Disposition, Access-Control-Allow-Credentials
 access-control-allow-credentials: true
-{"id":1,"name":"Fun With Fungus","createdAt":"2017-12-12T18:06:32.147000Z","updatedAt":"2018-03-12T05:12:58Z","deckFormat":3,"edhBracket":null,"game":null,"description":"{\"ops\": [{\"insert\": \"Add a description...\"}]}","viewCount":24678,"featured":"https://storage.googleapis.com/archidekt-card-i
+{"id":1,"name":"Fun With Fungus","createdAt":"2017-12-12T18:06:32.147000Z","updatedAt":"2018-03-12T05:12:58Z","deckFormat":3,"edhBracket":null,"game":null,"description":"{\"ops\": [{\"insert\": \"Add a description...\"}]}","viewCount":24702,"featured":"https://storage.googleapis.com/archidekt-card-i
 == https://api.scryfall.com/cards/search?q=Anello&include_multilingual=true
 HTTP/2 200 
 access-control-allow-headers: Accept, Accept-Charset, Accept-Language, Authorization, Cache-Control, Content-Language, Content-Type, DNT, Host, If-Modified-Since, Keep-Alive, Origin, Referer, User-Agent, X-Requested-With
