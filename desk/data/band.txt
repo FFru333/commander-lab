@@ -1,13 +1,13 @@
 Estimating resolution as 241
 Detected 11 diacritics
 Estimating resolution as 241
-{"feed":0,"psm3":{"ms":130,"lines":["Ril RT AR I 2) SE"]},"psm6":{"ms":326,"lines":["8 q | 8A A","8 f / A edd i £","2 Wn / \\ 1","E / Li 4 #7 i BF |",": AM ei"]},"psm11":{"ms":101,"lines":["1 \\","fl","7","Ls","No"]},"slide":{"ms":174,"out":[[259,"",0],[299,"| EY i",16],[339,"",0],[379,"",0],[419,"",0],[459,"",0]]}}
+{"feed":0,"psm3":{"ms":134,"lines":["Ril RT AR I 2) SE"]},"psm6":{"ms":319,"lines":["8 q | 8A A","8 f / A edd i £","2 Wn / \\ 1","E / Li 4 #7 i BF |",": AM ei"]},"psm11":{"ms":102,"lines":["1 \\","fl","7","Ls","No"]},"slide":{"ms":177,"out":[[259,"",0],[299,"| EY i",16],[339,"",0],[379,"",0],[419,"",0],[459,"",0]]}}
 Estimating resolution as 553
 Estimating resolution as 553
-{"feed":1,"psm3":{"ms":25,"lines":[]},"psm6":{"ms":124,"lines":["g | gto” &i oe / ¢","| ng","8, Sk Te 7 b:"]},"psm11":{"ms":104,"lines":["I","E","Lab","{eM","|"]},"slide":{"ms":286,"out":[[259,"",0],[299,"",0],[339,"1 mina",20],[379,"AER sR a |",37],[419,"{ER BAN,",37],[459,"il Rio PE ~~ LH",24]]}}
+{"feed":1,"psm3":{"ms":26,"lines":[]},"psm6":{"ms":130,"lines":["g | gto” &i oe / ¢","| ng","8, Sk Te 7 b:"]},"psm11":{"ms":103,"lines":["I","E","Lab","{eM","|"]},"slide":{"ms":285,"out":[[259,"",0],[299,"",0],[339,"1 mina",20],[379,"AER sR a |",37],[419,"{ER BAN,",37],[459,"il Rio PE ~~ LH",24]]}}
 Estimating resolution as 146
 Estimating resolution as 146
-{"feed":2,"psm3":{"ms":31,"lines":[]},"psm6":{"ms":296,"lines":["Bot oh 4","if Kory wr","a Rin XL EL","4 5 \\ i","£) EE 4"]},"psm11":{"ms":62,"lines":["ji","£0","hs","\\e.","Si"]},"slide":{"ms":242,"out":[[259,"i Tey i",14],[299,"i PL 4 | i NG J ab",42],[339,"",0],[379,"IS \\. $s |",34],[419,"",0],[459,"",0]]}}
+{"feed":2,"psm3":{"ms":30,"lines":[]},"psm6":{"ms":297,"lines":["Bot oh 4","if Kory wr","a Rin XL EL","4 5 \\ i","£) EE 4"]},"psm11":{"ms":62,"lines":["ji","£0","hs","\\e.","Si"]},"slide":{"ms":244,"out":[[259,"i Tey i",14],[299,"i PL 4 | i NG J ab",42],[339,"",0],[379,"IS \\. $s |",34],[419,"",0],[459,"",0]]}}
 Estimating resolution as 475
 Estimating resolution as 475
-{"feed":3,"psm3":{"ms":23,"lines":[]},"psm6":{"ms":53,"lines":["Nl — —"]},"psm11":{"ms":29,"lines":["WN","|"]},"slide":{"ms":253,"out":[[259,"",0],[299,"(1 ==",21],[339,"BRE oa |",39],[379,"",0],[419,"i SE",14],[459,"i —— ——",16]]}}
+{"feed":3,"psm3":{"ms":23,"lines":[]},"psm6":{"ms":53,"lines":["Nl — —"]},"psm11":{"ms":30,"lines":["WN","|"]},"slide":{"ms":256,"out":[[259,"",0],[299,"(1 ==",21],[339,"BRE oa |",39],[379,"",0],[419,"i SE",14],[459,"i —— ——",16]]}}
