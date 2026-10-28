@@ -1115,7 +1115,7 @@ label select,label input,label textarea,.cmrow select,.cmnew input{font-family:v
 .scanwrap{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:14px;align-items:start}
 .scanview{position:relative;aspect-ratio:3/4;border-radius:var(--r-sm);overflow:hidden;background:#0d1117}
 .scanview video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
-.scanguide{position:absolute;left:6%;right:6%;top:30%;height:13%;border:2px solid var(--a2);border-radius:12px;box-shadow:0 0 0 999px rgba(13,17,23,.5)}
+.scanguide{position:absolute;left:5%;right:5%;top:24%;height:26%;border:2px solid var(--a2);border-radius:12px;box-shadow:0 0 0 999px rgba(13,17,23,.5)}
 .scanguide span{position:absolute;left:10px;top:-24px;font:600 11px/1 var(--fm);letter-spacing:.12em;text-transform:uppercase;color:#fff}
 .scanmsg{position:absolute;left:10px;right:10px;bottom:10px;margin:0;padding:8px 12px;border-radius:999px;background:rgba(13,17,23,.75);color:#fff;font-size:13px;text-align:center}
 .scanmsg:empty{display:none}
@@ -1413,14 +1413,14 @@ label select,label input,label textarea,.cmrow select,.cmnew input{font-family:v
     </div>
     <div data-ip="scan" hidden>
       <div class="scanwrap">
-        <div class="scanview" id="scanView"><video id="scanVid" playsinline muted></video><div class="scanguide" id="scanGuide" aria-hidden="true"><span>Card name here</span></div><p class="scanmsg" id="scanMsg" role="status"></p></div>
+        <div class="scanview" id="scanView"><video id="scanVid" playsinline muted></video><div class="scanguide" id="scanGuide" aria-hidden="true"><span>Card name inside this area</span></div><p class="scanmsg" id="scanMsg" role="status"></p></div>
         <div class="scanside">
           <div class="exrow scanctl"><button type="button" id="scanShot" class="btn-acc" aria-pressed="false">Pause</button><label class="tog"><input type="checkbox" id="scanAuto"> Auto-add</label><label class="btnlink scanfile">Photo<input type="file" id="scanFile" accept="image/*" capture="environment" hidden></label></div>
           <div class="scanres" id="scanRes"></div>
           <div class="scanlist" id="scanList"></div>
         </div>
       </div>
-      <p class="note">Point the camera at the card name so it sits inside the strip; the rest of the card does not matter. English and Italian names are recognised. The camera image stays on this device.</p>
+      <p class="note">Point the camera at the card name so it sits inside the highlighted area; the rest of the card does not matter, and it does not need to be perfectly lined up. English and Italian names are recognised. The camera image stays on this device.</p>
     </div>
     <div class="imgrid">
       <label>Deck name<input id="imName" placeholder="e.g. Atraxa superfriends"></label>
@@ -3549,20 +3549,24 @@ function loadNames(){if(NX.ready)return NX.ready;NX.ready=(async()=>{
 function lev(a,b){if(a===b)return 0;const m=a.length,n=b.length;if(!m)return n;if(!n)return m;let p=new Array(n+1),c=new Array(n+1);for(let j=0;j<=n;j++)p[j]=j;
   for(let i=1;i<=m;i++){c[0]=i;const ai=a.charCodeAt(i-1);for(let j=1;j<=n;j++)c[j]=Math.min(p[j]+1,c[j-1]+1,p[j-1]+(ai===b.charCodeAt(j-1)?0:1));[p,c]=[c,p];}return p[n];}
 const simOf=(a,b)=>1-lev(a,b)/Math.max(a.length,b.length);
-/* best name for a line of OCR text; tolerant of junk before and after the title (frame edges, mana symbols) */
+/* best name for a line of OCR text; tolerant of junk around the title (frame edges, mana symbols) but
+   every real word left out costs points, so "Terror of the Pe…" does not collapse to "Terror" */
 function matchName(raw){const k=nkey(raw);if(k.length<3||!NX.keys.length)return null;
-  const hits=new Map();trigrams(k).forEach(g=>{const a=NX.tri.get(g);if(a&&a.length<4000)a.forEach(id=>hits.set(id,(hits.get(id)||0)+1));});
-  const cand=[...hits.entries()].sort((a,b)=>b[1]-a[1]).slice(0,60);let best=null,second=null;
-  const words=k.split(" ");
+  const hits=new Map();trigrams(k).forEach(g=>{const a=NX.tri.get(g);if(a&&a.length<5000)a.forEach(id=>hits.set(id,(hits.get(id)||0)+1));});
+  const cand=[...hits.entries()].sort((a,b)=>b[1]-a[1]).slice(0,80);let best=null,second=null;
+  const words=k.split(" ");const real=w=>/[a-z]{2,}/.test(w);
   cand.forEach(([id])=>{const key=NX.keys[id];let s=simOf(k,key);
-    if(k.length>key.length){for(let a=0;a<words.length;a++)for(let b=words.length;b>a;b--){const sub=words.slice(a,b).join(" ");if(Math.abs(sub.length-key.length)>4)continue;s=Math.max(s,simOf(sub,key)-0.03);}}
+    for(let a=0;a<words.length;a++)for(let b=words.length;b>a;b--){if(a===0&&b===words.length)continue;const sub=words.slice(a,b).join(" ");if(Math.abs(sub.length-key.length)>4)continue;
+      const dropped=words.slice(0,a).concat(words.slice(b)).filter(real).length;s=Math.max(s,simOf(sub,key)-0.06*dropped);}
+    if(k.length<key.length&&k.length>=key.length*0.6)s=Math.max(s,simOf(k,key.slice(0,k.length))*Math.pow(k.length/key.length,0.35));
     const r={id,name:NX.names[id],from:NX.from[id],key,sim:s};
     if(!best||s>best.sim){if(best&&best.name!==r.name)second=best;best=r;}else if(r.name!==best.name&&(!second||s>second.sim))second=r;});
-  if(!best)return null;best.margin=best.sim-(second?second.sim:0);return best;}
+  if(!best)return null;best.margin=best.sim-(second?second.sim:0);best.raw=raw.trim();return best;}
+function bestOfLines(lines){let b=null;lines.forEach(t=>{const m=matchName(t);if(m&&(!b||m.sim>b.sim))b=m;});return b;}
 function scMsg(t){document.getElementById("scanMsg").textContent=t||"";}
 function loadTess(){if(window.Tesseract)return Promise.resolve();return new Promise((res,rej)=>{const s=document.createElement("script");s.src="https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js";s.onload=res;s.onerror=()=>rej(new Error("The text reader could not be downloaded."));document.head.appendChild(s);});}
 function scWorker(){if(SC.worker)return Promise.resolve(SC.worker);if(SC.wload)return SC.wload;
-  SC.wload=loadTess().then(()=>Tesseract.createWorker("eng")).then(async w=>{await w.setParameters({tessedit_pageseg_mode:"7",preserve_interword_spaces:"1"});SC.worker=w;SC.wload=null;return w;}).catch(e=>{SC.wload=null;throw e;});return SC.wload;}
+  SC.wload=loadTess().then(()=>Tesseract.createWorker("eng")).then(async w=>{await w.setParameters({tessedit_pageseg_mode:"11"});SC.worker=w;SC.wload=null;return w;}).catch(e=>{SC.wload=null;throw e;});return SC.wload;}
 async function startScan(){const V=document.getElementById("scanVid");renderScanList();scMsg("Getting ready…");
   const prep=Promise.all([scWorker(),loadNames()]).catch(e=>{scMsg(e.message);throw e;});
   if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){scMsg("This browser cannot open the camera here. Use Photo instead.");return;}
@@ -3573,15 +3577,17 @@ async function startScan(){const V=document.getElementById("scanVid");renderScan
   SC.run=true;setRunBtn();scMsg("Point at the card name.");loop();}
 function stopScan(){SC.run=false;clearTimeout(SC.timer);if(SC.stream){SC.stream.getTracks().forEach(t=>t.stop());SC.stream=null;}const V=document.getElementById("scanVid");if(V)V.srcObject=null;setRunBtn();}
 function setRunBtn(){const b=document.getElementById("scanShot");if(b){b.textContent=SC.run?"Pause":"Resume";b.setAttribute("aria-pressed",SC.run);}}
-/* the title strip on screen, mapped to video pixels (the video uses object-fit: cover), upscaled to ~100 px tall */
-function stripCanvas(){const V=document.getElementById("scanVid"),G=document.getElementById("scanGuide"),box=document.getElementById("scanView").getBoundingClientRect(),g=G.getBoundingClientRect();
+/* the reading band on screen, mapped to video pixels (the video uses object-fit: cover) */
+function bandCanvas(){const V=document.getElementById("scanVid"),G=document.getElementById("scanGuide"),box=document.getElementById("scanView").getBoundingClientRect(),g=G.getBoundingClientRect();
   const vw=V.videoWidth,vh=V.videoHeight;if(!vw)return null;const s=Math.max(box.width/vw,box.height/vh);const ox=(box.width-vw*s)/2,oy=(box.height-vh*s)/2;
   const x=Math.max(0,(g.left-box.left-ox)/s),y=Math.max(0,(g.top-box.top-oy)/s),w=Math.min(vw-x,g.width/s),h=Math.min(vh-y,g.height/s);
-  const k=110/h,c=document.createElement("canvas");c.width=Math.round(w*k);c.height=110;const ctx=c.getContext("2d");ctx.filter="grayscale(1) contrast(1.5)";ctx.drawImage(V,x,y,w,h,0,0,c.width,c.height);return c;}
-async function readStrip(){const w=await scWorker();const c=stripCanvas();if(!c)return null;const d=(await w.recognize(c)).data;return d.text||"";}
+  const k=Math.min(1.6,1000/w),c=document.createElement("canvas");c.width=Math.round(w*k);c.height=Math.round(h*k);const ctx=c.getContext("2d");ctx.filter="grayscale(1) contrast(1.4)";ctx.drawImage(V,x,y,w,h,0,0,c.width,c.height);
+  window.__scanGeom={vw,vh,x:Math.round(x),y:Math.round(y),w:Math.round(w),h:Math.round(h)};return c;}
+async function readBand(){const w=await scWorker();const c=bandCanvas();if(!c)return [];const d=(await w.recognize(c)).data;
+  return (d.lines||[]).map(l=>l.text||"").filter(t=>t.trim().length>2);}
 async function loop(){clearTimeout(SC.timer);if(!SC.run)return;
-  if(!SC.busy){SC.busy=true;let raw="";try{raw=await readStrip()||"";}catch(e){}SC.busy=false;
-    const m=matchName(raw);window.__scanDebug={raw,m};
+  if(!SC.busy){SC.busy=true;let lines=[];try{lines=await readBand();}catch(e){}SC.busy=false;const raw=lines.join(" | ");
+    const m=bestOfLines(lines);window.__scanDebug={raw,m,geom:window.__scanGeom};
     const ok=m&&(m.sim>=0.9||(m.sim>=0.78&&m.margin>=0.06));
     if(ok){const stable=SC.prev&&SC.prev.name===m.name;SC.prev=m;
       if(m.sim>=0.93||stable)await recognised(m);else scMsg("Reading… "+m.name+"?");}
@@ -3615,8 +3621,8 @@ async function scanPhoto(f){SC.busy=true;scMsg("Reading the photo…");
   try{await loadNames();const w=await scWorker();const im=new Image();im.src=URL.createObjectURL(f);await im.decode();
     const k=Math.min(1,1600/Math.max(im.naturalWidth,im.naturalHeight));const c=document.createElement("canvas");c.width=Math.round(im.naturalWidth*k);c.height=Math.round(im.naturalHeight*k);
     const ctx=c.getContext("2d");ctx.filter="grayscale(1) contrast(1.3)";ctx.drawImage(im,0,0,c.width,c.height);URL.revokeObjectURL(im.src);
-    await w.setParameters({tessedit_pageseg_mode:"3"});const d=(await w.recognize(c)).data;await w.setParameters({tessedit_pageseg_mode:"7"});
-    let best=null;(d.lines||[]).forEach(l=>{const m=matchName(l.text);if(m&&(!best||m.sim>best.sim))best=m;});
+    await w.setParameters({tessedit_pageseg_mode:"3"});const d=(await w.recognize(c)).data;await w.setParameters({tessedit_pageseg_mode:"11"});
+    const best=bestOfLines((d.lines||[]).map(l=>l.text||""));
     SC.busy=false;if(best&&best.sim>=0.78){SC.last=null;await recognised(best);}else showResult({fail:true,title:""});}
   catch(e){SC.busy=false;scMsg(e.message||"The photo could not be read.");}}
 (function(){const P=document.querySelector('#importModal [data-ip="scan"]');if(!P)return;
