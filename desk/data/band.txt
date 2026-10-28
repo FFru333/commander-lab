@@ -1,81 +1,13 @@
-Estimating resolution as 291
-Estimating resolution as 291
-Detected 13 diacritics
-{"feed":0,"psm3":{"ms":201,"lines":["> tl S","li, Tempesta Primo"]},"psm6":{"ms":399,"lines":["— Oe Re","Etali, Tempesta Primordiale dee)","Tn ae Kk ys","2 7 |","5 & - a E:"]},"psm11":{"ms":183,"lines":["a","ld","Etal , Tempesta Prir imo","le","9"]},"slide":{"ms":395,"out":[[259,"a SY a",31],[299,"- - cr ~~",26],[339,"3 Etali, Tempesta Primordiale 42@)",68],[379,"",0],[419,"",0],[459,"",0]]}}
-Estimating resolution as 331
-Estimating resolution as 331
-Bottom=0, top=80, base=0, x=0
-
-Total count=0
-Min=0.00 Really=0
-Lower quartile=0.00
-Median=0.00, ile(0.5)=0.00
-Upper quartile=0.00
-Max=0.00 Really=0
-Range=1
-Mean= 0.00
-SD= 0.00
-{"feed":1,"psm3":{"ms":222,"lines":["DD __\\","ly","Lathliss, Dragon Queen dee)"]},"psm6":{"ms":93,"lines":["Lathliss, Dragon Queen dee)!"]},"psm11":{"ms":233,"lines":["me","pres TREES N","dee)","Lathliss, Dragon Queen","Sa."]},"slide":{"ms":508,"out":[[259,"EE",11],[299,"EE aN a",34],[339,"",0],[379,"{ { Lathliss, Dragon GEE 42)",67],[419,"3 Salas = — —— 'B",23],[459,"Nl. J = In",31]]}}
-Estimating resolution as 348
-Estimating resolution as 348
-Estimating resolution as 348
-Estimating resolution as 348
-Bottom=0, top=80, base=0, x=0
-
-Total count=0
-Min=0.00 Really=0
-Lower quartile=0.00
-Median=0.00, ile(0.5)=0.00
-Upper quartile=0.00
-Max=0.00 Really=0
-Range=1
-Mean= 0.00
-SD= 0.00
-Bottom=0, top=80, base=0, x=0
-
-Total count=0
-Min=0.00 Really=0
-Lower quartile=0.00
-Median=0.00, ile(0.5)=0.00
-Upper quartile=0.00
-Max=0.00 Really=0
-Range=1
-Mean= 0.00
-SD= 0.00
-{"feed":2,"psm3":{"ms":37,"lines":[]},"psm6":{"ms":109,"lines":["ll Terror of the Peaks 3ee","5 a"]},"psm11":{"ms":55,"lines":[]},"slide":{"ms":571,"out":[[259,"EE",11],[299,"EE",11],[339,"sa",21],[379,"J = = kad —\\",54],[419,"f Terror of the Peali 3ee |",69],[459,") error o € Can : = A",62]]}}
-Estimating resolution as 1128
-Estimating resolution as 1128
-Bottom=0, top=80, base=0, x=0
-
-Total count=0
-Min=0.00 Really=0
-Lower quartile=0.00
-Median=0.00, ile(0.5)=0.00
-Upper quartile=0.00
-Max=0.00 Really=0
-Range=1
-Mean= 0.00
-SD= 0.00
-Bottom=0, top=80, base=0, x=0
-
-Total count=0
-Min=0.00 Really=0
-Lower quartile=0.00
-Median=0.00, ile(0.5)=0.00
-Upper quartile=0.00
-Max=0.00 Really=0
-Range=1
-Mean= 0.00
-SD= 0.00
-Bottom=0, top=80, base=0, x=0
-
-Total count=0
-Min=0.00 Really=0
-Lower quartile=0.00
-Median=0.00, ile(0.5)=0.00
-Upper quartile=0.00
-Max=0.00 Really=0
-Range=1
-Mean= 0.00
-SD= 0.00
-{"feed":3,"psm3":{"ms":30,"lines":[]},"psm6":{"ms":37,"lines":[]},"psm11":{"ms":91,"lines":["rR)"]},"slide":{"ms":641,"out":[[259,"EE",11],[299,"EE",11],[339,"EE",11],[379,": CN",35],[419,"- ey gee yen pe EE a",33],[459,"a = Ring TL ee 0)",52]]}}
+Estimating resolution as 241
+Detected 11 diacritics
+Estimating resolution as 241
+{"feed":0,"psm3":{"ms":130,"lines":["Ril RT AR I 2) SE"]},"psm6":{"ms":326,"lines":["8 q | 8A A","8 f / A edd i £","2 Wn / \\ 1","E / Li 4 #7 i BF |",": AM ei"]},"psm11":{"ms":101,"lines":["1 \\","fl","7","Ls","No"]},"slide":{"ms":174,"out":[[259,"",0],[299,"| EY i",16],[339,"",0],[379,"",0],[419,"",0],[459,"",0]]}}
+Estimating resolution as 553
+Estimating resolution as 553
+{"feed":1,"psm3":{"ms":25,"lines":[]},"psm6":{"ms":124,"lines":["g | gto” &i oe / ¢","| ng","8, Sk Te 7 b:"]},"psm11":{"ms":104,"lines":["I","E","Lab","{eM","|"]},"slide":{"ms":286,"out":[[259,"",0],[299,"",0],[339,"1 mina",20],[379,"AER sR a |",37],[419,"{ER BAN,",37],[459,"il Rio PE ~~ LH",24]]}}
+Estimating resolution as 146
+Estimating resolution as 146
+{"feed":2,"psm3":{"ms":31,"lines":[]},"psm6":{"ms":296,"lines":["Bot oh 4","if Kory wr","a Rin XL EL","4 5 \\ i","£) EE 4"]},"psm11":{"ms":62,"lines":["ji","£0","hs","\\e.","Si"]},"slide":{"ms":242,"out":[[259,"i Tey i",14],[299,"i PL 4 | i NG J ab",42],[339,"",0],[379,"IS \\. $s |",34],[419,"",0],[459,"",0]]}}
+Estimating resolution as 475
+Estimating resolution as 475
+{"feed":3,"psm3":{"ms":23,"lines":[]},"psm6":{"ms":53,"lines":["Nl — —"]},"psm11":{"ms":29,"lines":["WN","|"]},"slide":{"ms":253,"out":[[259,"",0],[299,"(1 ==",21],[339,"BRE oa |",39],[379,"",0],[419,"i SE",14],[459,"i —— ——",16]]}}
