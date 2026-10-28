@@ -3559,8 +3559,8 @@ function cropTo(src,x,y,w,h){const k=Math.max(1100/w,Math.min(1,1700/Math.max(w,
 function region(card,k){const r=SC_R[k],W=card.width,H=card.height;const c=document.createElement("canvas");const sw=Math.round(r[2]*W),sh=Math.round(r[3]*H);c.width=sw*2;c.height=sh*2;
   const ctx=c.getContext("2d");ctx.filter="grayscale(1) contrast(1.35)";ctx.drawImage(card,Math.round(r[0]*W),Math.round(r[1]*H),sw,sh,0,0,sw*2,sh*2);return c;}
 function parseBottom(t){const U=t.toUpperCase();const lines=U.split(/\n|\|/).map(x=>x.replace(/[^A-Z0-9\/ ]/g," ").replace(/\s+/g," ").trim()).filter(Boolean);
-  let cn=null;let m=U.match(/\b0*(\d{1,4})\s*\/\s*\d{2,4}\b/);if(m)cn=m[1];
-  if(!cn){m=U.match(/(?:^|[\s|])[CURMSLTPB]\s*((?:\d\s?){2,4})(?=\s|$|\|)/m);if(m)cn=m[1].replace(/\s/g,"").replace(/^0+(?=\d)/,"");}
+  let cn=null;let m=U.match(/(?:^|[\s|])[CURMSLTPB]\s*((?:\d\s?){2,4})(?=\s|$|\|)/m);if(m)cn=m[1].replace(/\s/g,"").replace(/^0+(?=\d)/,"");
+  if(!cn){m=U.match(/\b0*(\d{1,4})\s*\/\s*\d{3}\b/);if(m)cn=m[1];}
   if(!cn){m=U.match(/\b0(\d{2,3})\b/);if(m)cn=m[1].replace(/^0+(?=\d)/,"");}
   let set=null,lang=null;
   for(const l of lines){const tk=l.split(" ");const i=tk.findIndex((x,j)=>j>0&&SC_LANG.has(x));if(i>0&&/^[A-Z0-9]{3,5}$/.test(tk[i-1])&&/[A-Z]/.test(tk[i-1])){set=tk[i-1];lang=tk[i];break;}}
