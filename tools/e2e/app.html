@@ -3569,7 +3569,7 @@ function loadTess(){if(window.Tesseract)return Promise.resolve();return new Prom
 function scWorker(){if(SC.worker)return Promise.resolve(SC.worker);if(SC.wload)return SC.wload;
   SC.wload=loadTess().then(()=>Tesseract.createWorker("eng")).then(async w=>{await w.setParameters({tessedit_pageseg_mode:"6"});SC.worker=w;SC.wload=null;return w;}).catch(e=>{SC.wload=null;throw e;});return SC.wload;}
 async function startScan(){const V=document.getElementById("scanVid");renderScanList();scMsg("Getting ready…");
-  const prep=Promise.all([scWorker(),loadNames()]).catch(e=>{scMsg(e.message);throw e;});
+  const prep=Promise.all([scWorker(),loadNames()]).catch(e=>{scMsg(e.message);throw e;});prep.catch(()=>{});
   if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){scMsg("This browser cannot open the camera here. Use Photo instead.");return;}
   try{SC.stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:"environment"},width:{ideal:1920},height:{ideal:1080}},audio:false});
     V.srcObject=SC.stream;await V.play();}

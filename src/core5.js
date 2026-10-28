@@ -79,95 +79,109 @@ document.getElementById("imPaste").addEventListener("click",async()=>{const st=d
     document.getElementById("imText").value=t;setImTab("text");imPreview();}
   catch(e){st.textContent="This browser did not allow reading the clipboard. Long-press in the Text tab and choose Paste.";}});
 
-/* ---------- scan real cards: camera → OCR (title + collector line) → Scryfall ---------- */
-const SC={stream:null,worker:null,wload:null,busy:false,auto:false,timer:null,last:null,cur:null,list:[]};
-const SC_LANG=new Set(["EN","IT","DE","FR","ES","PT","JA","JP","KO","RU","ZHS","ZHT","PH","CS","CT"]);
-const SC_R={title:[0.03,0.02,0.82,0.10],bottom:[0.0,0.9,0.62,0.1]};
+/* ---------- scan real cards: read only the title line, match it against a local list of card names ---------- */
+const SC={stream:null,worker:null,wload:null,busy:false,run:false,auto:false,timer:null,last:null,cur:null,list:[],prev:null,seen:0};
+const NAMES_URLS=l=>(location.hostname.endsWith("github.io")?["data/names-"+l+".json"]:[]).concat(["https://ffru333.github.io/commander-lab/desk/data/names-"+l+".json","https://raw.githubusercontent.com/FFru333/commander-lab/gh-pages/desk/data/names-"+l+".json"]);
+const NX={ready:null,keys:[],names:[],from:[],tri:new Map()};
+const nkey=s=>String(s||"").normalize("NFD").replace(/[̀-ͯ]/g,"").toLowerCase().replace(/[^a-z0-9 ]+/g," ").replace(/\s+/g," ").trim();
+function trigrams(k){const t=" "+k+" ";const out=new Set();for(let i=0;i<t.length-2;i++)out.add(t.slice(i,i+3));return out;}
+function nxAdd(key,name,from){if(key.length<3)return;const id=NX.keys.length;NX.keys.push(key);NX.names.push(name);NX.from.push(from);
+  trigrams(key).forEach(g=>{let a=NX.tri.get(g);if(!a)NX.tri.set(g,a=[]);a.push(id);});}
+async function getJSON(urls){for(const u of urls){try{const r=await fetch(u);if(r.ok)return await r.json();}catch(e){}}return null;}
+function loadNames(){if(NX.ready)return NX.ready;NX.ready=(async()=>{
+  const en=await getJSON(["https://api.scryfall.com/catalog/card-names"]);if(!en||!en.data)throw new Error("The list of card names could not be downloaded.");
+  en.data.forEach(n=>{nxAdd(nkey(n),n,"en");if(n.includes(" // "))n.split(" // ").forEach(f=>nxAdd(nkey(f),n,"en"));});
+  const it=await getJSON(NAMES_URLS("it"));if(it)Object.keys(it).forEach(p=>{nxAdd(nkey(p),it[p],"it");if(p.includes(" // "))p.split(" // ").forEach(f=>nxAdd(nkey(f),it[p],"it"));});
+  return true;})().catch(e=>{NX.ready=null;throw e;});return NX.ready;}
+function lev(a,b){if(a===b)return 0;const m=a.length,n=b.length;if(!m)return n;if(!n)return m;let p=new Array(n+1),c=new Array(n+1);for(let j=0;j<=n;j++)p[j]=j;
+  for(let i=1;i<=m;i++){c[0]=i;const ai=a.charCodeAt(i-1);for(let j=1;j<=n;j++)c[j]=Math.min(p[j]+1,c[j-1]+1,p[j-1]+(ai===b.charCodeAt(j-1)?0:1));[p,c]=[c,p];}return p[n];}
+const simOf=(a,b)=>1-lev(a,b)/Math.max(a.length,b.length);
+/* best name for a line of OCR text; tolerant of junk around the title (frame edges, mana symbols) but
+   every real word left out costs points, so "Terror of the Pe…" does not collapse to "Terror" */
+function matchName(raw){const k=nkey(raw);if(k.length<3||!NX.keys.length)return null;
+  const hits=new Map();trigrams(k).forEach(g=>{const a=NX.tri.get(g);if(a&&a.length<5000)a.forEach(id=>hits.set(id,(hits.get(id)||0)+1));});
+  const cand=[...hits.entries()].sort((a,b)=>b[1]-a[1]).slice(0,80);let best=null,second=null;
+  const words=k.split(" ");const real=w=>/[a-z]{2,}/.test(w);
+  cand.forEach(([id])=>{const key=NX.keys[id];let s=simOf(k,key);
+    for(let a=0;a<words.length;a++)for(let b=words.length;b>a;b--){if(a===0&&b===words.length)continue;const sub=words.slice(a,b).join(" ");if(Math.abs(sub.length-key.length)>4)continue;
+      const dropped=words.slice(0,a).concat(words.slice(b)).filter(real).length;s=Math.max(s,simOf(sub,key)-0.06*dropped);}
+    if(k.length<key.length&&k.length>=key.length*0.6)s=Math.max(s,simOf(k,key.slice(0,k.length))*Math.pow(k.length/key.length,0.35));
+    const r={id,name:NX.names[id],from:NX.from[id],key,sim:s};
+    if(!best||s>best.sim){if(best&&best.name!==r.name)second=best;best=r;}else if(r.name!==best.name&&(!second||s>second.sim))second=r;});
+  if(!best)return null;best.margin=best.sim-(second?second.sim:0);best.raw=raw.trim();return best;}
+const JUNK=/wizards of the|™|©|illus|\b(19|20)\d\d\b/i;
+function bestOfLines(lines){let b=null;lines.forEach(t=>{if(JUNK.test(t))return;const m=matchName(t);if(m&&(!b||m.sim>b.sim))b=m;});return b;}
 function scMsg(t){document.getElementById("scanMsg").textContent=t||"";}
 function loadTess(){if(window.Tesseract)return Promise.resolve();return new Promise((res,rej)=>{const s=document.createElement("script");s.src="https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js";s.onload=res;s.onerror=()=>rej(new Error("The text reader could not be downloaded."));document.head.appendChild(s);});}
 function scWorker(){if(SC.worker)return Promise.resolve(SC.worker);if(SC.wload)return SC.wload;
-  SC.wload=loadTess().then(()=>Tesseract.createWorker("eng")).then(w=>{SC.worker=w;SC.wload=null;return w;}).catch(e=>{SC.wload=null;throw e;});return SC.wload;}
-async function startScan(){const V=document.getElementById("scanVid");renderScanList();
-  scMsg("Starting the camera…");scWorker().catch(()=>{});
+  SC.wload=loadTess().then(()=>Tesseract.createWorker("eng")).then(async w=>{await w.setParameters({tessedit_pageseg_mode:"6"});SC.worker=w;SC.wload=null;return w;}).catch(e=>{SC.wload=null;throw e;});return SC.wload;}
+async function startScan(){const V=document.getElementById("scanVid");renderScanList();scMsg("Getting ready…");
+  const prep=Promise.all([scWorker(),loadNames()]).catch(e=>{scMsg(e.message);throw e;});prep.catch(()=>{});
   if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){scMsg("This browser cannot open the camera here. Use Photo instead.");return;}
   try{SC.stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:"environment"},width:{ideal:1920},height:{ideal:1080}},audio:false});
-    V.srcObject=SC.stream;await V.play();scMsg("Fit the card in the frame, then tap Scan.");}
-  catch(e){scMsg(e&&e.name==="NotAllowedError"?"Camera permission was refused. Allow it in the browser settings, or use Photo.":"The camera is not available. Use Photo instead.");}}
-function stopScan(){clearTimeout(SC.timer);SC.auto=false;const a=document.getElementById("scanAuto");if(a)a.checked=false;
-  if(SC.stream){SC.stream.getTracks().forEach(t=>t.stop());SC.stream=null;}const V=document.getElementById("scanVid");if(V)V.srcObject=null;}
-/* the guide rectangle, mapped from screen pixels to video pixels (video uses object-fit: cover) */
-function cardCanvasFromVideo(){const V=document.getElementById("scanVid"),G=document.getElementById("scanGuide"),box=document.getElementById("scanView").getBoundingClientRect(),g=G.getBoundingClientRect();
+    V.srcObject=SC.stream;await V.play();}
+  catch(e){scMsg(e&&e.name==="NotAllowedError"?"Camera permission was refused. Allow it in the browser settings, or use Photo.":"The camera is not available. Use Photo instead.");return;}
+  try{await prep;}catch(e){return;}
+  SC.run=true;SC.readyAt=performance.now();setRunBtn();scMsg("Point at the card name.");loop();}
+function stopScan(){SC.run=false;clearTimeout(SC.timer);if(SC.stream){SC.stream.getTracks().forEach(t=>t.stop());SC.stream=null;}const V=document.getElementById("scanVid");if(V)V.srcObject=null;setRunBtn();}
+function setRunBtn(){const b=document.getElementById("scanShot");if(b){b.textContent=SC.run?"Pause":"Resume";b.setAttribute("aria-pressed",SC.run);}}
+/* the reading band on screen, mapped to video pixels (the video uses object-fit: cover) */
+function bandCanvas(){const V=document.getElementById("scanVid"),G=document.getElementById("scanGuide"),box=document.getElementById("scanView").getBoundingClientRect(),g=G.getBoundingClientRect();
   const vw=V.videoWidth,vh=V.videoHeight;if(!vw)return null;const s=Math.max(box.width/vw,box.height/vh);const ox=(box.width-vw*s)/2,oy=(box.height-vh*s)/2;
-  let x=(g.left-box.left-ox)/s,y=(g.top-box.top-oy)/s,w=g.width/s,h=g.height/s;const mx=w*.07,my=h*.07;x=Math.max(0,x-mx);y=Math.max(0,y-my);w=Math.min(vw-x,w+2*mx);h=Math.min(vh-y,h+2*my);return cropTo(V,x,y,w,h);}
-function cropTo(src,x,y,w,h){const k=Math.max(1100/w,Math.min(1,1700/Math.max(w,h)));const W=Math.round(w*k),H=Math.round(h*k);const c=document.createElement("canvas");c.width=W;c.height=H;
-  const ctx=c.getContext("2d");ctx.filter="grayscale(1) contrast(1.3)";ctx.drawImage(src,x,y,w,h,0,0,W,H);return c;}
-function region(card,k){const r=SC_R[k],W=card.width,H=card.height;const c=document.createElement("canvas");const sw=Math.round(r[2]*W),sh=Math.round(r[3]*H);c.width=sw*2;c.height=sh*2;
-  const ctx=c.getContext("2d");ctx.filter="grayscale(1) contrast(1.35)";ctx.drawImage(card,Math.round(r[0]*W),Math.round(r[1]*H),sw,sh,0,0,sw*2,sh*2);return c;}
-function parseBottom(t){const U=t.toUpperCase();const lines=U.split(/\n|\|/).map(x=>x.replace(/[^A-Z0-9\/ ]/g," ").replace(/\s+/g," ").trim()).filter(Boolean);
-  let cn=null;let m=U.match(/(?:^|[\s|])[CURMSLTPB]\s*((?:\d\s?){2,4})(?=\s|$|\|)/m);if(m)cn=m[1].replace(/\s/g,"").replace(/^0+(?=\d)/,"");
-  if(!cn){m=U.match(/\b0*(\d{1,4})\s*\/\s*\d{3}\b/);if(m)cn=m[1];}
-  if(!cn){m=U.match(/\b0(\d{2,3})\b/);if(m)cn=m[1].replace(/^0+(?=\d)/,"");}
-  let set=null,lang=null;
-  for(const l of lines){const tk=l.split(" ");const i=tk.findIndex((x,j)=>j>0&&SC_LANG.has(x));if(i>0&&/^[A-Z0-9]{3,5}$/.test(tk[i-1])&&/[A-Z]/.test(tk[i-1])){set=tk[i-1];lang=tk[i];break;}}
-  if(!set){const l=lines[1]||lines[0]||"";const t2=l.split(" ").find(x=>/^[A-Z0-9]{3,5}$/.test(x)&&/[A-Z]/.test(x)&&/\d|[A-Z]{3}/.test(x)&&!SC_LANG.has(x));if(t2)set=t2;}
-  return {set:set&&set.toLowerCase(),lang:lang&&({JP:"ja",CS:"zhs",CT:"zht"}[lang]||lang.toLowerCase()),cn};}
-function cleanTitle(t){return t.replace(/[\r\n]+/g," ").replace(/^[^A-Za-zÀ-ÿ]+/,"").replace(/[^A-Za-zÀ-ÿ,'\- ]/g," ").split(/\s+/).filter((w,i,a)=>!(i===a.length-1&&w.length<3)).join(" ").replace(/\s+/g," ").trim();}
-function sameName(a,b){const A=norm(a||"").split(/\s+/).filter(x=>x.length>2),B=new Set(norm(b||"").split(/\s+/));if(!A.length)return false;return A.filter(x=>B.has(x)).length/A.length>=0.5;}
+  const x=Math.max(0,(g.left-box.left-ox)/s),y=Math.max(0,(g.top-box.top-oy)/s),w=Math.min(vw-x,g.width/s),h=Math.min(vh-y,g.height/s);
+  const k=Math.min(1.6,1000/w),c=document.createElement("canvas");c.width=Math.round(w*k);c.height=Math.round(h*k);const ctx=c.getContext("2d");ctx.filter="grayscale(1)";ctx.drawImage(V,x,y,w,h,0,0,c.width,c.height);
+  window.__scanGeom={vw,vh,x:Math.round(x),y:Math.round(y),w:Math.round(w),h:Math.round(h)};return c;}
+async function readBand(){const w=await scWorker();const c=bandCanvas();if(!c)return [];const d=(await w.recognize(c)).data;
+  return (d.lines||[]).map(l=>l.text||"").filter(t=>t.trim().length>2);}
+async function loop(){clearTimeout(SC.timer);if(!SC.run)return;
+  if(!SC.busy){SC.busy=true;const t0=performance.now();let lines=[];try{lines=await readBand();}catch(e){}SC.busy=false;const raw=lines.join(" | ");
+    const m=bestOfLines(lines);SC.cycles=(SC.cycles||0)+1;window.__scanDebug={raw,m,geom:window.__scanGeom,ms:Math.round(performance.now()-t0),cycles:SC.cycles,sinceReady:SC.readyAt?Math.round(performance.now()-SC.readyAt):null};
+    const ok=m&&(m.sim>=0.9||(m.sim>=0.78&&m.margin>=0.06));
+    if(ok){const stable=SC.prev&&SC.prev.name===m.name;SC.prev=m;
+      if(m.sim>=0.93||stable)await recognised(m);else scMsg("Reading… "+m.name+"?");}
+    else{SC.prev=null;if(Date.now()-SC.seen>1800)scMsg(raw.trim().length>2?"Hold the name inside the strip.":"Point at the card name.");}}
+  if(SC.run)SC.timer=setTimeout(loop,120);}
+async function recognised(m){SC.seen=Date.now();
+  if(SC.cur&&!SC.cur.fail&&SC.cur.name===m.name)return;
+  if(SC.last&&SC.last.name===m.name&&Date.now()-SC.last.at<4000)return;
+  const c=(m.from!=="en"&&await sfJSON("cards/search?unique=prints&include_multilingual=true&q="+encodeURIComponent('!"'+m.name+'" lang:'+m.from)).then(j=>j&&j.data&&j.data[0]))||await sfJSON("cards/named?exact="+encodeURIComponent(m.name));
+  if(!c){scMsg("Recognised "+m.name+", but Scryfall did not answer.");return;}
+  showResult(c);if(SC.auto)setTimeout(()=>{if(SC.cur===c)addScanned();},600);}
 async function sfJSON(u){try{const r=await fetch("https://api.scryfall.com/"+u);return r.ok?await r.json():null;}catch(e){return null;}}
-async function identify(titles,bottomTxt){const pb=parseBottom(bottomTxt);titles=titles.filter(Boolean);let byNum=null,byName=null;
-  if(pb.set&&pb.cn){const sets=[pb.set,pb.set.replace(/0/g,"o"),pb.set.replace(/o/g,"0")].filter((x,i,a)=>a.indexOf(x)===i);
-    for(const s of sets){byNum=(pb.lang&&pb.lang!=="en"&&await sfJSON("cards/"+s+"/"+pb.cn+"/"+pb.lang))||await sfJSON("cards/"+s+"/"+pb.cn);if(byNum)break;}}
-  if(byNum&&(!titles.length||titles.some(t=>sameName(t,byNum.printed_name||byNum.name)||sameName(t,byNum.name))))return byNum;
-  for(const t of titles){const f=await sfJSON("cards/named?fuzzy="+encodeURIComponent(t));
-    if(f){byName=f;break;}
-    const m=await sfJSON("cards/search?include_multilingual=true&q="+encodeURIComponent(t));if(m&&m.data&&m.data.length&&m.total_cards<=6){byName=m.data[0];break;}}
-  if(byName){if(byNum&&byNum.oracle_id===byName.oracle_id)return byNum;
-    if(pb.set){const p=await sfJSON("cards/search?unique=prints&q="+encodeURIComponent('!"'+byName.name+'" set:'+pb.set));if(p&&p.data&&p.data[0])return p.data[0];}
-    return byName;}
-  return byNum;}
-/* whole-image OCR, then pick the collector line (set code + number) and the title by position */
-function pickLines(d,W,H){return (d.lines||[]).map(l=>({t:(l.text||"").replace(/\s+/g," ").trim(),y:l.bbox.y0/H,h:(l.bbox.y1-l.bbox.y0)/H,c:l.confidence||0})).filter(l=>l.t);}
-function titleCands(L){return L.filter(l=>(l.t.match(/[A-Za-zÀ-ÿ]/g)||[]).length>=4&&l.c>35).sort((a,b)=>a.y-b.y).slice(0,3).map(l=>cleanTitle(l.t)).filter(t=>t.length>3);}
-async function scanCanvas(card){if(SC.busy)return null;SC.busy=true;
-  try{scMsg("Reading the card…");const w=await scWorker();
-    await w.setParameters({tessedit_pageseg_mode:"3"});const d=(await w.recognize(card)).data;
-    const L=pickLines(d,card.width,card.height);window.__scanDebug=L;
-    const low=L.filter(l=>l.y>0.76).map(l=>l.t).join("\n");const tc=titleCands(L);
-    const c=await identify(tc,low);
-    SC.busy=false;return c||{fail:true,title:tc[0]||""};}
-  catch(e){SC.busy=false;scMsg(e.message||"The card could not be read.");return null;}}
 function showResult(c){const R=document.getElementById("scanRes");SC.cur=c;
   if(!c){R.innerHTML="";return;}
-  if(c.fail){R.innerHTML='<div class="scfail"><p>Could not recognise this card'+(c.title?' (read "'+esc(c.title)+'")':'')+'. Try again with less glare, or type the name.</p><div class="exrow"><input id="scName" placeholder="Card name" autocomplete="off"><button type="button" id="scFind">Find</button></div></div>';
-    scMsg("");return;}
-  const img=imgOfCard(c),nm=c.name;
-  R.innerHTML='<div class="scard"><img alt="" src="'+esc(img)+'"><div><b>'+esc(nm)+'</b>'+(c.printed_name&&c.printed_name!==nm?'<small>'+esc(c.printed_name)+'</small>':'')+
+  if(c.fail){R.innerHTML='<div class="scfail"><p>Could not recognise this card'+(c.title?' (read "'+esc(c.title)+'")':'')+'. Type the name instead.</p><div class="exrow"><input id="scName" placeholder="Card name" autocomplete="off"><button type="button" id="scFind">Find</button></div></div>';return;}
+  const nm=c.name;
+  R.innerHTML='<div class="scard"><img alt="" src="'+esc(imgOfCard(c))+'"><div><b>'+esc(nm)+'</b>'+(c.printed_name&&c.printed_name!==nm?'<small>'+esc(c.printed_name)+'</small>':'')+
     '<label class="scprint"><span class="vh">Printing</span><select id="scPrint"><option value="'+esc(c.set+"|"+c.collector_number+"|"+c.lang)+'">'+esc(c.set_name+" · #"+c.collector_number+" · "+c.lang.toUpperCase())+'</option></select></label>'+
     '<div class="exrow"><span class="qctl"><button type="button" data-sq="-1" aria-label="One less">−</button><b id="scQty">1</b><button type="button" data-sq="1" aria-label="One more">+</button></span><button type="button" class="btn-acc" id="scAdd">Add</button><button type="button" id="scSkip">Discard</button></div></div></div>';
-  scMsg("");if(navigator.vibrate)try{navigator.vibrate(40)}catch(e){}
+  scMsg("Found: "+nm);if(navigator.vibrate)try{navigator.vibrate(40)}catch(e){}
   sfJSON("cards/search?unique=prints&order=released&q="+encodeURIComponent('!"'+nm+'"')).then(j=>{if(!j||!j.data||SC.cur!==c)return;const S=document.getElementById("scPrint");if(!S)return;
     j.data.forEach(p=>{const v=p.set+"|"+p.collector_number+"|"+p.lang;if(v===S.options[0].value)return;const o=document.createElement("option");o.value=v;o.textContent=p.set_name+" · #"+p.collector_number;S.appendChild(o);});});}
 function addScanned(){const c=SC.cur;if(!c||c.fail)return;const q=+document.getElementById("scQty").textContent||1;const [set,cn]=document.getElementById("scPrint").value.split("|");
   const ex=SC.list.find(x=>x.name===c.name&&x.set===set&&x.cn===cn);if(ex)ex.qty+=q;else SC.list.unshift({name:c.name,set,cn,qty:q});
   const T=document.getElementById("imText");T.value=(T.value.trim()?T.value.trim()+"\n":"")+q+" "+c.name+" ("+set.toUpperCase()+") "+cn;imPreview();
-  SC.last={name:c.name,at:Date.now()};showResult(null);renderScanList();scMsg("Added "+q+"× "+c.name+". Next card.");if(SC.auto)autoLoop();}
+  SC.last={name:c.name,at:Date.now()};showResult(null);renderScanList();scMsg("Added "+q+"× "+c.name+". Next card.");}
 function renderScanList(){const L=document.getElementById("scanList");if(!L)return;const n=SC.list.reduce((a,x)=>a+x.qty,0);
   L.innerHTML=SC.list.length?'<p class="lbl">Scanned <b>'+n+'</b> · in the Text tab, ready to create</p>'+SC.list.slice(0,30).map(x=>'<span class="mchip"><span class="mv">'+x.qty+'× '+esc(x.name)+' <small>'+esc(x.set.toUpperCase())+'</small></span></span>').join(""):"";}
-async function scanOnce(){const V=document.getElementById("scanVid");if(!SC.stream||!V.videoWidth){scMsg("The camera is not on. Use Photo instead.");return;}
-  const c=await scanCanvas(cardCanvasFromVideo());if(!c)return;
-  if(SC.auto&&(c.fail||(SC.last&&SC.last.name===c.name&&Date.now()-SC.last.at<5000))){scMsg(c.fail?"Looking for a card…":"Same card: show the next one.");autoLoop();return;}
-  showResult(c);if(SC.auto&&!c.fail&&document.getElementById("scanAuto").checked)setTimeout(addScanned,700);}
-function autoLoop(){clearTimeout(SC.timer);if(!SC.auto)return;SC.timer=setTimeout(scanOnce,900);}
+/* a photo: read every line and keep the one that best matches a card name */
+async function scanPhoto(f){SC.busy=true;scMsg("Reading the photo…");
+  try{await loadNames();const w=await scWorker();const im=new Image();im.src=URL.createObjectURL(f);await im.decode();
+    const k=Math.min(1,1600/Math.max(im.naturalWidth,im.naturalHeight));const c=document.createElement("canvas");c.width=Math.round(im.naturalWidth*k);c.height=Math.round(im.naturalHeight*k);
+    const ctx=c.getContext("2d");ctx.filter="grayscale(1) contrast(1.3)";ctx.drawImage(im,0,0,c.width,c.height);URL.revokeObjectURL(im.src);
+    const top=(await w.recognize(c,{rectangle:{left:0,top:0,width:c.width,height:Math.round(c.height*0.3)}})).data;
+    let best=bestOfLines((top.lines||[]).map(l=>l.text||""));
+    if(!best||best.sim<0.85){await w.setParameters({tessedit_pageseg_mode:"3"});const d=(await w.recognize(c)).data;await w.setParameters({tessedit_pageseg_mode:"6"});
+      const b2=bestOfLines((d.lines||[]).map(l=>l.text||""));if(b2&&(!best||b2.sim>best.sim))best=b2;}
+    SC.busy=false;if(best&&best.sim>=0.78){SC.last=null;await recognised(best);}else showResult({fail:true,title:""});}
+  catch(e){SC.busy=false;scMsg(e.message||"The photo could not be read.");}}
 (function(){const P=document.querySelector('#importModal [data-ip="scan"]');if(!P)return;
-  document.getElementById("scanShot").addEventListener("click",scanOnce);
-  document.getElementById("scanAuto").addEventListener("change",e=>{SC.auto=e.target.checked;if(SC.auto){scMsg("Auto: cards are added as they are recognised.");autoLoop();}else clearTimeout(SC.timer);});
-  document.getElementById("scanFile").addEventListener("change",async e=>{const f=e.target.files&&e.target.files[0];if(!f)return;e.target.value="";
-    const im=new Image();im.src=URL.createObjectURL(f);await im.decode().catch(()=>{});
-    const card=cropTo(im,0,0,im.naturalWidth,im.naturalHeight);URL.revokeObjectURL(im.src);const c=await scanCanvas(card);if(c)showResult(c);});
+  document.getElementById("scanShot").addEventListener("click",()=>{if(SC.run){SC.run=false;clearTimeout(SC.timer);setRunBtn();scMsg("Paused.");}else if(SC.stream){SC.run=true;setRunBtn();loop();}else startScan();});
+  document.getElementById("scanAuto").addEventListener("change",e=>{SC.auto=e.target.checked;scMsg(SC.auto?"Auto-add on: each new card goes straight into the list.":"Auto-add off.");});
+  document.getElementById("scanFile").addEventListener("change",e=>{const f=e.target.files&&e.target.files[0];e.target.value="";if(f)scanPhoto(f);});
   P.addEventListener("click",async e=>{const b=e.target.closest("button");if(!b)return;
     if(b.dataset.sq){const q=document.getElementById("scQty");q.textContent=Math.max(1,(+q.textContent||1)+(+b.dataset.sq));}
     else if(b.id==="scAdd")addScanned();
-    else if(b.id==="scSkip"){showResult(null);scMsg("Discarded.");if(SC.auto)autoLoop();}
+    else if(b.id==="scSkip"){SC.last={name:SC.cur&&SC.cur.name,at:Date.now()};showResult(null);scMsg("Discarded.");}
     else if(b.id==="scFind"){const n=document.getElementById("scName").value.trim();if(!n)return;const c=await sfJSON("cards/named?fuzzy="+encodeURIComponent(n));showResult(c||{fail:true,title:n});}});})();
-/* stop the camera when the import window closes */
 let imWasOpen=false;new MutationObserver(()=>{const o=imM.classList.contains("open");if(!o)stopScan();if(o&&!imWasOpen){setImTab("text");setTimeout(imPreview,0);}imWasOpen=o;}).observe(imM,{attributes:true,attributeFilter:["class"]});

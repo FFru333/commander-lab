@@ -271,14 +271,14 @@
     </div>
     <div data-ip="scan" hidden>
       <div class="scanwrap">
-        <div class="scanview" id="scanView"><video id="scanVid" playsinline muted></video><div class="scanguide" id="scanGuide" aria-hidden="true"><i></i><i></i></div><p class="scanmsg" id="scanMsg" role="status"></p></div>
+        <div class="scanview" id="scanView"><video id="scanVid" playsinline muted></video><div class="scanguide" id="scanGuide" aria-hidden="true"><span>Card name inside this area</span></div><p class="scanmsg" id="scanMsg" role="status"></p></div>
         <div class="scanside">
-          <div class="exrow scanctl"><button type="button" id="scanShot" class="btn-acc">Scan</button><label class="tog"><input type="checkbox" id="scanAuto"> Auto</label><label class="btnlink scanfile">Photo<input type="file" id="scanFile" accept="image/*" capture="environment" hidden></label></div>
+          <div class="exrow scanctl"><button type="button" id="scanShot" class="btn-acc" aria-pressed="false">Pause</button><label class="tog"><input type="checkbox" id="scanAuto"> Auto-add</label><label class="btnlink scanfile">Photo<input type="file" id="scanFile" accept="image/*" capture="environment" hidden></label></div>
           <div class="scanres" id="scanRes"></div>
           <div class="scanlist" id="scanList"></div>
         </div>
       </div>
-      <p class="note">Hold the card flat inside the frame, with the name at the top and the bottom edge visible. The set code and collector number in the bottom-left corner pick the exact printing. The camera image stays on this device; only the text that was read goes to Scryfall.</p>
+      <p class="note">Point the camera at the card name so it sits inside the highlighted area; the rest of the card does not matter, and it does not need to be perfectly lined up. English and Italian names are recognised. The camera image stays on this device.</p>
     </div>
     <div class="imgrid">
       <label>Deck name<input id="imName" placeholder="e.g. Atraxa superfriends"></label>
