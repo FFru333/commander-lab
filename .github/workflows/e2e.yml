@@ -1,0 +1,21 @@
+name: Scan end-to-end
+on:
+  push:
+    branches: [gh-pages]
+    paths: ['tools/e2e/**','.github/workflows/e2e.yml']
+permissions:
+  contents: write
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: { ref: gh-pages }
+      - run: sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg >/dev/null
+      - run: pip install -q playwright && python -m playwright install --with-deps chromium >/dev/null
+      - run: bash tools/e2e/make.sh
+      - run: mkdir -p desk/data && python tools/e2e/scan.py > desk/data/scan-e2e.txt 2>&1 || true
+      - run: |
+          git config user.name "commander-desk-bot"; git config user.email "actions@users.noreply.github.com"
+          git pull -q --rebase origin gh-pages || true
+          git add desk/data && git commit -m "Scan test results [skip ci]" && git push || echo "nothing"
