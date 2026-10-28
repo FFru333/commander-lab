@@ -56,6 +56,7 @@ async function scryLookup(entries){
 }
 /* live preview of what the parser reads */
 function imPreview(){const P=document.getElementById("imPrev");if(!P)return;const E=parseList(document.getElementById("imText").value);
+  const G=document.getElementById("imGo");if(G){const base=imTarget?"Update":"Create deck";const n0=E.reduce((a,e)=>a+e.qty,0);G.textContent=n0?base+" · "+n0+" card"+(n0===1?"":"s"):base;}
   if(!E.length){P.innerHTML="";return;}
   const tot=E.reduce((a,e)=>a+e.qty,0),multi=E.filter(e=>e.qty>1);
   P.innerHTML='<b>'+tot+' card'+(tot===1?"":"s")+'</b> on '+E.length+' line'+(E.length===1?"":"s")+(multi.length?' · '+multi.slice(0,6).map(e=>esc(e.qty+"× "+e.name)).join(", ")+(multi.length>6?"…":""):"")+(E.some(e=>e.cmd)?' · commander: '+esc(E.filter(e=>e.cmd).map(e=>e.name).join(", ")):"");}
@@ -70,7 +71,8 @@ function linkSite(u){return /moxfield\.com/i.test(u)?"moxfield":/archidekt\.com/
 /* ---------- import tabs ---------- */
 function setImTab(t){document.querySelectorAll("#imTabs [data-it]").forEach(b=>b.setAttribute("aria-selected",b.dataset.it===t));
   document.querySelectorAll("#importModal [data-ip]").forEach(p=>p.hidden=p.dataset.ip!==t);
-  if(t!=="scan")stopScan();if(t==="scan")startScan();}
+  if(t!=="scan")stopScan();if(t==="scan"){if(SC.mode!=="scan"){const gen=new Set(SC.list.map(scLine));SC.base=document.getElementById("imText").value.split("\n").filter(l=>!gen.has(l.trim())).join("\n");}startScan();}scanCls(t==="scan");}
+function scanCls(on){if(imM.classList.contains("scanmode")!==!!on)imM.classList.toggle("scanmode",!!on);}
 document.getElementById("imTabs").addEventListener("click",e=>{const b=e.target.closest("[data-it]");if(b)setImTab(b.dataset.it);});
 document.getElementById("imLink").addEventListener("input",e=>{const v=e.target.value.trim();const st=document.getElementById("imLinkSt");st.textContent=v?LINK_HELP[linkSite(v)]:"";
   const o=document.getElementById("imLinkOpen");const site=linkSite(v);o.hidden=!(site!=="other"&&/^https?:\/\//i.test(v));if(!o.hidden)o.href=v;});
@@ -158,12 +160,22 @@ function showResult(c){const R=document.getElementById("scanRes");SC.cur=c;
   scMsg("Found: "+nm);if(navigator.vibrate)try{navigator.vibrate(40)}catch(e){}
   sfJSON("cards/search?unique=prints&order=released&q="+encodeURIComponent('!"'+nm+'"')).then(j=>{if(!j||!j.data||SC.cur!==c)return;const S=document.getElementById("scPrint");if(!S)return;
     j.data.forEach(p=>{const v=p.set+"|"+p.collector_number+"|"+p.lang;if(v===S.options[0].value)return;const o=document.createElement("option");o.value=v;o.textContent=p.set_name+" · #"+p.collector_number;S.appendChild(o);});});}
+const scLine=x=>x.qty+" "+x.name+" ("+x.set.toUpperCase()+") "+x.cn;
+function syncScanText(){const T=document.getElementById("imText");T.value=[SC.base||""].concat(SC.list.slice().reverse().map(scLine)).map(x=>x.trim()).filter(Boolean).join("\n");imPreview();lsSet(NS+"-scanbuf",SC.list);}
 function addScanned(){const c=SC.cur;if(!c||c.fail)return;const q=+document.getElementById("scQty").textContent||1;const [set,cn]=document.getElementById("scPrint").value.split("|");
   const ex=SC.list.find(x=>x.name===c.name&&x.set===set&&x.cn===cn);if(ex)ex.qty+=q;else SC.list.unshift({name:c.name,set,cn,qty:q});
-  const T=document.getElementById("imText");T.value=(T.value.trim()?T.value.trim()+"\n":"")+q+" "+c.name+" ("+set.toUpperCase()+") "+cn;imPreview();
+  syncScanText();
   SC.last={name:c.name,at:Date.now()};showResult(null);renderScanList();scMsg("Added "+q+"× "+c.name+". Next card.");}
 function renderScanList(){const L=document.getElementById("scanList");if(!L)return;const n=SC.list.reduce((a,x)=>a+x.qty,0);
-  L.innerHTML=SC.list.length?'<p class="lbl">Scanned <b>'+n+'</b> · in the Text tab, ready to create</p>'+SC.list.slice(0,30).map(x=>'<span class="mchip"><span class="mv">'+x.qty+'× '+esc(x.name)+' <small>'+esc(x.set.toUpperCase())+'</small></span></span>').join(""):"";}
+  L.innerHTML=SC.list.length?'<p class="lbl">Scanned <b>'+n+'</b> card'+(n===1?"":"s")+'</p>'+SC.list.map((x,i)=>'<div class="srow"><span class="sq">'+x.qty+'×</span><span class="sn">'+esc(x.name)+' <small>'+esc(x.set.toUpperCase())+'</small></span><span class="qctl"><button type="button" data-li="'+i+'" data-d="-1" aria-label="One less '+esc(x.name)+'">−</button><button type="button" data-li="'+i+'" data-d="1" aria-label="One more '+esc(x.name)+'">+</button></span></div>').join("")+'<button type="button" class="ghostbtn" id="scClear">Clear the scanned list</button>':'<p class="note">Scanned cards collect here, one after another.</p>';}
+/* restore an unfinished scan session; forget it once a deck has been created from it */
+(function(){const b=lsGet(NS+"-scanbuf");let done=null;try{done=sessionStorage.getItem(NS+"-scandone");sessionStorage.removeItem(NS+"-scandone")}catch(e){}
+  if(done&&CUR&&Date.now()-(CUR.created||0)<120000){lsSet(NS+"-scanbuf",[]);return;}
+  if(Array.isArray(b))SC.list=b;})();
+function openScanSession(){SC.openScan=true;SC.mode="scan";SC.auto=true;const a=document.getElementById("scanAuto");if(a)a.checked=true;
+  SC.base="";openImport(false);document.getElementById("imTitle").textContent="Scan cards";scanCls(true);syncScanText();renderScanList();}
+document.getElementById("navScan").addEventListener("click",openScanSession);
+document.getElementById("imGo").addEventListener("click",()=>{if(SC.list.length)try{sessionStorage.setItem(NS+"-scandone","1")}catch(e){}},true);
 /* a photo: read every line and keep the one that best matches a card name */
 async function scanPhoto(f){SC.busy=true;scMsg("Reading the photo…");
   try{await loadNames();const w=await scWorker();const im=new Image();im.src=URL.createObjectURL(f);await im.decode();
@@ -182,6 +194,8 @@ async function scanPhoto(f){SC.busy=true;scMsg("Reading the photo…");
   P.addEventListener("click",async e=>{const b=e.target.closest("button");if(!b)return;
     if(b.dataset.sq){const q=document.getElementById("scQty");q.textContent=Math.max(1,(+q.textContent||1)+(+b.dataset.sq));}
     else if(b.id==="scAdd")addScanned();
+    else if(b.dataset.li){const x=SC.list[+b.dataset.li];if(x){x.qty+=(+b.dataset.d);if(x.qty<1)SC.list.splice(+b.dataset.li,1);syncScanText();renderScanList();}}
+    else if(b.id==="scClear"){if(!await ask("Remove every scanned card from the list?","Clear"))return;SC.list=[];syncScanText();renderScanList();}
     else if(b.id==="scSkip"){SC.last={name:SC.cur&&SC.cur.name,at:Date.now()};showResult(null);scMsg("Discarded.");}
     else if(b.id==="scFind"){const n=document.getElementById("scName").value.trim();if(!n)return;const c=await sfJSON("cards/named?fuzzy="+encodeURIComponent(n));showResult(c||{fail:true,title:n});}});})();
-let imWasOpen=false;new MutationObserver(()=>{const o=imM.classList.contains("open");if(!o)stopScan();if(o&&!imWasOpen){setImTab("text");setTimeout(imPreview,0);}imWasOpen=o;}).observe(imM,{attributes:true,attributeFilter:["class"]});
+let imWasOpen=false;new MutationObserver(()=>{const o=imM.classList.contains("open");if(!o){stopScan();SC.mode=null;scanCls(false);}if(o&&!imWasOpen){setImTab(SC.openScan?"scan":"text");SC.openScan=false;setTimeout(imPreview,0);}scanCls(o&&SC.mode==="scan");imWasOpen=o;}).observe(imM,{attributes:true,attributeFilter:["class"]});
