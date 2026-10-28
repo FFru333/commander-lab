@@ -272,14 +272,14 @@
     </div>
     <div data-ip="scan" hidden>
       <div class="scanwrap">
-        <div class="scanview" id="scanView"><video id="scanVid" playsinline muted></video><div class="scanguide" id="scanGuide" aria-hidden="true"><span>Card name inside this area</span></div><p class="scanmsg" id="scanMsg" role="status"></p></div>
+        <div class="scanview" id="scanView"><video id="scanVid" playsinline muted></video><div class="scanguide" id="scanGuide" aria-hidden="true"><div class="zt" id="zTitle"><span>Name</span></div><div class="zb" id="zSet"><span>Set · number</span></div></div><p class="scanmsg" id="scanMsg" role="status"></p></div>
         <div class="scanside">
           <div class="exrow scanctl"><button type="button" id="scanShot" class="btn-acc" aria-pressed="false">Pause</button><label class="tog"><input type="checkbox" id="scanAuto"> Auto-add</label><label class="btnlink scanfile">Photo<input type="file" id="scanFile" accept="image/*" capture="environment" hidden></label></div>
           <div class="scanres" id="scanRes"></div>
           <div class="scanlist" id="scanList"></div>
         </div>
       </div>
-      <p class="note">Point the camera at the card name so it sits inside the highlighted area; the rest of the card does not matter, and it does not need to be perfectly lined up. English and Italian names are recognised. The camera image stays on this device.</p>
+      <p class="note">Fit the card in the frame. Only the two marked areas are read: the name at the top, and the set code, collector number and language at the bottom left. Tap the card shown below to add another copy. The camera image stays on this device.</p>
     </div>
     <div class="imgrid">
       <label>Deck name<input id="imName" placeholder="e.g. Atraxa superfriends"></label>
