@@ -1,0 +1,34 @@
+== https://api2.moxfield.com/v3/decks/all/oEWXWHM5eEGMmopExLWRCA
+HTTP/2 403 
+server: cloudflare
+<!DOCTYPE html>
+<!--[if lt IE 7]> <html class="no-js ie6 oldie" lang="en-US"> <![endif]-->
+<!--[if IE 7]>    <html class="no-js ie7 oldie" lang="en-US"> <![endif]-->
+<!--[if IE 8]>    <html class="no-js ie8 oldie" lang="en-US"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en-US"> <!
+== https://api2.moxfield.com/v2/decks/all/oEWXWHM5eEGMmopExLWRCA
+HTTP/2 403 
+server: cloudflare
+<!DOCTYPE html>
+<!--[if lt IE 7]> <html class="no-js ie6 oldie" lang="en-US"> <![endif]-->
+<!--[if IE 7]>    <html class="no-js ie7 oldie" lang="en-US"> <![endif]-->
+<!--[if IE 8]>    <html class="no-js ie8 oldie" lang="en-US"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en-US"> <!
+== https://archidekt.com/api/decks/1/
+HTTP/2 200 
+server: nginx/1.30.6
+access-control-allow-origin: http://localhost:3000
+access-control-allow-methods: GET, POST, PUT, PATCH, OPTIONS, DELETE, HEAD
+access-control-allow-headers: Content-Type, X-CSRFToken, Accept, Authorization, Content-Disposition, Access-Control-Allow-Credentials
+access-control-allow-credentials: true
+{"id":1,"name":"Fun With Fungus","createdAt":"2017-12-12T18:06:32.147000Z","updatedAt":"2018-03-12T05:12:58Z","deckFormat":3,"edhBracket":null,"game":null,"description":"{\"ops\": [{\"insert\": \"Add a description...\"}]}","viewCount":24676,"featured":"https://storage.googleapis.com/archidekt-card-i
+== https://api.scryfall.com/cards/search?q=Anello&include_multilingual=true
+HTTP/2 200 
+access-control-allow-headers: Accept, Accept-Charset, Accept-Language, Authorization, Cache-Control, Content-Language, Content-Type, DNT, Host, If-Modified-Since, Keep-Alive, Origin, Referer, User-Agent, X-Requested-With
+access-control-allow-methods: GET, POST, DELETE, OPTIONS
+access-control-allow-origin: *
+access-control-max-age: 300
+server: cloudflare
+{"object":"list","total_cards":43,"has_more":false,"data":[{"object":"card","id":"d791aac9-4c6c-4868-ac09-43b310cbd9ad","oracle_id":"7810915f-df4d-445a-8ba8-fe6ed3abf1ae","multiverse_ids":[98799],"name":"Aladdin's Ring","printed_name":"Anello di Aladino","lang":"it","released_at":"2005-07-29","uri":
+== preflight moxfield
+HTTP/2 403 
