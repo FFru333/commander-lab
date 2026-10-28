@@ -2,7 +2,7 @@ name: Refresh app data
 on:
   push:
     branches: [gh-pages]
-    paths-ignore: ['desk/data/**','tools/e2e/**','tools/ocr/**','.github/workflows/e2e.yml','.github/workflows/probe.yml']
+    paths-ignore: ['desk/data/**','tools/names.py','.github/workflows/names.yml','tools/e2e/**','tools/ocr/**','.github/workflows/e2e.yml','.github/workflows/probe.yml']
   workflow_dispatch:
 permissions:
   contents: write

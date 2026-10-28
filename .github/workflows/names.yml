@@ -1,0 +1,20 @@
+name: Localised card names
+on:
+  push:
+    branches: [gh-pages]
+    paths: ['tools/names.py','.github/workflows/names.yml']
+  schedule:
+    - cron: '17 4 * * 1'
+permissions:
+  contents: write
+jobs:
+  names:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: { ref: gh-pages }
+      - run: mkdir -p desk/data && python3 tools/names.py it > desk/data/names-log.txt 2>&1 || true
+      - if: always()
+        run: |
+          git config user.name "commander-desk-bot"; git config user.email "actions@users.noreply.github.com"
+          git add desk/data && git commit -m "Localised names [skip ci]" && (git pull -q --rebase origin gh-pages; git push) || echo "nothing"
