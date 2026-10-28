@@ -258,13 +258,33 @@
 <div id="importModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="imTitle">
   <div class="box" style="width:min(760px,100%)">
     <h3 id="imTitle">Import a deck</h3>
-    <p class="note">Accepted formats: "1 Sol Ring", "1x Sol Ring (CMM) 400", lines with categories in square brackets (Archidekt, e.g. "[Ramp]") or section titles ("Creatures", "// Ramp", "Lands (35)"). A set code and collector number, when present, become the chosen printing.</p>
+    <div class="imtabs" id="imTabs" role="tablist" aria-label="How to add cards"><button type="button" role="tab" data-it="text" aria-selected="true">Text</button><button type="button" role="tab" data-it="link" aria-selected="false">Link</button><button type="button" role="tab" data-it="scan" aria-selected="false">Scan cards</button></div>
+    <div data-ip="text">
+      <textarea id="imText" class="tkin" style="height:260px" aria-label="Decklist" placeholder="1 Atraxa, Praetors' Voice&#10;1 Sol Ring&#10;10 Mountain&#10;Forest x5&#10;two Plains"></textarea>
+      <p class="imprev" id="imPrev" aria-live="polite"></p>
+      <p class="note imhelp">Accepted: "1 Sol Ring", "10x Mountain", "Forest x5", "two Plains", "1 Sol Ring (CMM) 400", categories in square brackets ("[Ramp]") and section titles ("// Ramp", "Lands (35)").</p>
+    </div>
+    <div data-ip="link" hidden>
+      <label class="imlink">Deck link<input id="imLink" type="url" inputmode="url" placeholder="https://moxfield.com/decks/…" autocomplete="off"></label>
+      <p class="note" id="imLinkSt" role="status"></p>
+      <div class="exrow"><a id="imLinkOpen" class="btnlink" target="_blank" rel="noopener" hidden>Open the deck</a><button type="button" id="imPaste" class="btn-acc">Paste the copied list</button></div>
+    </div>
+    <div data-ip="scan" hidden>
+      <div class="scanwrap">
+        <div class="scanview" id="scanView"><video id="scanVid" playsinline muted></video><div class="scanguide" id="scanGuide" aria-hidden="true"><i></i><i></i></div><p class="scanmsg" id="scanMsg" role="status"></p></div>
+        <div class="scanside">
+          <div class="exrow scanctl"><button type="button" id="scanShot" class="btn-acc">Scan</button><label class="tog"><input type="checkbox" id="scanAuto"> Auto</label><label class="btnlink scanfile">Photo<input type="file" id="scanFile" accept="image/*" capture="environment" hidden></label></div>
+          <div class="scanres" id="scanRes"></div>
+          <div class="scanlist" id="scanList"></div>
+        </div>
+      </div>
+      <p class="note">Hold the card flat inside the frame, with the name at the top and the bottom edge visible. The set code and collector number in the bottom-left corner pick the exact printing. The camera image stays on this device; only the text that was read goes to Scryfall.</p>
+    </div>
     <div class="imgrid">
       <label>Deck name<input id="imName" placeholder="e.g. Atraxa superfriends"></label>
       <label class="acwrap">Commander (if the list does not mark it)<input id="imCmd" placeholder="Start typing, e.g. atraxa" autocomplete="off" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="cmdList"><ul id="cmdList" class="aclist" role="listbox" hidden></ul></label>
       <label>Categories<select id="imCat"><option value="auto">From the list when present, otherwise by card type</option><option value="type">Always by card type</option></select></label>
     </div>
-    <textarea id="imText" class="tkin" style="height:260px" aria-label="Decklist" placeholder="1 Atraxa, Praetors' Voice&#10;1 Sol Ring&#10;1 Arcane Signet&#10;..."></textarea>
     <div class="exrow"><button id="imGo" type="button" class="btn-acc">Create</button><button id="imClose" type="button">Cancel</button><span id="imStatus" class="note" role="status"></span></div>
   </div>
 </div>
