@@ -13,7 +13,7 @@ jobs:
         with: { ref: gh-pages }
       - run: sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg >/dev/null
       - run: pip install -q playwright && python -m playwright install --with-deps chromium >/dev/null
-      - run: bash tools/e2e/make.sh
+      - run: mkdir -p desk/data && bash -x tools/e2e/make.sh > desk/data/scan-make.txt 2>&1 || true
       - run: mkdir -p desk/data && python tools/e2e/scan.py > desk/data/scan-e2e.txt 2>&1 || true
       - if: always()
         run: |
