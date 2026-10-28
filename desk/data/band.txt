@@ -1,0 +1,81 @@
+Estimating resolution as 291
+Estimating resolution as 291
+Detected 13 diacritics
+{"feed":0,"psm3":{"ms":224,"lines":["> tl S","li, Tempesta Primo"]},"psm6":{"ms":402,"lines":["— Oe Re","Etali, Tempesta Primordiale dee)","Tn ae Kk ys","2 7 |","5 & - a E:"]},"psm11":{"ms":181,"lines":["a","ld","Etal , Tempesta Prir imo","le","9"]},"slide":{"ms":378,"out":[[259,"a SY a",31],[299,"- - cr ~~",26],[339,"3 Etali, Tempesta Primordiale 42@)",68],[379,"",0],[419,"",0],[459,"",0]]}}
+Estimating resolution as 331
+Estimating resolution as 331
+Bottom=0, top=80, base=0, x=0
+
+Total count=0
+Min=0.00 Really=0
+Lower quartile=0.00
+Median=0.00, ile(0.5)=0.00
+Upper quartile=0.00
+Max=0.00 Really=0
+Range=1
+Mean= 0.00
+SD= 0.00
+{"feed":1,"psm3":{"ms":206,"lines":["DD __\\","ly","Lathliss, Dragon Queen dee)"]},"psm6":{"ms":87,"lines":["Lathliss, Dragon Queen dee)!"]},"psm11":{"ms":219,"lines":["me","pres TREES N","dee)","Lathliss, Dragon Queen","Sa."]},"slide":{"ms":459,"out":[[259,"EE",11],[299,"EE aN a",34],[339,"",0],[379,"{ { Lathliss, Dragon GEE 42)",67],[419,"3 Salas = — —— 'B",23],[459,"Nl. J = In",31]]}}
+Estimating resolution as 348
+Estimating resolution as 348
+Estimating resolution as 348
+Estimating resolution as 348
+Bottom=0, top=80, base=0, x=0
+
+Total count=0
+Min=0.00 Really=0
+Lower quartile=0.00
+Median=0.00, ile(0.5)=0.00
+Upper quartile=0.00
+Max=0.00 Really=0
+Range=1
+Mean= 0.00
+SD= 0.00
+Bottom=0, top=80, base=0, x=0
+
+Total count=0
+Min=0.00 Really=0
+Lower quartile=0.00
+Median=0.00, ile(0.5)=0.00
+Upper quartile=0.00
+Max=0.00 Really=0
+Range=1
+Mean= 0.00
+SD= 0.00
+{"feed":2,"psm3":{"ms":35,"lines":[]},"psm6":{"ms":104,"lines":["ll Terror of the Peaks 3ee","5 a"]},"psm11":{"ms":57,"lines":[]},"slide":{"ms":544,"out":[[259,"EE",11],[299,"EE",11],[339,"sa",21],[379,"J = = kad —\\",54],[419,"f Terror of the Peali 3ee |",69],[459,") error o € Can : = A",62]]}}
+Estimating resolution as 1128
+Estimating resolution as 1128
+Bottom=0, top=80, base=0, x=0
+
+Total count=0
+Min=0.00 Really=0
+Lower quartile=0.00
+Median=0.00, ile(0.5)=0.00
+Upper quartile=0.00
+Max=0.00 Really=0
+Range=1
+Mean= 0.00
+SD= 0.00
+Bottom=0, top=80, base=0, x=0
+
+Total count=0
+Min=0.00 Really=0
+Lower quartile=0.00
+Median=0.00, ile(0.5)=0.00
+Upper quartile=0.00
+Max=0.00 Really=0
+Range=1
+Mean= 0.00
+SD= 0.00
+Bottom=0, top=80, base=0, x=0
+
+Total count=0
+Min=0.00 Really=0
+Lower quartile=0.00
+Median=0.00, ile(0.5)=0.00
+Upper quartile=0.00
+Max=0.00 Really=0
+Range=1
+Mean= 0.00
+SD= 0.00
+{"feed":3,"psm3":{"ms":29,"lines":[]},"psm6":{"ms":36,"lines":[]},"psm11":{"ms":87,"lines":["rR)"]},"slide":{"ms":613,"out":[[259,"EE",11],[299,"EE",11],[339,"EE",11],[379,": CN",35],[419,"- ey gee yen pe EE a",33],[459,"a = Ring TL ee 0)",52]]}}
