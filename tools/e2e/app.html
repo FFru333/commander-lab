@@ -1138,6 +1138,7 @@ label select,label input,label textarea,.cmrow select,.cmnew input{font-family:v
 .scanlist .mv{padding:6px 10px;font-size:12.5px;font-weight:600}
 .scanlist .mv small{color:var(--muted);font-weight:500}
 @media (max-width:820px){.scanwrap{grid-template-columns:1fr}.scanview{aspect-ratio:4/5;max-height:62vh}}
+#importModal .imgrid{margin-top:14px}.imhelp{margin-top:4px}
 
 </style>
 </head>
@@ -1401,16 +1402,11 @@ label select,label input,label textarea,.cmrow select,.cmnew input{font-family:v
 <div id="importModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="imTitle">
   <div class="box" style="width:min(760px,100%)">
     <h3 id="imTitle">Import a deck</h3>
-    <p class="note">Paste a list, open a deck link or scan real cards. Text accepts "1 Sol Ring", "10x Mountain", "Forest x5", "two Plains", "1 Sol Ring (CMM) 400", categories in square brackets ("[Ramp]") and section titles ("// Ramp", "Lands (35)").</p>
-    <div class="imgrid">
-      <label>Deck name<input id="imName" placeholder="e.g. Atraxa superfriends"></label>
-      <label class="acwrap">Commander (if the list does not mark it)<input id="imCmd" placeholder="Start typing, e.g. atraxa" autocomplete="off" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="cmdList"><ul id="cmdList" class="aclist" role="listbox" hidden></ul></label>
-      <label>Categories<select id="imCat"><option value="auto">From the list when present, otherwise by card type</option><option value="type">Always by card type</option></select></label>
-    </div>
     <div class="imtabs" id="imTabs" role="tablist" aria-label="How to add cards"><button type="button" role="tab" data-it="text" aria-selected="true">Text</button><button type="button" role="tab" data-it="link" aria-selected="false">Link</button><button type="button" role="tab" data-it="scan" aria-selected="false">Scan cards</button></div>
     <div data-ip="text">
       <textarea id="imText" class="tkin" style="height:260px" aria-label="Decklist" placeholder="1 Atraxa, Praetors' Voice&#10;1 Sol Ring&#10;10 Mountain&#10;Forest x5&#10;two Plains"></textarea>
       <p class="imprev" id="imPrev" aria-live="polite"></p>
+      <p class="note imhelp">Accepted: "1 Sol Ring", "10x Mountain", "Forest x5", "two Plains", "1 Sol Ring (CMM) 400", categories in square brackets ("[Ramp]") and section titles ("// Ramp", "Lands (35)").</p>
     </div>
     <div data-ip="link" hidden>
       <label class="imlink">Deck link<input id="imLink" type="url" inputmode="url" placeholder="https://moxfield.com/decks/…" autocomplete="off"></label>
@@ -1427,6 +1423,11 @@ label select,label input,label textarea,.cmrow select,.cmnew input{font-family:v
         </div>
       </div>
       <p class="note">Hold the card flat inside the frame, with the name at the top and the bottom edge visible. The set code and collector number in the bottom-left corner pick the exact printing. The camera image stays on this device; only the text that was read goes to Scryfall.</p>
+    </div>
+    <div class="imgrid">
+      <label>Deck name<input id="imName" placeholder="e.g. Atraxa superfriends"></label>
+      <label class="acwrap">Commander (if the list does not mark it)<input id="imCmd" placeholder="Start typing, e.g. atraxa" autocomplete="off" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="cmdList"><ul id="cmdList" class="aclist" role="listbox" hidden></ul></label>
+      <label>Categories<select id="imCat"><option value="auto">From the list when present, otherwise by card type</option><option value="type">Always by card type</option></select></label>
     </div>
     <div class="exrow"><button id="imGo" type="button" class="btn-acc">Create</button><button id="imClose" type="button">Cancel</button><span id="imStatus" class="note" role="status"></span></div>
   </div>
@@ -3552,9 +3553,9 @@ function stopScan(){clearTimeout(SC.timer);SC.auto=false;const a=document.getEle
 /* the guide rectangle, mapped from screen pixels to video pixels (video uses object-fit: cover) */
 function cardCanvasFromVideo(){const V=document.getElementById("scanVid"),G=document.getElementById("scanGuide"),box=document.getElementById("scanView").getBoundingClientRect(),g=G.getBoundingClientRect();
   const vw=V.videoWidth,vh=V.videoHeight;if(!vw)return null;const s=Math.max(box.width/vw,box.height/vh);const ox=(box.width-vw*s)/2,oy=(box.height-vh*s)/2;
-  const x=(g.left-box.left-ox)/s,y=(g.top-box.top-oy)/s,w=g.width/s,h=g.height/s;return cropTo(V,x,y,w,h);}
-function cropTo(src,x,y,w,h){const H=Math.max(940,Math.min(1400,h)),W=Math.round(H*63/88);const c=document.createElement("canvas");c.width=W;c.height=H;
-  const ctx=c.getContext("2d");ctx.drawImage(src,x,y,w,h,0,0,W,H);return c;}
+  let x=(g.left-box.left-ox)/s,y=(g.top-box.top-oy)/s,w=g.width/s,h=g.height/s;const mx=w*.07,my=h*.07;x=Math.max(0,x-mx);y=Math.max(0,y-my);w=Math.min(vw-x,w+2*mx);h=Math.min(vh-y,h+2*my);return cropTo(V,x,y,w,h);}
+function cropTo(src,x,y,w,h){const k=Math.max(1100/w,Math.min(1,1700/Math.max(w,h)));const W=Math.round(w*k),H=Math.round(h*k);const c=document.createElement("canvas");c.width=W;c.height=H;
+  const ctx=c.getContext("2d");ctx.filter="grayscale(1) contrast(1.3)";ctx.drawImage(src,x,y,w,h,0,0,W,H);return c;}
 function region(card,k){const r=SC_R[k],W=card.width,H=card.height;const c=document.createElement("canvas");const sw=Math.round(r[2]*W),sh=Math.round(r[3]*H);c.width=sw*2;c.height=sh*2;
   const ctx=c.getContext("2d");ctx.filter="grayscale(1) contrast(1.35)";ctx.drawImage(card,Math.round(r[0]*W),Math.round(r[1]*H),sw,sh,0,0,sw*2,sh*2);return c;}
 function parseBottom(t){const U=t.toUpperCase();const lines=U.split(/\n|\|/).map(x=>x.replace(/[^A-Z0-9\/ ]/g," ").replace(/\s+/g," ").trim()).filter(Boolean);
@@ -3565,19 +3566,27 @@ function parseBottom(t){const U=t.toUpperCase();const lines=U.split(/\n|\|/).map
 function cleanTitle(t){return t.replace(/[\r\n]+/g," ").replace(/^[^A-Za-zÀ-ÿ]+/,"").replace(/[^A-Za-zÀ-ÿ,'\- ]/g," ").split(/\s+/).filter((w,i,a)=>!(i===a.length-1&&w.length<3)).join(" ").replace(/\s+/g," ").trim();}
 function sameName(a,b){const A=norm(a||"").split(/\s+/).filter(x=>x.length>2),B=new Set(norm(b||"").split(/\s+/));if(!A.length)return false;return A.filter(x=>B.has(x)).length/A.length>=0.5;}
 async function sfJSON(u){try{const r=await fetch("https://api.scryfall.com/"+u);return r.ok?await r.json():null;}catch(e){return null;}}
-async function identify(titleTxt,bottomTxt){const pb=parseBottom(bottomTxt),t=cleanTitle(titleTxt);let card=null;
+async function identify(titles,bottomTxt){const pb=parseBottom(bottomTxt);titles=titles.filter(Boolean);let byNum=null,byName=null;
   if(pb.set&&pb.cn){const sets=[pb.set,pb.set.replace(/0/g,"o"),pb.set.replace(/o/g,"0")].filter((x,i,a)=>a.indexOf(x)===i);
-    for(const s of sets){card=(pb.lang&&pb.lang!=="en"&&await sfJSON("cards/"+s+"/"+pb.cn+"/"+pb.lang))||await sfJSON("cards/"+s+"/"+pb.cn);if(card)break;}
-    if(card&&t.length>4&&!sameName(t,card.printed_name||card.name)&&!sameName(t,card.name))card=null;}
-  if(!card&&t.length>3){const f=await sfJSON("cards/named?fuzzy="+encodeURIComponent(t));
-    if(f){card=f;if(pb.set){const p=await sfJSON("cards/search?unique=prints&q="+encodeURIComponent('!"'+f.name+'" set:'+pb.set));if(p&&p.data&&p.data[0])card=p.data[0];}}
-    else{const m=await sfJSON("cards/search?include_multilingual=true&q="+encodeURIComponent(t));if(m&&m.data&&m.data.length&&m.total_cards<=6)card=m.data[0];}}
-  return card;}
+    for(const s of sets){byNum=(pb.lang&&pb.lang!=="en"&&await sfJSON("cards/"+s+"/"+pb.cn+"/"+pb.lang))||await sfJSON("cards/"+s+"/"+pb.cn);if(byNum)break;}}
+  if(byNum&&(!titles.length||titles.some(t=>sameName(t,byNum.printed_name||byNum.name)||sameName(t,byNum.name))))return byNum;
+  for(const t of titles){const f=await sfJSON("cards/named?fuzzy="+encodeURIComponent(t));
+    if(f){byName=f;break;}
+    const m=await sfJSON("cards/search?include_multilingual=true&q="+encodeURIComponent(t));if(m&&m.data&&m.data.length&&m.total_cards<=6){byName=m.data[0];break;}}
+  if(byName){if(byNum&&byNum.oracle_id===byName.oracle_id)return byNum;
+    if(pb.set){const p=await sfJSON("cards/search?unique=prints&q="+encodeURIComponent('!"'+byName.name+'" set:'+pb.set));if(p&&p.data&&p.data[0])return p.data[0];}
+    return byName;}
+  return byNum;}
+/* whole-image OCR, then pick the collector line (set code + number) and the title by position */
+function pickLines(d,W,H){return (d.lines||[]).map(l=>({t:(l.text||"").replace(/\s+/g," ").trim(),y:l.bbox.y0/H,h:(l.bbox.y1-l.bbox.y0)/H,c:l.confidence||0})).filter(l=>l.t);}
+function titleCands(L){return L.filter(l=>(l.t.match(/[A-Za-zÀ-ÿ]/g)||[]).length>=4&&l.c>35).sort((a,b)=>a.y-b.y).slice(0,3).map(l=>cleanTitle(l.t)).filter(t=>t.length>3);}
 async function scanCanvas(card){if(SC.busy)return null;SC.busy=true;
   try{scMsg("Reading the card…");const w=await scWorker();
-    await w.setParameters({tessedit_pageseg_mode:"6"});const b=(await w.recognize(region(card,"bottom"))).data.text;
-    await w.setParameters({tessedit_pageseg_mode:"7"});const t=(await w.recognize(region(card,"title"))).data.text;
-    const c=await identify(t,b);SC.busy=false;return c||{fail:true,title:cleanTitle(t)};}
+    await w.setParameters({tessedit_pageseg_mode:"3"});const d=(await w.recognize(card)).data;
+    const L=pickLines(d,card.width,card.height);window.__scanDebug=L;
+    const low=L.filter(l=>l.y>0.6).map(l=>l.t).join("\n");const tc=titleCands(L);
+    const c=await identify(tc,low);
+    SC.busy=false;return c||{fail:true,title:tc[0]||""};}
   catch(e){SC.busy=false;scMsg(e.message||"The card could not be read.");return null;}}
 function showResult(c){const R=document.getElementById("scanRes");SC.cur=c;
   if(!c){R.innerHTML="";return;}
@@ -3606,8 +3615,7 @@ function autoLoop(){clearTimeout(SC.timer);if(!SC.auto)return;SC.timer=setTimeou
   document.getElementById("scanAuto").addEventListener("change",e=>{SC.auto=e.target.checked;if(SC.auto){scMsg("Auto: cards are added as they are recognised.");autoLoop();}else clearTimeout(SC.timer);});
   document.getElementById("scanFile").addEventListener("change",async e=>{const f=e.target.files&&e.target.files[0];if(!f)return;e.target.value="";
     const im=new Image();im.src=URL.createObjectURL(f);await im.decode().catch(()=>{});
-    const r=im.naturalWidth/im.naturalHeight,ca=63/88;let w,h;if(r>ca){h=im.naturalHeight;w=h*ca;}else{w=im.naturalWidth;h=w/ca;}
-    const card=cropTo(im,(im.naturalWidth-w)/2,(im.naturalHeight-h)/2,w,h);URL.revokeObjectURL(im.src);const c=await scanCanvas(card);if(c)showResult(c);});
+    const card=cropTo(im,0,0,im.naturalWidth,im.naturalHeight);URL.revokeObjectURL(im.src);const c=await scanCanvas(card);if(c)showResult(c);});
   P.addEventListener("click",async e=>{const b=e.target.closest("button");if(!b)return;
     if(b.dataset.sq){const q=document.getElementById("scQty");q.textContent=Math.max(1,(+q.textContent||1)+(+b.dataset.sq));}
     else if(b.id==="scAdd")addScanned();

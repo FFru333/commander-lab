@@ -21,6 +21,8 @@ async def one(p,i,mode):
         res={"name":await pg.text_content("#scanRes .scard b"),"print":await pg.eval_on_selector("#scPrint","s=>s.options[s.selectedIndex].textContent"),"options":await pg.eval_on_selector("#scPrint","s=>s.options.length")}
         await pg.click("#scAdd");await pg.wait_for_timeout(300);res["text"]=await pg.input_value("#imText")
     elif await pg.query_selector("#scanRes .scfail"): res={"fail":await pg.text_content("#scanRes .scfail p")}
+    try: res=dict(res or {},lines=[(round(l["y"],2),l["t"][:50]) for l in (await pg.evaluate("window.__scanDebug||[]"))][:30])
+    except Exception: pass
     await pg.screenshot(path=f"../../desk/data/scan-{mode}-{i}.png")
     out.append({"feed":i,"mode":mode,"start":msg0,"result":res,"logs":[l for l in logs if "404" not in l][:6]})
     await b.close()
