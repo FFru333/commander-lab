@@ -3610,35 +3610,47 @@ async function loop(){clearTimeout(SC.timer);if(!SC.run)return;
   if(!SC.busy){SC.busy=true;const t0=performance.now();let lines=[];try{lines=await readBand();}catch(e){}SC.busy=false;const raw=lines.join(" | ");
     const m=bestOfLines(lines);SC.cycles=(SC.cycles||0)+1;window.__scanDebug={raw,m,geom:window.__scanGeom,ms:Math.round(performance.now()-t0),cycles:SC.cycles,sinceReady:SC.readyAt?Math.round(performance.now()-SC.readyAt):null};
     const ok=m&&(m.sim>=0.9||(m.sim>=0.78&&m.margin>=0.06));
-    if(ok){const stable=SC.prev&&SC.prev.name===m.name;SC.prev=m;
+    if(ok){SC.seen=Date.now();const stable=SC.prev&&SC.prev.name===m.name;SC.prev=m;
       if(m.sim>=0.93||stable)await recognised(m);else scMsg("Reading… "+m.name+"?");}
-    else{SC.prev=null;if(Date.now()-SC.seen>1800)scMsg(raw.trim().length>2?"Hold the name inside the strip.":"Point at the card name.");}}
+    else{SC.prev=null;if(SC.last&&Date.now()-SC.seen>1500)SC.last=null;if(Date.now()-SC.seen>1800)scMsg(raw.trim().length>2?"Hold the name inside the strip.":"Point at the card name.");}}
   if(SC.run)SC.timer=setTimeout(loop,120);}
+/* recognition never waits for the network: the card is shown and added at once, the printing is filled in afterwards */
 async function recognised(m){SC.seen=Date.now();
   if(SC.cur&&!SC.cur.fail&&SC.cur.name===m.name)return;
-  if(SC.last&&SC.last.name===m.name&&Date.now()-SC.last.at<4000)return;
-  const c=(m.from!=="en"&&await sfJSON("cards/search?unique=prints&include_multilingual=true&q="+encodeURIComponent('!"'+m.name+'" lang:'+m.from)).then(j=>j&&j.data&&j.data[0]))||await sfJSON("cards/named?exact="+encodeURIComponent(m.name));
-  if(!c){scMsg("Recognised "+m.name+", but Scryfall did not answer.");return;}
-  showResult(c);if(SC.auto)setTimeout(()=>{if(SC.cur===c)addScanned();},600);}
-async function sfJSON(u){try{const r=await fetch("https://api.scryfall.com/"+u);return r.ok?await r.json():null;}catch(e){return null;}}
+  if(SC.last&&SC.last.name===m.name)return;
+  const pv={name:m.name,provisional:true,from:m.from,set:"",collector_number:"",set_name:"Finding the printing…",lang:m.from==="it"?"it":"en",
+    image_uris:{normal:"https://api.scryfall.com/cards/named?exact="+encodeURIComponent(front(m.name))+"&format=image&version=normal"}};
+  showResult(pv);if(SC.auto)addScanned();
+  fillPrinting(m.name,m.from);}
+async function fillPrinting(name,from){
+  const c=(from&&from!=="en"&&await sfJSON("cards/search?unique=prints&include_multilingual=true&q="+encodeURIComponent('!"'+name+'" lang:'+from)).then(j=>j&&j.data&&j.data[0]))||await sfJSON("cards/named?exact="+encodeURIComponent(name));
+  if(!c)return;
+  const x=SC.list.find(e=>e.name===name&&!e.set);if(x){x.set=c.set;x.cn=c.collector_number;syncScanText();renderScanList();}
+  if(SC.cur&&SC.cur.provisional&&SC.cur.name===name){const q=document.getElementById("scQty");const keep=q?q.textContent:"1";showResult(c);const q2=document.getElementById("scQty");if(q2)q2.textContent=keep;}}
+/* Scryfall asks for at most ~10 requests a second: one queue, spaced calls, retries on 429 and network errors */
+let sfQ=Promise.resolve(),sfLast=0;
+function sfJSON(u){const run=async()=>{for(let k=0;k<3;k++){const wait=Math.max(0,sfLast+120-Date.now());if(wait)await sleep(wait);sfLast=Date.now();
+    try{const r=await fetch("https://api.scryfall.com/"+u);if(r.ok)return await r.json();if(r.status===404)return null;if(r.status===429)await sleep(1000*(k+1));else await sleep(400*(k+1));}
+    catch(e){await sleep(600*(k+1));}}return null;};
+  const p=sfQ.then(run,run);sfQ=p.catch(()=>{});return p;}
 function showResult(c){const R=document.getElementById("scanRes");SC.cur=c;
   if(!c){R.innerHTML="";return;}
   if(c.fail){R.innerHTML='<div class="scfail"><p>Could not recognise this card'+(c.title?' (read "'+esc(c.title)+'")':'')+'. Type the name instead.</p><div class="exrow"><input id="scName" placeholder="Card name" autocomplete="off"><button type="button" id="scFind">Find</button></div></div>';return;}
   const nm=c.name;
   R.innerHTML='<div class="scard"><img alt="" src="'+esc(imgOfCard(c))+'"><div><b>'+esc(nm)+'</b>'+(c.printed_name&&c.printed_name!==nm?'<small>'+esc(c.printed_name)+'</small>':'')+
-    '<label class="scprint"><span class="vh">Printing</span><select id="scPrint"><option value="'+esc(c.set+"|"+c.collector_number+"|"+c.lang)+'">'+esc(c.set_name+" · #"+c.collector_number+" · "+c.lang.toUpperCase())+'</option></select></label>'+
+    '<label class="scprint"><span class="vh">Printing</span><select id="scPrint"><option value="'+esc(c.set+"|"+c.collector_number+"|"+c.lang)+'">'+esc(c.provisional?c.set_name:c.set_name+" · #"+c.collector_number+" · "+c.lang.toUpperCase())+'</option></select></label>'+
     '<div class="exrow"><span class="qctl"><button type="button" data-sq="-1" aria-label="One less">−</button><b id="scQty">1</b><button type="button" data-sq="1" aria-label="One more">+</button></span><button type="button" class="btn-acc" id="scAdd">Add</button><button type="button" id="scSkip">Discard</button></div></div></div>';
   scMsg("Found: "+nm);if(navigator.vibrate)try{navigator.vibrate(40)}catch(e){}
-  sfJSON("cards/search?unique=prints&order=released&q="+encodeURIComponent('!"'+nm+'"')).then(j=>{if(!j||!j.data||SC.cur!==c)return;const S=document.getElementById("scPrint");if(!S)return;
+  if(!c.provisional)sfJSON("cards/search?unique=prints&order=released&q="+encodeURIComponent('!"'+nm+'"')).then(j=>{if(!j||!j.data||SC.cur!==c)return;const S=document.getElementById("scPrint");if(!S)return;
     j.data.forEach(p=>{const v=p.set+"|"+p.collector_number+"|"+p.lang;if(v===S.options[0].value)return;const o=document.createElement("option");o.value=v;o.textContent=p.set_name+" · #"+p.collector_number;S.appendChild(o);});});}
-const scLine=x=>x.qty+" "+x.name+" ("+x.set.toUpperCase()+") "+x.cn;
+const scLine=x=>x.qty+" "+x.name+(x.set?" ("+x.set.toUpperCase()+") "+x.cn:"");
 function syncScanText(){const T=document.getElementById("imText");T.value=[SC.base||""].concat(SC.list.slice().reverse().map(scLine)).map(x=>x.trim()).filter(Boolean).join("\n");imPreview();lsSet(NS+"-scanbuf",SC.list);}
 function addScanned(){const c=SC.cur;if(!c||c.fail)return;const q=+document.getElementById("scQty").textContent||1;const [set,cn]=document.getElementById("scPrint").value.split("|");
   const ex=SC.list.find(x=>x.name===c.name&&x.set===set&&x.cn===cn);if(ex)ex.qty+=q;else SC.list.unshift({name:c.name,set,cn,qty:q});
   syncScanText();
   SC.last={name:c.name,at:Date.now()};showResult(null);renderScanList();scMsg("Added "+q+"× "+c.name+". Next card.");}
 function renderScanList(){const L=document.getElementById("scanList");if(!L)return;const n=SC.list.reduce((a,x)=>a+x.qty,0);
-  L.innerHTML=SC.list.length?'<p class="lbl">Scanned <b>'+n+'</b> card'+(n===1?"":"s")+'</p>'+SC.list.map((x,i)=>'<div class="srow"><span class="sq">'+x.qty+'×</span><span class="sn">'+esc(x.name)+' <small>'+esc(x.set.toUpperCase())+'</small></span><span class="qctl"><button type="button" data-li="'+i+'" data-d="-1" aria-label="One less '+esc(x.name)+'">−</button><button type="button" data-li="'+i+'" data-d="1" aria-label="One more '+esc(x.name)+'">+</button></span></div>').join("")+'<button type="button" class="ghostbtn" id="scClear">Clear the scanned list</button>':'<p class="note">Scanned cards collect here, one after another.</p>';}
+  L.innerHTML=SC.list.length?'<p class="lbl">Scanned <b>'+n+'</b> card'+(n===1?"":"s")+'</p>'+SC.list.map((x,i)=>'<div class="srow"><span class="sq">'+x.qty+'×</span><span class="sn">'+esc(x.name)+' <small>'+esc((x.set||"…").toUpperCase())+'</small></span><span class="qctl"><button type="button" data-li="'+i+'" data-d="-1" aria-label="One less '+esc(x.name)+'">−</button><button type="button" data-li="'+i+'" data-d="1" aria-label="One more '+esc(x.name)+'">+</button></span></div>').join("")+'<button type="button" class="ghostbtn" id="scClear">Clear the scanned list</button>':'<p class="note">Scanned cards collect here, one after another.</p>';}
 /* restore an unfinished scan session; forget it once a deck has been created from it */
 (function(){const b=lsGet(NS+"-scanbuf");let done=null;try{done=sessionStorage.getItem(NS+"-scandone");sessionStorage.removeItem(NS+"-scandone")}catch(e){}
   if(done&&CUR&&Date.now()-(CUR.created||0)<120000){lsSet(NS+"-scanbuf",[]);return;}
