@@ -3559,10 +3559,13 @@ function cropTo(src,x,y,w,h){const k=Math.max(1100/w,Math.min(1,1700/Math.max(w,
 function region(card,k){const r=SC_R[k],W=card.width,H=card.height;const c=document.createElement("canvas");const sw=Math.round(r[2]*W),sh=Math.round(r[3]*H);c.width=sw*2;c.height=sh*2;
   const ctx=c.getContext("2d");ctx.filter="grayscale(1) contrast(1.35)";ctx.drawImage(card,Math.round(r[0]*W),Math.round(r[1]*H),sw,sh,0,0,sw*2,sh*2);return c;}
 function parseBottom(t){const U=t.toUpperCase();const lines=U.split(/\n|\|/).map(x=>x.replace(/[^A-Z0-9\/ ]/g," ").replace(/\s+/g," ").trim()).filter(Boolean);
-  const cm=U.match(/\b0*(\d{1,4})(?:\s*\/\s*\d{1,4})?\b/);let set=null,lang=null;
+  let cn=null;let m=U.match(/\b0*(\d{1,4})\s*\/\s*\d{2,4}\b/);if(m)cn=m[1];
+  if(!cn){m=U.match(/(?:^|[\s|])[CURMSLTPB]\s*((?:\d\s?){2,4})(?=\s|$|\|)/m);if(m)cn=m[1].replace(/\s/g,"").replace(/^0+(?=\d)/,"");}
+  if(!cn){m=U.match(/\b0(\d{2,3})\b/);if(m)cn=m[1].replace(/^0+(?=\d)/,"");}
+  let set=null,lang=null;
   for(const l of lines){const tk=l.split(" ");const i=tk.findIndex((x,j)=>j>0&&SC_LANG.has(x));if(i>0&&/^[A-Z0-9]{3,5}$/.test(tk[i-1])&&/[A-Z]/.test(tk[i-1])){set=tk[i-1];lang=tk[i];break;}}
   if(!set){const l=lines[1]||lines[0]||"";const t2=l.split(" ").find(x=>/^[A-Z0-9]{3,5}$/.test(x)&&/[A-Z]/.test(x)&&/\d|[A-Z]{3}/.test(x)&&!SC_LANG.has(x));if(t2)set=t2;}
-  return {set:set&&set.toLowerCase(),lang:lang&&({JP:"ja",CS:"zhs",CT:"zht"}[lang]||lang.toLowerCase()),cn:cm?cm[1]:null};}
+  return {set:set&&set.toLowerCase(),lang:lang&&({JP:"ja",CS:"zhs",CT:"zht"}[lang]||lang.toLowerCase()),cn};}
 function cleanTitle(t){return t.replace(/[\r\n]+/g," ").replace(/^[^A-Za-zÀ-ÿ]+/,"").replace(/[^A-Za-zÀ-ÿ,'\- ]/g," ").split(/\s+/).filter((w,i,a)=>!(i===a.length-1&&w.length<3)).join(" ").replace(/\s+/g," ").trim();}
 function sameName(a,b){const A=norm(a||"").split(/\s+/).filter(x=>x.length>2),B=new Set(norm(b||"").split(/\s+/));if(!A.length)return false;return A.filter(x=>B.has(x)).length/A.length>=0.5;}
 async function sfJSON(u){try{const r=await fetch("https://api.scryfall.com/"+u);return r.ok?await r.json():null;}catch(e){return null;}}
@@ -3584,7 +3587,7 @@ async function scanCanvas(card){if(SC.busy)return null;SC.busy=true;
   try{scMsg("Reading the card…");const w=await scWorker();
     await w.setParameters({tessedit_pageseg_mode:"3"});const d=(await w.recognize(card)).data;
     const L=pickLines(d,card.width,card.height);window.__scanDebug=L;
-    const low=L.filter(l=>l.y>0.6).map(l=>l.t).join("\n");const tc=titleCands(L);
+    const low=L.filter(l=>l.y>0.76).map(l=>l.t).join("\n");const tc=titleCands(L);
     const c=await identify(tc,low);
     SC.busy=false;return c||{fail:true,title:tc[0]||""};}
   catch(e){SC.busy=false;scMsg(e.message||"The card could not be read.");return null;}}
