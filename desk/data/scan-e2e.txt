@@ -1,0 +1,8 @@
+{"feed": 0, "mode": "camera", "start": "Fit the card in the frame, then tap Scan.", "result": {"fail": "Could not recognise this card. Try again with less glare, or type the name."}, "logs": []}
+{"feed": 0, "mode": "photo", "start": "Fit the card in the frame, then tap Scan.", "result": {"fail": "Could not recognise this card (read \"Eh, WENReS TSN\"). Try again with less glare, or type the name."}, "logs": []}
+{"feed": 1, "mode": "camera", "start": "Fit the card in the frame, then tap Scan.", "result": {"fail": "Could not recognise this card (read \"a FW\"). Try again with less glare, or type the name."}, "logs": []}
+{"feed": 1, "mode": "photo", "start": "Fit the card in the frame, then tap Scan.", "result": {"fail": "Could not recognise this card (read \"P GENES CN\"). Try again with less glare, or type the name."}, "logs": []}
+{"feed": 2, "mode": "camera", "start": "Fit the card in the frame, then tap Scan.", "result": {"fail": "Could not recognise this card. Try again with less glare, or type the name."}, "logs": []}
+{"feed": 2, "mode": "photo", "start": "Fit the card in the frame, then tap Scan.", "result": {"fail": "Could not recognise this card (read \"Pree Bs a -\"). Try again with less glare, or type the name."}, "logs": []}
+{"feed": 3, "mode": "camera", "start": "Fit the card in the frame, then tap Scan.", "result": {"fail": "Could not recognise this card. Try again with less glare, or type the name."}, "logs": []}
+{"feed": 3, "mode": "photo", "start": "Fit the card in the frame, then tap Scan.", "result": {"fail": "Could not recognise this card (read \"Dre RR PF Cl er OLN ON a CT\"). Try again with less glare, or type the name."}, "logs": []}
