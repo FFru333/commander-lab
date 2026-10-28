@@ -1165,6 +1165,74 @@ label select,label input,label textarea,.cmrow select,.cmnew input{font-family:v
 @media (max-width:820px){input,select,textarea{font-size:16px!important}}
 @media (max-width:820px){#importModal.scanmode .scanview{height:58dvh}}
 .scanmsg{top:50%;bottom:auto;transform:translateY(-50%)}
+/* ===== life counter ===== */
+.playBtn{display:inline-flex;align-items:center;gap:6px}
+.playBtn svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linejoin:round}
+@media (max-width:640px){.playBtn span{display:none}.playBtn{width:40px;padding:0;justify-content:center}}
+html.lifeon,html.lifeon body{overflow:hidden}
+.life{position:fixed;inset:0;z-index:200;background:#0b0e12;touch-action:manipulation;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+.lgrid{position:absolute;inset:0;display:grid;gap:6px;padding:calc(6px + env(safe-area-inset-top,0px)) calc(6px + env(safe-area-inset-right,0px)) calc(6px + env(safe-area-inset-bottom,0px)) calc(6px + env(safe-area-inset-left,0px))}
+.lseat{position:relative;border-radius:22px;overflow:hidden;container-type:size;background:var(--pc);color:#13181b;transition:opacity .3s,filter .3s}
+.lseat.hasart{background:linear-gradient(rgba(10,12,16,.38),rgba(10,12,16,.62)),var(--art) center 30%/cover,var(--pc);color:#fff}
+.lseat.hasart::before{content:"";position:absolute;inset:0;border:4px solid var(--pc);border-radius:22px;pointer-events:none;z-index:3}
+.lseat.dead{filter:grayscale(.9);opacity:.5}
+.lseat.dead .llife::after{content:"OUT";display:block;font:700 12cqmin/1 var(--fm);letter-spacing:.2em;text-align:center;margin-top:2cqmin}
+.lseat.pick{animation:lpick .4s ease-in-out 4 alternate}
+@keyframes lpick{to{box-shadow:inset 0 0 0 8px #fff}}
+.lin{position:absolute;left:50%;top:50%;width:100cqw;height:100cqh;transform:translate(-50%,-50%) rotate(var(--r));container-type:size}
+.lseat[data-rot="90"] .lin,.lseat[data-rot="-90"] .lin{width:100cqh;height:100cqw}
+.lzone{position:absolute;top:0;bottom:0;width:50%;border:0;border-radius:0;background:transparent;padding:0;min-height:0;height:auto;z-index:1;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.lzone:active{background:rgba(255,255,255,.08)}
+.lzone.minus{left:0}.lzone.plus{right:0}
+.lpm{position:absolute;inset:0;display:flex;justify-content:space-between;align-items:center;padding:0 7cqw;pointer-events:none;font:300 min(14cqh,12cqw)/1 var(--fd);opacity:.45}
+.lpm i{font-style:normal}
+.llife{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);pointer-events:none;text-align:center}
+.llife b{display:block;font:700 min(46cqh,34cqw)/.9 var(--fd);letter-spacing:-.04em;font-variant-numeric:tabular-nums}
+.ldelta{position:absolute;left:100%;top:0;margin-left:2cqw;font:700 min(12cqh,8cqw)/1 var(--fd);opacity:0;transition:opacity .2s}
+.ldelta.show{opacity:.9}
+.lname{position:absolute;left:50%;top:5cqh;transform:translateX(-50%);z-index:2;height:auto;min-height:0;padding:6px 14px;border:0;border-radius:999px;background:rgba(0,0,0,.14);color:inherit;font:600 min(7cqh,5cqw)/1.1 var(--fb);max-width:80%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hasart .lname{background:rgba(0,0,0,.35)}
+.lfirst{font:600 .65em/1 var(--fm);font-style:normal;text-transform:uppercase;letter-spacing:.1em;padding:3px 6px;border-radius:999px;background:#fff;color:#13181b;margin-left:4px;vertical-align:middle}
+.lchips{position:absolute;left:50%;bottom:5cqh;transform:translateX(-50%);z-index:2;display:flex;gap:8px}
+.lchips button{height:auto;min-height:0;display:inline-flex;align-items:center;gap:5px;padding:6px 12px;border:0;border-radius:999px;background:rgba(0,0,0,.14);color:inherit;font:600 min(6.5cqh,4.5cqw)/1 var(--fm);opacity:.75}
+.hasart .lchips button{background:rgba(0,0,0,.35)}
+.lchips button.on{opacity:1;background:rgba(0,0,0,.28)}
+.lchips button.warn{background:#c8452f;color:#fff}
+.lchips svg{width:1.1em;height:1.1em;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.lhub{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:5;width:54px;height:54px;min-height:0;padding:0;border-radius:50%;border:3px solid #0b0e12;background:#f0eeeb;color:#13181b;display:grid;place-items:center;box-shadow:0 6px 20px rgba(0,0,0,.45)}
+.lhub svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round}
+.life.upright .lhub{top:auto;bottom:calc(14px + env(safe-area-inset-bottom,0px));transform:translateX(-50%)}
+.lmenu,.lsheet{position:absolute;inset:0;z-index:10;background:rgba(5,7,10,.6);display:grid;place-items:center;padding:16px}
+.lmenu[hidden],.lsheet[hidden]{display:none}
+.lsbox{width:min(440px,100%);max-height:calc(100dvh - 32px);overflow:auto;background:var(--card);color:var(--ink);border-radius:var(--r);padding:18px;box-shadow:0 20px 60px rgba(0,0,0,.4);-webkit-user-select:text;user-select:text}
+.lshead{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:8px}
+.lshead b{font-size:19px}
+.lsbox .lshead b{border-left:6px solid var(--pc,transparent);padding-left:10px}
+.lslbl{margin:16px 0 8px;font:500 10.5px/1.3 var(--fm);letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
+.lslbl small{display:block;letter-spacing:.04em;text-transform:none;font-family:var(--fb);font-size:12px;margin-top:2px}
+.lsrow{display:grid;grid-template-columns:14px minmax(0,1fr) auto;gap:10px;align-items:center;padding:8px 0;border-bottom:1px solid var(--line)}
+.lsrow.lethal .who{color:var(--warn);font-weight:700}
+.lsrow .dot{width:14px;height:14px;border-radius:50%}
+.lsrow .dot.pois{background:#3f8f4a}
+.lsrow .who{font-weight:600;font-size:14.5px;overflow-wrap:anywhere}
+.lsrow .who small{display:block;font-weight:400;color:var(--muted);font-size:12px}
+.lsrow .qctl{display:inline-flex;align-items:center;gap:10px}
+.lsrow .qctl button{width:40px;height:40px;min-height:0;padding:0;font-size:20px}
+.lsrow .qctl b{min-width:28px;text-align:center;font:600 18px/1 var(--fd);font-variant-numeric:tabular-nums}
+.lsfield{display:grid;gap:6px;margin:10px 0;font:500 10.5px/1 var(--fm);letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.lsfield input{height:44px;font:16px var(--fb);letter-spacing:0;text-transform:none;color:var(--ink)}
+.lscolors{display:flex;gap:10px;margin:10px 0}
+.lscolors button{width:38px;height:38px;min-height:0;padding:0;border-radius:50%;border:3px solid transparent}
+.lscolors button[aria-pressed="true"]{border-color:var(--ink)}
+.lsdecks{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
+.lsdecks button{height:34px;min-height:0;font-size:13px;padding:0 12px}
+.lseg{display:flex;flex-wrap:wrap;gap:6px}
+.lseg button{height:40px;min-height:0;min-width:48px;padding:0 14px}
+.lseg button[aria-pressed="true"]{background:var(--nav);color:var(--nav-ink);border-color:var(--nav)}
+.lacts{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
+.lroll{margin:12px 0 0;font:700 22px/1.2 var(--fd)}
+.lname{left:5cqw;transform:none;max-width:60%}
+.life.upright .lhub{left:auto;right:calc(14px + env(safe-area-inset-right,0px));bottom:calc(14px + env(safe-area-inset-bottom,0px));transform:none}
 
 </style>
 </head>
@@ -1180,10 +1248,17 @@ label select,label input,label textarea,.cmrow select,.cmnew input{font-family:v
   </div>
   <div class="navr">
     <select id="deckSel" aria-label="Current deck"></select>
+    <button id="playOpen" type="button" class="playBtn" aria-label="Life counter"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/></svg><span>Play</span></button>
     <button id="themeOpen" type="button" class="themeBtn"><i aria-hidden="true"></i>Theme</button>
     <button id="deckNew" type="button" class="btn-acc">New deck</button>
   </div>
 </div></nav>
+<div id="life" class="life" hidden role="dialog" aria-modal="true" aria-label="Life counter">
+  <div class="lgrid" id="lGrid"></div>
+  <button type="button" class="lhub" id="lHub" aria-label="Game menu"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1 7 17M17 7l2.1-2.1"/></svg></button>
+  <div class="lmenu" id="lMenu" hidden></div>
+  <div class="lsheet" id="lSheet" hidden></div>
+</div>
 <main class="wrap">
 <section class="empty" id="emptyState" hidden data-old="1">
   <h2>No decks yet</h2>
@@ -1197,7 +1272,7 @@ label select,label input,label textarea,.cmrow select,.cmnew input{font-family:v
       <h1 class="ttl" id="homeTitle">Good evening</h1>
       <p class="sub" id="homeSub"></p>
     </div>
-    <div class="vtools"><button type="button" class="btn-acc" data-act="new">New deck</button><button type="button" data-go="coll">My collection</button></div>
+    <div class="vtools"><button type="button" class="btn-acc" data-act="new">New deck</button><button type="button" data-act="play">Life counter</button><button type="button" data-go="coll">My collection</button></div>
   </div>
   <div class="bento" id="homeStats"></div>
   <div class="hsec"><h2>My decks</h2><button type="button" class="ghostbtn" data-go="decks">See all</button></div>
@@ -3714,6 +3789,115 @@ async function scanPhoto(f){SC.busy=true;scMsg("Reading the photo…");
     else if(b.id==="scFind"){const n=document.getElementById("scName").value.trim();if(!n)return;const c=await sfJSON("cards/named?fuzzy="+encodeURIComponent(n));if(c){SC.cur=null;onName({name:c.name,from:"en"},c);}}});
   P.addEventListener("change",e=>{if(e.target.id!=="scPrint"||!SC.cur||!SC.cur.prints)return;const p=SC.cur.prints[+e.target.value];if(p)applyCard(p,true);});})();
 let imWasOpen=false;new MutationObserver(()=>{const o=imM.classList.contains("open");if(!o){stopScan();SC.mode=null;scanCls(false);}if(o&&!imWasOpen){setImTab(SC.openScan?"scan":"text");SC.openScan=false;setTimeout(imPreview,0);}scanCls(o&&SC.mode==="scan");imWasOpen=o;}).observe(imM,{attributes:true,attributeFilter:["class"]});
+
+/* ---------- life counter: 2–6 players, commander damage, poison, around-the-table layout ---------- */
+const LIFE_COLORS=["#e8745e","#7fb2e5","#ffbf65","#9fcf9b","#c9a7e8","#f2a6c0"];
+const LIFE_SEATS={ /* grid template and, per seat, [grid-area, rotation] for "around the table" */
+  2:{cols:"1fr",rows:"1fr 1fr",seats:[["2/1/3/2",0],["1/1/2/2",180]]},
+  3:{cols:"1fr 1fr",rows:"1fr 1fr",seats:[["1/1/3/2",90],["1/2/2/3",-90],["2/2/3/3",-90]]},
+  4:{cols:"1fr 1fr",rows:"1fr 1fr",seats:[["2/1/3/2",90],["1/1/2/2",90],["1/2/2/3",-90],["2/2/3/3",-90]]},
+  5:{cols:"1fr 1fr",rows:"repeat(6,1fr)",seats:[["4/1/7/2",90],["1/1/4/2",90],["1/2/3/3",-90],["3/2/5/3",-90],["5/2/7/3",-90]]},
+  6:{cols:"1fr 1fr",rows:"1fr 1fr 1fr",seats:[["3/1/4/2",90],["2/1/3/2",90],["1/1/2/2",90],["1/2/2/3",-90],["2/2/3/3",-90],["3/2/4/3",-90]]}};
+let LIFE=lsGet(NS+"-life");
+function lifeNew(n,start,keep){const old=(keep&&LIFE&&LIFE.players)||[];
+  const players=Array.from({length:n},(_,i)=>{const o=old[i]||{};return {name:o.name||"Player "+(i+1),color:o.color||LIFE_COLORS[i%LIFE_COLORS.length],art:o.art||"",cmdName:o.cmdName||"",life:start,poison:0,cmd:{}};});
+  LIFE={n,start,orient:(LIFE&&LIFE.orient)||(matchMedia("(pointer:coarse)").matches?"table":"upright"),players,first:null,log:[]};saveLife();}
+if(!LIFE||!LIFE.players||!LIFE_SEATS[LIFE.n])lifeNew(4,40);
+function saveLife(){lsSet(NS+"-life",LIFE);}
+const isDead=p=>p.life<=0||p.poison>=10||Object.values(p.cmd).some(v=>v>=21);
+const L$=id=>document.getElementById(id);
+let lifeWake=null,lifePrevHash="";
+async function wakeOn(){try{if("wakeLock" in navigator&&!lifeWake){lifeWake=await navigator.wakeLock.request("screen");lifeWake.addEventListener("release",()=>{lifeWake=null;});}}catch(e){}}
+document.addEventListener("visibilitychange",()=>{if(!L$("life").hidden&&document.visibilityState==="visible")wakeOn();});
+function openLife(){const O=L$("life");O.hidden=false;document.documentElement.classList.add("lifeon");lifePrevHash=location.hash;history.replaceState(null,"","#play");renderLife();wakeOn();}
+function closeLife(){L$("life").hidden=true;document.documentElement.classList.remove("lifeon");L$("lMenu").hidden=true;L$("lSheet").hidden=true;
+  if(lifeWake){lifeWake.release().catch(()=>{});lifeWake=null;}history.replaceState(null,"",lifePrevHash&&lifePrevHash!=="#play"?lifePrevHash:"#home");}
+function renderLife(){const G=L$("lGrid"),T=LIFE_SEATS[LIFE.n],table=LIFE.orient==="table";
+  const uc=LIFE.n<=2?1:LIFE.n<=4?2:3;G.style.gridTemplateColumns=table?T.cols:"repeat("+uc+",1fr)";G.style.gridTemplateRows=table?T.rows:"repeat("+Math.ceil(LIFE.n/uc)+",1fr)";
+  G.innerHTML="";
+  LIFE.players.forEach((p,i)=>{const [area,rot]=T.seats[i];const el=document.createElement("section");el.className="lseat";el.dataset.i=i;
+    if(table)el.style.gridArea=area;const r=table?rot:0;el.dataset.rot=r;
+    el.style.setProperty("--pc",p.color);if(p.art){el.style.setProperty("--art","url('"+p.art.replace(/'/g,"%27")+"')");el.classList.add("hasart");}
+    el.innerHTML='<div class="lin" style="--r:'+r+'deg"><button type="button" class="lzone minus" data-d="-1" aria-label="'+esc(p.name)+' loses 1 life"></button><button type="button" class="lzone plus" data-d="1" aria-label="'+esc(p.name)+' gains 1 life"></button>'+
+      '<button type="button" class="lname" data-sheet="'+i+'">'+esc(p.name)+(LIFE.first===i?' <i class="lfirst">first</i>':'')+'</button>'+
+      '<div class="llife" aria-live="polite"><b></b><span class="ldelta"></span></div>'+
+      '<span class="lpm" aria-hidden="true"><i>−</i><i>+</i></span>'+
+      '<div class="lchips"></div></div>';
+    G.appendChild(el);paintSeat(i);});
+  L$("life").classList.toggle("upright",!table);}
+function paintSeat(i){const p=LIFE.players[i],el=L$("lGrid").querySelector('.lseat[data-i="'+i+'"]');if(!el)return;
+  el.querySelector(".llife b").textContent=p.life;el.classList.toggle("dead",isDead(p));
+  const cmdTot=Object.values(p.cmd).reduce((a,v)=>a+v,0),cmdMax=Math.max(0,...Object.values(p.cmd));
+  el.querySelector(".lchips").innerHTML='<button type="button" data-sheet="'+i+'" class="'+(p.poison?"on":"")+'"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3c3 4 6 7 6 11a6 6 0 0 1-12 0c0-4 3-7 6-11z"/></svg>'+p.poison+'</button>'+
+    '<button type="button" data-sheet="'+i+'" class="'+(cmdTot?"on":"")+(cmdMax>=15?" warn":"")+'"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 19 19 5M15 5h4v4M9 15l-4 4M5 15l4 4"/></svg>'+cmdMax+'</button>';}
+/* life changes: tap = 1, hold = 10 every half second; a bubble sums the recent change */
+const lifeDelta={};
+function changeLife(i,d){const p=LIFE.players[i];p.life+=d;saveLife();paintSeat(i);
+  const el=L$("lGrid").querySelector('.lseat[data-i="'+i+'"] .ldelta');const D=lifeDelta[i]||(lifeDelta[i]={v:0,t:null});D.v+=d;
+  el.textContent=(D.v>0?"+":"")+D.v;el.classList.add("show");clearTimeout(D.t);D.t=setTimeout(()=>{el.classList.remove("show");LIFE.log.push([i,D.v,Date.now()]);if(LIFE.log.length>200)LIFE.log.shift();saveLife();D.v=0;},1600);}
+let holdT=null,holdI=null,held=false;
+L$("lGrid").addEventListener("pointerdown",e=>{const z=e.target.closest(".lzone");if(!z)return;e.preventDefault();const i=+z.closest(".lseat").dataset.i,d=+z.dataset.d;held=false;
+  clearTimeout(holdT);clearInterval(holdI);holdT=setTimeout(()=>{held=true;changeLife(i,d*10);holdI=setInterval(()=>changeLife(i,d*10),550);},450);
+  const up=()=>{clearTimeout(holdT);clearInterval(holdI);if(!held)changeLife(i,d);window.removeEventListener("pointerup",up);window.removeEventListener("pointercancel",cancel);};
+  const cancel=()=>{clearTimeout(holdT);clearInterval(holdI);window.removeEventListener("pointerup",up);window.removeEventListener("pointercancel",cancel);};
+  window.addEventListener("pointerup",up);window.addEventListener("pointercancel",cancel);});
+L$("lGrid").addEventListener("click",e=>{const b=e.target.closest("[data-sheet]");if(b)openSheet(+b.dataset.sheet);});
+L$("lGrid").addEventListener("contextmenu",e=>e.preventDefault());
+/* per-player sheet: commander damage from each opponent, poison, name, colour, commander art */
+function openSheet(i){const p=LIFE.players[i],S=L$("lSheet");L$("lMenu").hidden=true;
+  const opp=LIFE.players.map((o,j)=>j).filter(j=>j!==i);
+  const decks=Object.keys(DECKS.list).filter(id=>(DECKS.list[id].cmd||[]).length);
+  S.innerHTML='<div class="lsbox" style="--pc:'+esc(p.color)+'"><div class="lshead"><b>'+esc(p.name)+'</b><button type="button" class="ghostbtn" data-x="close">Done</button></div>'+
+    '<p class="lslbl">Commander damage taken <small>21 from one commander is lethal. Changes life too.</small></p>'+
+    opp.map(j=>{const o=LIFE.players[j],v=p.cmd[j]||0;return '<div class="lsrow'+(v>=21?" lethal":"")+'"><span class="dot" style="background:'+esc(o.color)+'"></span><span class="who">'+esc(o.name)+(o.cmdName?'<small>'+esc(o.cmdName)+'</small>':'')+'</span><span class="qctl"><button type="button" data-c="'+j+'" data-d="-1" aria-label="One less from '+esc(o.name)+'">−</button><b>'+v+'</b><button type="button" data-c="'+j+'" data-d="1" aria-label="One more from '+esc(o.name)+'">+</button></span></div>';}).join("")+
+    '<div class="lsrow'+(p.poison>=10?" lethal":"")+'"><span class="dot pois"></span><span class="who">Poison counters<small>10 is lethal</small></span><span class="qctl"><button type="button" data-p="-1" aria-label="One less poison">−</button><b>'+p.poison+'</b><button type="button" data-p="1" aria-label="One more poison">+</button></span></div>'+
+    '<p class="lslbl">Player</p><label class="lsfield">Name<input id="lsName" value="'+esc(p.name)+'" maxlength="24" autocomplete="off"></label>'+
+    '<div class="lscolors" role="group" aria-label="Colour">'+LIFE_COLORS.map(c=>'<button type="button" data-col="'+c+'" style="background:'+c+'" aria-pressed="'+(c===p.color)+'" aria-label="Colour '+c+'"></button>').join("")+'</div>'+
+    '<label class="lsfield">Commander<input id="lsCmd" value="'+esc(p.cmdName)+'" placeholder="Type a commander for the background" autocomplete="off"></label>'+
+    (decks.length?'<div class="lsdecks">'+decks.map(id=>'<button type="button" data-deck="'+esc(id)+'">'+esc(DECKS.list[id].name)+'</button>').join("")+'</div>':'')+
+    (p.art?'<button type="button" class="ghostbtn" data-x="noart">Remove background</button>':'')+'</div>';
+  S.hidden=false;S.dataset.i=i;}
+function setCmdArt(i,name){const p=LIFE.players[i];p.cmdName=name;p.art=name?"https://api.scryfall.com/cards/named?fuzzy="+encodeURIComponent(name)+"&format=image&version=art_crop":"";saveLife();renderLife();}
+L$("lSheet").addEventListener("click",e=>{const S=L$("lSheet"),i=+S.dataset.i,p=LIFE.players[i];if(e.target===S){S.hidden=true;return;}
+  const b=e.target.closest("button");if(!b)return;
+  if(b.dataset.x==="close"){S.hidden=true;return;}
+  if(b.dataset.x==="noart"){p.art="";p.cmdName="";saveLife();renderLife();openSheet(i);return;}
+  if(b.dataset.c!=null){const j=+b.dataset.c,d=+b.dataset.d,v=p.cmd[j]||0;if(v+d<0)return;p.cmd[j]=v+d;changeLife(i,-d);openSheet(i);return;}
+  if(b.dataset.p){p.poison=Math.max(0,p.poison+(+b.dataset.p));saveLife();paintSeat(i);openSheet(i);return;}
+  if(b.dataset.col){p.color=b.dataset.col;saveLife();renderLife();openSheet(i);return;}
+  if(b.dataset.deck){const d=DECKS.list[b.dataset.deck];const c=(d.cmd||[])[0];if(c){p.name=p.name.startsWith("Player ")?d.name:p.name;setCmdArt(i,front(c));openSheet(i);}}});
+L$("lSheet").addEventListener("change",e=>{const i=+L$("lSheet").dataset.i,p=LIFE.players[i];
+  if(e.target.id==="lsName"){p.name=e.target.value.trim()||("Player "+(i+1));saveLife();renderLife();}
+  if(e.target.id==="lsCmd"){setCmdArt(i,e.target.value.trim());openSheet(i);}});
+/* game menu */
+let lifeRoll="";
+function openMenu(){const M=L$("lMenu");L$("lSheet").hidden=true;
+  M.innerHTML='<div class="lsbox"><div class="lshead"><b>Game</b><button type="button" class="ghostbtn" data-m="hide">Back</button></div>'+
+    '<p class="lslbl">Players</p><div class="lseg">'+[2,3,4,5,6].map(n=>'<button type="button" data-n="'+n+'" aria-pressed="'+(LIFE.n===n)+'">'+n+'</button>').join("")+'</div>'+
+    '<p class="lslbl">Starting life</p><div class="lseg">'+[20,25,30,40].map(n=>'<button type="button" data-s="'+n+'" aria-pressed="'+(LIFE.start===n)+'">'+n+'</button>').join("")+'</div>'+
+    '<p class="lslbl">Layout</p><div class="lseg"><button type="button" data-o="table" aria-pressed="'+(LIFE.orient==="table")+'">Around the table</button><button type="button" data-o="upright" aria-pressed="'+(LIFE.orient==="upright")+'">All facing me</button></div>'+
+    '<div class="lacts"><button type="button" data-m="first">Random first player</button><button type="button" data-m="d20">Roll d20</button><button type="button" data-m="d6">Roll d6</button><button type="button" data-m="coin">Flip a coin</button></div>'+
+    (lifeRoll?'<p class="lroll" role="status">'+esc(lifeRoll)+'</p>':'')+
+    '<div class="lacts"><button type="button" class="btn-acc" data-m="restart">Restart game</button><button type="button" data-m="exit">Exit</button></div></div>';
+  M.hidden=false;}
+L$("lHub").addEventListener("click",()=>{if(L$("lMenu").hidden)openMenu();else L$("lMenu").hidden=true;});
+L$("lMenu").addEventListener("click",async e=>{const M=L$("lMenu");if(e.target===M){M.hidden=true;return;}const b=e.target.closest("button");if(!b)return;
+  if(b.dataset.n){lifeNew(+b.dataset.n,LIFE.start,true);renderLife();openMenu();return;}
+  if(b.dataset.s){const s=+b.dataset.s;const fresh=LIFE.players.every(p=>p.life===LIFE.start&&!p.poison&&!Object.keys(p.cmd).length);LIFE.start=s;if(fresh)LIFE.players.forEach(p=>p.life=s);saveLife();renderLife();openMenu();return;}
+  if(b.dataset.o){LIFE.orient=b.dataset.o;saveLife();renderLife();openMenu();return;}
+  const m=b.dataset.m;const rnd=k=>1+Math.floor((crypto.getRandomValues(new Uint32Array(1))[0]/4294967296)*k);
+  if(m==="hide")M.hidden=true;
+  if(m==="first"){LIFE.first=rnd(LIFE.n)-1;saveLife();renderLife();lifeRoll=LIFE.players[LIFE.first].name+" goes first.";M.hidden=true;
+    const el=L$("lGrid").querySelector('.lseat[data-i="'+LIFE.first+'"]');if(el){el.classList.add("pick");setTimeout(()=>el.classList.remove("pick"),1600);}}
+  if(m==="d20"){lifeRoll="d20: "+rnd(20);openMenu();}
+  if(m==="d6"){lifeRoll="d6: "+rnd(6);openMenu();}
+  if(m==="coin"){lifeRoll=rnd(2)===1?"Heads":"Tails";openMenu();}
+  if(m==="restart"){if(!await ask("Start a new game? Life, poison and commander damage go back to the start. Names and colours stay.","Restart"))return;lifeNew(LIFE.n,LIFE.start,true);lifeRoll="";renderLife();M.hidden=true;}
+  if(m==="exit")closeLife();});
+document.getElementById("playOpen").addEventListener("click",openLife);
+document.addEventListener("click",e=>{if(e.target.closest('[data-act="play"]'))openLife();});
+document.addEventListener("keydown",e=>{if(e.key==="Escape"&&!L$("life").hidden){if(!L$("lSheet").hidden)L$("lSheet").hidden=true;else if(!L$("lMenu").hidden)L$("lMenu").hidden=true;else closeLife();}});
+if(location.hash==="#play")setTimeout(openLife,0);
 
 window.addEventListener("hashchange",()=>{if(/^#add=/i.test(location.hash))location.reload();});
 /* add a shared deck from a link: #add=<slug> loads decks/<slug>.json (deck + marks) next to the page */

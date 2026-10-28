@@ -10,10 +10,17 @@
   </div>
   <div class="navr">
     <select id="deckSel" aria-label="Current deck"></select>
+    <button id="playOpen" type="button" class="playBtn" aria-label="Life counter"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/></svg><span>Play</span></button>
     <button id="themeOpen" type="button" class="themeBtn"><i aria-hidden="true"></i>Theme</button>
     <button id="deckNew" type="button" class="btn-acc">New deck</button>
   </div>
 </div></nav>
+<div id="life" class="life" hidden role="dialog" aria-modal="true" aria-label="Life counter">
+  <div class="lgrid" id="lGrid"></div>
+  <button type="button" class="lhub" id="lHub" aria-label="Game menu"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1 7 17M17 7l2.1-2.1"/></svg></button>
+  <div class="lmenu" id="lMenu" hidden></div>
+  <div class="lsheet" id="lSheet" hidden></div>
+</div>
 <main class="wrap">
 <section class="empty" id="emptyState" hidden data-old="1">
   <h2>No decks yet</h2>
@@ -27,7 +34,7 @@
       <h1 class="ttl" id="homeTitle">Good evening</h1>
       <p class="sub" id="homeSub"></p>
     </div>
-    <div class="vtools"><button type="button" class="btn-acc" data-act="new">New deck</button><button type="button" data-go="coll">My collection</button></div>
+    <div class="vtools"><button type="button" class="btn-acc" data-act="new">New deck</button><button type="button" data-act="play">Life counter</button><button type="button" data-go="coll">My collection</button></div>
   </div>
   <div class="bento" id="homeStats"></div>
   <div class="hsec"><h2>My decks</h2><button type="button" class="ghostbtn" data-go="decks">See all</button></div>
