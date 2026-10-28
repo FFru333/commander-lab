@@ -1,0 +1,19 @@
+name: Refresh app data
+on:
+  push:
+    branches: [gh-pages]
+    paths-ignore: ['desk/data/**']
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  data:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: { ref: gh-pages }
+      - run: mkdir -p desk/data && python3 tools/build_combos.py desk/data/combos.json
+      - run: bash tools/probe.sh || true
+      - run: |
+          git config user.name "commander-desk-bot"; git config user.email "actions@users.noreply.github.com"
+          git add desk/data && git commit -m "Refresh combo data [skip ci]" && git push || echo "nothing to commit"
