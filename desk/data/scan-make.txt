@@ -9,7 +9,7 @@
 + curl -s -A CommanderDesk/1.0 -o feeds/c0.png 'https://cards.scryfall.io/png/front/3/d/3d67f11c-95f9-4043-848e-a16cf4c46151.png?1791688160'
 + sleep 0.2
 + ffmpeg -loglevel error -y -f lavfi -i color=c=0x3a3530:s=1080x1440 -i feeds/c0.png -filter_complex '[1]scale=-1:1200,rotate=0.03:c=none:ow=rotw(0.03):oh=roth(0.03)[c];[0][c]overlay=(W-w)/2+12:(H-h)/2-8,format=yuv420p' -frames:v 1 feeds/p0.png
-+ ffmpeg -loglevel error -y -f lavfi -i color=c=0x2b2724:s=1920x1080 -i feeds/c0.png -filter_complex '[1]scale=-1:900,rotate=-0.025:c=none:ow=rotw(0.025):oh=roth(0.025)[c];[0][c]overlay=(W-w)/2-20:(H-h)/2+10,format=yuv420p' -frames:v 1 feeds/f0.png
++ ffmpeg -loglevel error -y -f lavfi -i color=c=0x2b2724:s=1920x1080 -i feeds/c0.png -filter_complex '[1]scale=-1:1000,rotate=-0.03:c=none:ow=rotw(0.03):oh=roth(0.03)[c];[0][c]overlay=(W-w)/2-15:324-70,format=yuv420p' -frames:v 1 feeds/f0.png
 + ffmpeg -loglevel error -y -loop 1 -i feeds/f0.png -t 3 -r 10 -pix_fmt yuv420p feeds/v0.y4m
 + i=1
 + for path in "cards/fdn/194/it" "cards/named?exact=Lathliss%2C%20Dragon%20Queen" "cards/named?exact=Terror%20of%20the%20Peaks&set=m21" "cards/named?exact=Sol%20Ring&set=cmm"
@@ -19,7 +19,7 @@
 + curl -s -A CommanderDesk/1.0 -o feeds/c1.png 'https://cards.scryfall.io/png/front/0/c/0cb48015-627b-49cd-8dc3-d446e82b8172.png?1783907068'
 + sleep 0.2
 + ffmpeg -loglevel error -y -f lavfi -i color=c=0x3a3530:s=1080x1440 -i feeds/c1.png -filter_complex '[1]scale=-1:1200,rotate=0.03:c=none:ow=rotw(0.03):oh=roth(0.03)[c];[0][c]overlay=(W-w)/2+12:(H-h)/2-8,format=yuv420p' -frames:v 1 feeds/p1.png
-+ ffmpeg -loglevel error -y -f lavfi -i color=c=0x2b2724:s=1920x1080 -i feeds/c1.png -filter_complex '[1]scale=-1:900,rotate=-0.025:c=none:ow=rotw(0.025):oh=roth(0.025)[c];[0][c]overlay=(W-w)/2-20:(H-h)/2+10,format=yuv420p' -frames:v 1 feeds/f1.png
++ ffmpeg -loglevel error -y -f lavfi -i color=c=0x2b2724:s=1920x1080 -i feeds/c1.png -filter_complex '[1]scale=-1:1000,rotate=-0.03:c=none:ow=rotw(0.03):oh=roth(0.03)[c];[0][c]overlay=(W-w)/2-15:324-70,format=yuv420p' -frames:v 1 feeds/f1.png
 + ffmpeg -loglevel error -y -loop 1 -i feeds/f1.png -t 3 -r 10 -pix_fmt yuv420p feeds/v1.y4m
 + i=2
 + for path in "cards/fdn/194/it" "cards/named?exact=Lathliss%2C%20Dragon%20Queen" "cards/named?exact=Terror%20of%20the%20Peaks&set=m21" "cards/named?exact=Sol%20Ring&set=cmm"
@@ -29,7 +29,7 @@
 + curl -s -A CommanderDesk/1.0 -o feeds/c2.png 'https://cards.scryfall.io/png/front/4/3/432ecd5f-966f-4403-a973-51e175a524a0.png?1783930684'
 + sleep 0.2
 + ffmpeg -loglevel error -y -f lavfi -i color=c=0x3a3530:s=1080x1440 -i feeds/c2.png -filter_complex '[1]scale=-1:1200,rotate=0.03:c=none:ow=rotw(0.03):oh=roth(0.03)[c];[0][c]overlay=(W-w)/2+12:(H-h)/2-8,format=yuv420p' -frames:v 1 feeds/p2.png
-+ ffmpeg -loglevel error -y -f lavfi -i color=c=0x2b2724:s=1920x1080 -i feeds/c2.png -filter_complex '[1]scale=-1:900,rotate=-0.025:c=none:ow=rotw(0.025):oh=roth(0.025)[c];[0][c]overlay=(W-w)/2-20:(H-h)/2+10,format=yuv420p' -frames:v 1 feeds/f2.png
++ ffmpeg -loglevel error -y -f lavfi -i color=c=0x2b2724:s=1920x1080 -i feeds/c2.png -filter_complex '[1]scale=-1:1000,rotate=-0.03:c=none:ow=rotw(0.03):oh=roth(0.03)[c];[0][c]overlay=(W-w)/2-15:324-70,format=yuv420p' -frames:v 1 feeds/f2.png
 + ffmpeg -loglevel error -y -loop 1 -i feeds/f2.png -t 3 -r 10 -pix_fmt yuv420p feeds/v2.y4m
 + i=3
 + for path in "cards/fdn/194/it" "cards/named?exact=Lathliss%2C%20Dragon%20Queen" "cards/named?exact=Terror%20of%20the%20Peaks&set=m21" "cards/named?exact=Sol%20Ring&set=cmm"
@@ -39,26 +39,26 @@
 + curl -s -A CommanderDesk/1.0 -o feeds/c3.png 'https://cards.scryfall.io/png/front/4/6/46ca0b66-a000-4483-b916-f5b89e710244.png?1783915591'
 + sleep 0.2
 + ffmpeg -loglevel error -y -f lavfi -i color=c=0x3a3530:s=1080x1440 -i feeds/c3.png -filter_complex '[1]scale=-1:1200,rotate=0.03:c=none:ow=rotw(0.03):oh=roth(0.03)[c];[0][c]overlay=(W-w)/2+12:(H-h)/2-8,format=yuv420p' -frames:v 1 feeds/p3.png
-+ ffmpeg -loglevel error -y -f lavfi -i color=c=0x2b2724:s=1920x1080 -i feeds/c3.png -filter_complex '[1]scale=-1:900,rotate=-0.025:c=none:ow=rotw(0.025):oh=roth(0.025)[c];[0][c]overlay=(W-w)/2-20:(H-h)/2+10,format=yuv420p' -frames:v 1 feeds/f3.png
++ ffmpeg -loglevel error -y -f lavfi -i color=c=0x2b2724:s=1920x1080 -i feeds/c3.png -filter_complex '[1]scale=-1:1000,rotate=-0.03:c=none:ow=rotw(0.03):oh=roth(0.03)[c];[0][c]overlay=(W-w)/2-15:324-70,format=yuv420p' -frames:v 1 feeds/f3.png
 + ffmpeg -loglevel error -y -loop 1 -i feeds/f3.png -t 3 -r 10 -pix_fmt yuv420p feeds/v3.y4m
 + i=4
 + ls -la feeds
-total 379824
-drwxr-xr-x 2 runner runner     4096 Oct 28 13:46 .
-drwxr-xr-x 3 runner runner     4096 Oct 28 13:46 ..
--rw-r--r-- 1 runner runner  1138105 Oct 28 13:46 c0.png
--rw-r--r-- 1 runner runner  1061180 Oct 28 13:46 c1.png
--rw-r--r-- 1 runner runner  1662414 Oct 28 13:46 c2.png
--rw-r--r-- 1 runner runner  1022637 Oct 28 13:46 c3.png
--rw-r--r-- 1 runner runner  1079552 Oct 28 13:46 f0.png
--rw-r--r-- 1 runner runner   991068 Oct 28 13:46 f1.png
--rw-r--r-- 1 runner runner  1225674 Oct 28 13:46 f2.png
--rw-r--r-- 1 runner runner   808837 Oct 28 13:46 f3.png
--rw-r--r-- 1 runner runner  1722399 Oct 28 13:46 p0.png
--rw-r--r-- 1 runner runner  1570574 Oct 28 13:46 p1.png
--rw-r--r-- 1 runner runner  2076407 Oct 28 13:46 p2.png
--rw-r--r-- 1 runner runner  1291961 Oct 28 13:46 p3.png
--rw-r--r-- 1 runner runner 93312260 Oct 28 13:46 v0.y4m
--rw-r--r-- 1 runner runner 93312260 Oct 28 13:46 v1.y4m
--rw-r--r-- 1 runner runner 93312260 Oct 28 13:46 v2.y4m
--rw-r--r-- 1 runner runner 93312260 Oct 28 13:46 v3.y4m
+total 380064
+drwxr-xr-x 2 runner runner     4096 Oct 28 15:13 .
+drwxr-xr-x 3 runner runner     4096 Oct 28 15:13 ..
+-rw-r--r-- 1 runner runner  1138105 Oct 28 15:13 c0.png
+-rw-r--r-- 1 runner runner  1061180 Oct 28 15:13 c1.png
+-rw-r--r-- 1 runner runner  1662414 Oct 28 15:13 c2.png
+-rw-r--r-- 1 runner runner  1022637 Oct 28 15:13 c3.png
+-rw-r--r-- 1 runner runner  1149265 Oct 28 15:13 f0.png
+-rw-r--r-- 1 runner runner  1024998 Oct 28 15:13 f1.png
+-rw-r--r-- 1 runner runner  1303680 Oct 28 15:13 f2.png
+-rw-r--r-- 1 runner runner   869613 Oct 28 15:13 f3.png
+-rw-r--r-- 1 runner runner  1722399 Oct 28 15:13 p0.png
+-rw-r--r-- 1 runner runner  1570574 Oct 28 15:13 p1.png
+-rw-r--r-- 1 runner runner  2076407 Oct 28 15:13 p2.png
+-rw-r--r-- 1 runner runner  1291961 Oct 28 15:13 p3.png
+-rw-r--r-- 1 runner runner 93312260 Oct 28 15:13 v0.y4m
+-rw-r--r-- 1 runner runner 93312260 Oct 28 15:13 v1.y4m
+-rw-r--r-- 1 runner runner 93312260 Oct 28 15:13 v2.y4m
+-rw-r--r-- 1 runner runner 93312260 Oct 28 15:13 v3.y4m
