@@ -8,20 +8,20 @@ async def one(p,i,mode):
     b=await p.chromium.launch(args=args);ctx=await b.new_context(viewport={"width":1200,"height":900},permissions=["camera"]);pg=await ctx.new_page()
     logs=[];pg.on("console",lambda m:logs.append(m.text));pg.on("pageerror",lambda e:logs.append("ERR "+str(e)))
     await pg.goto("http://127.0.0.1:8099/app.html");await pg.wait_for_timeout(800)
-    await pg.click("#imTabs [data-it=scan]");await pg.wait_for_timeout(4000)
+    await pg.click("#imTabs [data-it=scan]");await pg.wait_for_timeout(300)
     msg0=await pg.text_content("#scanMsg")
     if mode=="photo": await pg.set_input_files("#scanFile",f"feeds/p{i}.png")
-    else: await pg.click("#scanShot")
+    import time;t0=time.time()
     res=None
-    for _ in range(90):
-        await pg.wait_for_timeout(1000)
+    for _ in range(120):
+        await pg.wait_for_timeout(250)
         if await pg.query_selector("#scanRes .scard b, #scanRes .scfail"): break
     if await pg.query_selector("#scanRes .scard b"):
         await pg.wait_for_timeout(1500)
-        res={"name":await pg.text_content("#scanRes .scard b"),"print":await pg.eval_on_selector("#scPrint","s=>s.options[s.selectedIndex].textContent"),"options":await pg.eval_on_selector("#scPrint","s=>s.options.length")}
+        res={"secs":round(time.time()-t0,1),"name":await pg.text_content("#scanRes .scard b"),"print":await pg.eval_on_selector("#scPrint","s=>s.options[s.selectedIndex].textContent"),"options":await pg.eval_on_selector("#scPrint","s=>s.options.length")}
         await pg.click("#scAdd");await pg.wait_for_timeout(300);res["text"]=await pg.input_value("#imText")
     elif await pg.query_selector("#scanRes .scfail"): res={"fail":await pg.text_content("#scanRes .scfail p")}
-    try: res=dict(res or {},lines=[(round(l["y"],2),l["t"][:50]) for l in (await pg.evaluate("window.__scanDebug||[]"))][:30])
+    try: res=dict(res or {},debug=await pg.evaluate("JSON.stringify(window.__scanDebug||null)"))
     except Exception: pass
     await pg.screenshot(path=f"../../desk/data/scan-{mode}-{i}.png")
     out.append({"feed":i,"mode":mode,"start":msg0,"result":res,"logs":[l for l in logs if "404" not in l][:6]})
