@@ -3566,7 +3566,7 @@ function bestOfLines(lines){let b=null;lines.forEach(t=>{const m=matchName(t);if
 function scMsg(t){document.getElementById("scanMsg").textContent=t||"";}
 function loadTess(){if(window.Tesseract)return Promise.resolve();return new Promise((res,rej)=>{const s=document.createElement("script");s.src="https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js";s.onload=res;s.onerror=()=>rej(new Error("The text reader could not be downloaded."));document.head.appendChild(s);});}
 function scWorker(){if(SC.worker)return Promise.resolve(SC.worker);if(SC.wload)return SC.wload;
-  SC.wload=loadTess().then(()=>Tesseract.createWorker("eng")).then(async w=>{await w.setParameters({tessedit_pageseg_mode:"11"});SC.worker=w;SC.wload=null;return w;}).catch(e=>{SC.wload=null;throw e;});return SC.wload;}
+  SC.wload=loadTess().then(()=>Tesseract.createWorker("eng")).then(async w=>{await w.setParameters({tessedit_pageseg_mode:"6"});SC.worker=w;SC.wload=null;return w;}).catch(e=>{SC.wload=null;throw e;});return SC.wload;}
 async function startScan(){const V=document.getElementById("scanVid");renderScanList();scMsg("Getting ready…");
   const prep=Promise.all([scWorker(),loadNames()]).catch(e=>{scMsg(e.message);throw e;});
   if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){scMsg("This browser cannot open the camera here. Use Photo instead.");return;}
@@ -3581,7 +3581,7 @@ function setRunBtn(){const b=document.getElementById("scanShot");if(b){b.textCon
 function bandCanvas(){const V=document.getElementById("scanVid"),G=document.getElementById("scanGuide"),box=document.getElementById("scanView").getBoundingClientRect(),g=G.getBoundingClientRect();
   const vw=V.videoWidth,vh=V.videoHeight;if(!vw)return null;const s=Math.max(box.width/vw,box.height/vh);const ox=(box.width-vw*s)/2,oy=(box.height-vh*s)/2;
   const x=Math.max(0,(g.left-box.left-ox)/s),y=Math.max(0,(g.top-box.top-oy)/s),w=Math.min(vw-x,g.width/s),h=Math.min(vh-y,g.height/s);
-  const k=Math.min(1.6,1000/w),c=document.createElement("canvas");c.width=Math.round(w*k);c.height=Math.round(h*k);const ctx=c.getContext("2d");ctx.filter="grayscale(1) contrast(1.4)";ctx.drawImage(V,x,y,w,h,0,0,c.width,c.height);
+  const k=Math.min(1.6,1000/w),c=document.createElement("canvas");c.width=Math.round(w*k);c.height=Math.round(h*k);const ctx=c.getContext("2d");ctx.filter="grayscale(1)";ctx.drawImage(V,x,y,w,h,0,0,c.width,c.height);
   window.__scanGeom={vw,vh,x:Math.round(x),y:Math.round(y),w:Math.round(w),h:Math.round(h)};return c;}
 async function readBand(){const w=await scWorker();const c=bandCanvas();if(!c)return [];const d=(await w.recognize(c)).data;
   return (d.lines||[]).map(l=>l.text||"").filter(t=>t.trim().length>2);}
@@ -3621,7 +3621,7 @@ async function scanPhoto(f){SC.busy=true;scMsg("Reading the photo…");
   try{await loadNames();const w=await scWorker();const im=new Image();im.src=URL.createObjectURL(f);await im.decode();
     const k=Math.min(1,1600/Math.max(im.naturalWidth,im.naturalHeight));const c=document.createElement("canvas");c.width=Math.round(im.naturalWidth*k);c.height=Math.round(im.naturalHeight*k);
     const ctx=c.getContext("2d");ctx.filter="grayscale(1) contrast(1.3)";ctx.drawImage(im,0,0,c.width,c.height);URL.revokeObjectURL(im.src);
-    await w.setParameters({tessedit_pageseg_mode:"3"});const d=(await w.recognize(c)).data;await w.setParameters({tessedit_pageseg_mode:"11"});
+    await w.setParameters({tessedit_pageseg_mode:"3"});const d=(await w.recognize(c)).data;await w.setParameters({tessedit_pageseg_mode:"6"});
     const best=bestOfLines((d.lines||[]).map(l=>l.text||""));
     SC.busy=false;if(best&&best.sim>=0.78){SC.last=null;await recognised(best);}else showResult({fail:true,title:""});}
   catch(e){SC.busy=false;scMsg(e.message||"The photo could not be read.");}}
