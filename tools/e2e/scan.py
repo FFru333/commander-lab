@@ -15,11 +15,11 @@ async def one(p,i,mode):
     res=None
     for _ in range(120):
         await pg.wait_for_timeout(250)
-        if await pg.query_selector("#scanRes .scard b, #scanRes .scfail"): break
+        if await pg.query_selector("#scanRes .scset.ok, #scanRes .scfail"): break
     if await pg.query_selector("#scanRes .scard b"):
         await pg.wait_for_timeout(1500)
-        res={"secs":round(time.time()-t0,1),"name":await pg.text_content("#scanRes .scard b"),"print":await pg.eval_on_selector("#scPrint","s=>s.options[s.selectedIndex].textContent"),"options":await pg.eval_on_selector("#scPrint","s=>s.options.length")}
-        await pg.click("#scAdd");await pg.wait_for_timeout(300);res["text"]=await pg.input_value("#imText")
+        res={"secs":round(time.time()-t0,1),"name":await pg.text_content("#scanRes .scard b"),"set":await pg.text_content("#scanRes .scset")}
+        await pg.wait_for_timeout(2500);res["text"]=await pg.input_value("#imText")
     elif await pg.query_selector("#scanRes .scfail"): res={"fail":await pg.text_content("#scanRes .scfail p")}
     try: res=dict(res or {},debug=await pg.evaluate("JSON.stringify(window.__scanDebug||null)"))
     except Exception: pass

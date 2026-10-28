@@ -1115,8 +1115,12 @@ label select,label input,label textarea,.cmrow select,.cmnew input{font-family:v
 .scanwrap{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:14px;align-items:start}
 .scanview{position:relative;aspect-ratio:3/4;border-radius:var(--r-sm);overflow:hidden;background:#0d1117}
 .scanview video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
-.scanguide{position:absolute;left:5%;right:5%;top:24%;height:26%;border:2px solid var(--a2);border-radius:12px;box-shadow:0 0 0 999px rgba(13,17,23,.5)}
-.scanguide span{position:absolute;left:10px;top:-24px;font:600 11px/1 var(--fm);letter-spacing:.12em;text-transform:uppercase;color:#fff}
+.scanguide{position:absolute;left:50%;top:50%;height:92%;aspect-ratio:63/88;max-width:96%;transform:translate(-50%,-50%);border:2px solid rgba(255,255,255,.85);border-radius:4.5%/3.3%;box-shadow:0 0 0 999px rgba(13,17,23,.45)}
+.scanguide .zt,.scanguide .zb{position:absolute;border:2px solid var(--a2);border-radius:8px;background:rgba(255,191,101,.08)}
+.scanguide .zt{left:2%;right:2%;top:1.5%;height:12%}
+.scanguide .zb{left:1%;width:64%;bottom:1%;height:10%}
+.scanguide span{position:absolute;left:6px;font:600 10px/1 var(--fm);letter-spacing:.12em;text-transform:uppercase;color:var(--a2);white-space:nowrap}
+.scanguide .zt span{bottom:-16px}.scanguide .zb span{top:-16px}
 .scanmsg{position:absolute;left:10px;right:10px;bottom:10px;margin:0;padding:8px 12px;border-radius:999px;background:rgba(13,17,23,.75);color:#fff;font-size:13px;text-align:center}
 .scanmsg:empty{display:none}
 .scanside{display:grid;gap:12px;min-width:0}
@@ -1154,6 +1158,13 @@ label select,label input,label textarea,.cmrow select,.cmnew input{font-family:v
 .srow .qctl button{width:32px;height:32px;min-height:0;padding:0}
 .scanlist{flex-direction:column;align-items:stretch;flex-wrap:nowrap;max-height:40vh;overflow:auto}
 #importModal .box>.exrow:last-child{position:sticky;bottom:0;background:var(--card);padding:12px 0 calc(12px + env(safe-area-inset-bottom,0px));margin-bottom:0;z-index:2;border-top:1px solid var(--line)}
+.scimg{position:relative;padding:0;border:0;height:auto;min-height:0;background:none;border-radius:4.5%/3.3%;overflow:hidden;cursor:pointer}
+.scimg img{display:block;width:100%}
+.scimg em{position:absolute;right:6px;top:6px;font:700 13px/1 var(--fm);font-style:normal;padding:6px 8px;border-radius:999px;background:var(--accent);color:var(--accent-ink)}
+.scard .scset{color:var(--muted)}.scard .scset.ok{color:var(--have)}
+@media (max-width:820px){input,select,textarea{font-size:16px!important}}
+@media (max-width:820px){#importModal.scanmode .scanview{height:58dvh}}
+.scanmsg{top:50%;bottom:auto;transform:translateY(-50%)}
 
 </style>
 </head>
@@ -1431,14 +1442,14 @@ label select,label input,label textarea,.cmrow select,.cmnew input{font-family:v
     </div>
     <div data-ip="scan" hidden>
       <div class="scanwrap">
-        <div class="scanview" id="scanView"><video id="scanVid" playsinline muted></video><div class="scanguide" id="scanGuide" aria-hidden="true"><span>Card name inside this area</span></div><p class="scanmsg" id="scanMsg" role="status"></p></div>
+        <div class="scanview" id="scanView"><video id="scanVid" playsinline muted></video><div class="scanguide" id="scanGuide" aria-hidden="true"><div class="zt" id="zTitle"><span>Name</span></div><div class="zb" id="zSet"><span>Set · number</span></div></div><p class="scanmsg" id="scanMsg" role="status"></p></div>
         <div class="scanside">
           <div class="exrow scanctl"><button type="button" id="scanShot" class="btn-acc" aria-pressed="false">Pause</button><label class="tog"><input type="checkbox" id="scanAuto"> Auto-add</label><label class="btnlink scanfile">Photo<input type="file" id="scanFile" accept="image/*" capture="environment" hidden></label></div>
           <div class="scanres" id="scanRes"></div>
           <div class="scanlist" id="scanList"></div>
         </div>
       </div>
-      <p class="note">Point the camera at the card name so it sits inside the highlighted area; the rest of the card does not matter, and it does not need to be perfectly lined up. English and Italian names are recognised. The camera image stays on this device.</p>
+      <p class="note">Fit the card in the frame. Only the two marked areas are read: the name at the top, and the set code, collector number and language at the bottom left. Tap the card shown below to add another copy. The camera image stays on this device.</p>
     </div>
     <div class="imgrid">
       <label>Deck name<input id="imName" placeholder="e.g. Atraxa superfriends"></label>
@@ -3598,57 +3609,78 @@ async function startScan(){const V=document.getElementById("scanVid");renderScan
   SC.run=true;SC.readyAt=performance.now();setRunBtn();scMsg("Point at the card name.");loop();}
 function stopScan(){SC.run=false;clearTimeout(SC.timer);if(SC.stream){SC.stream.getTracks().forEach(t=>t.stop());SC.stream=null;}const V=document.getElementById("scanVid");if(V)V.srcObject=null;setRunBtn();}
 function setRunBtn(){const b=document.getElementById("scanShot");if(b){b.textContent=SC.run?"Pause":"Resume";b.setAttribute("aria-pressed",SC.run);}}
-/* the reading band on screen, mapped to video pixels (the video uses object-fit: cover) */
-function bandCanvas(){const V=document.getElementById("scanVid"),G=document.getElementById("scanGuide"),box=document.getElementById("scanView").getBoundingClientRect(),g=G.getBoundingClientRect();
+/* the two reading zones inside the card frame, mapped to video pixels (the video uses object-fit: cover) */
+function zoneCanvas(id,target){const V=document.getElementById("scanVid"),Z=document.getElementById(id),box=document.getElementById("scanView").getBoundingClientRect(),g=Z.getBoundingClientRect();
   const vw=V.videoWidth,vh=V.videoHeight;if(!vw)return null;const s=Math.max(box.width/vw,box.height/vh);const ox=(box.width-vw*s)/2,oy=(box.height-vh*s)/2;
-  const x=Math.max(0,(g.left-box.left-ox)/s),y=Math.max(0,(g.top-box.top-oy)/s),w=Math.min(vw-x,g.width/s),h=Math.min(vh-y,g.height/s);
-  const k=Math.min(1.6,1000/w),c=document.createElement("canvas");c.width=Math.round(w*k);c.height=Math.round(h*k);const ctx=c.getContext("2d");ctx.filter="grayscale(1)";ctx.drawImage(V,x,y,w,h,0,0,c.width,c.height);
-  window.__scanGeom={vw,vh,x:Math.round(x),y:Math.round(y),w:Math.round(w),h:Math.round(h)};return c;}
-async function readBand(){const w=await scWorker();const c=bandCanvas();if(!c)return [];const d=(await w.recognize(c)).data;
-  return (d.lines||[]).map(l=>l.text||"").filter(t=>t.trim().length>2);}
+  const x=Math.max(0,(g.left-box.left-ox)/s),y=Math.max(0,(g.top-box.top-oy)/s),w=Math.min(vw-x,g.width/s),h=Math.min(vh-y,g.height/s);if(w<8||h<8)return null;
+  const k=Math.min(target.maxScale||3,(target.w||1e9)/w,(target.h||1e9)/h),c=document.createElement("canvas");c.width=Math.round(w*k);c.height=Math.round(h*k);
+  const ctx=c.getContext("2d");ctx.filter="grayscale(1) contrast(1.2)";ctx.drawImage(V,x,y,w,h,0,0,c.width,c.height);return c;}
+async function ocr(c){if(!c)return "";const w=await scWorker();return (await w.recognize(c)).data;}
+const LANG_CODES=new Set(["EN","IT","DE","FR","ES","PT","JA","JP","KO","RU","ZHS","ZHT","PH","CS","CT"]);
+function parseBottom(t){const U=String(t||"").toUpperCase();const lines=U.split(/\n|\|/).map(x=>x.replace(/[^A-Z0-9\/ ]/g," ").replace(/\s+/g," ").trim()).filter(Boolean);
+  let cn=null;let m=U.match(/(?:^|[\s|])[CURMSLTPB]\s*((?:\d\s?){2,4})(?=\s|$|\|)/m);if(m)cn=m[1].replace(/\s/g,"").replace(/^0+(?=\d)/,"");
+  if(!cn){m=U.match(/\b0*(\d{1,4})\s*\/\s*\d{3}\b/);if(m)cn=m[1];}
+  if(!cn){m=U.match(/\b0(\d{2,3})\b/);if(m)cn=m[1].replace(/^0+(?=\d)/,"");}
+  let set=null,lang=null;
+  for(const l of lines){const tk=l.split(" ");const i=tk.findIndex((x,j)=>j>0&&LANG_CODES.has(x));if(i>0&&/^[A-Z0-9]{3,5}$/.test(tk[i-1])&&/[A-Z]/.test(tk[i-1])){set=tk[i-1];lang=tk[i];break;}}
+  return {set:set&&set.toLowerCase(),lang:lang&&({JP:"ja",CS:"zhs",CT:"zht"}[lang]||lang.toLowerCase()),cn};}
 async function loop(){clearTimeout(SC.timer);if(!SC.run)return;
-  if(!SC.busy){SC.busy=true;const t0=performance.now();let lines=[];try{lines=await readBand();}catch(e){}SC.busy=false;const raw=lines.join(" | ");
-    const m=bestOfLines(lines);SC.cycles=(SC.cycles||0)+1;window.__scanDebug={raw,m,geom:window.__scanGeom,ms:Math.round(performance.now()-t0),cycles:SC.cycles,sinceReady:SC.readyAt?Math.round(performance.now()-SC.readyAt):null};
-    const ok=m&&(m.sim>=0.9||(m.sim>=0.78&&m.margin>=0.06));
-    if(ok){SC.seen=Date.now();const stable=SC.prev&&SC.prev.name===m.name;SC.prev=m;
-      if(m.sim>=0.93||stable)await recognised(m);else scMsg("Reading… "+m.name+"?");}
-    else{SC.prev=null;if(SC.last&&Date.now()-SC.seen>1500)SC.last=null;if(Date.now()-SC.seen>1800)scMsg(raw.trim().length>2?"Hold the name inside the strip.":"Point at the card name.");}}
-  if(SC.run)SC.timer=setTimeout(loop,120);}
-/* recognition never waits for the network: the card is shown and added at once, the printing is filled in afterwards */
-async function recognised(m){SC.seen=Date.now();
-  if(SC.cur&&!SC.cur.fail&&SC.cur.name===m.name)return;
-  if(SC.last&&SC.last.name===m.name)return;
-  const pv={name:m.name,provisional:true,from:m.from,set:"",collector_number:"",set_name:"Finding the printing…",lang:m.from==="it"?"it":"en",
-    image_uris:{normal:"https://api.scryfall.com/cards/named?exact="+encodeURIComponent(front(m.name))+"&format=image&version=normal"}};
-  showResult(pv);if(SC.auto)addScanned();
-  fillPrinting(m.name,m.from);}
-async function fillPrinting(name,from){
-  const c=(from&&from!=="en"&&await sfJSON("cards/search?unique=prints&include_multilingual=true&q="+encodeURIComponent('!"'+name+'" lang:'+from)).then(j=>j&&j.data&&j.data[0]))||await sfJSON("cards/named?exact="+encodeURIComponent(name));
-  if(!c)return;
-  const x=SC.list.find(e=>e.name===name&&!e.set);if(x){x.set=c.set;x.cn=c.collector_number;syncScanText();renderScanList();}
-  if(SC.cur&&SC.cur.provisional&&SC.cur.name===name){const q=document.getElementById("scQty");const keep=q?q.textContent:"1";showResult(c);const q2=document.getElementById("scQty");if(q2)q2.textContent=keep;}}
+  if(!SC.busy){SC.busy=true;const t0=performance.now();let lines=[],bottom="",m=null;
+    try{const d=await ocr(zoneCanvas("zTitle",{w:1000,maxScale:2.5}));lines=(d.lines||[]).map(l=>l.text||"").filter(t=>t.trim().length>2);}catch(e){}
+    m=bestOfLines(lines);const ok=m&&(m.sim>=0.9||(m.sim>=0.78&&m.margin>=0.06));
+    if(ok){SC.seen=Date.now();const stable=SC.prev&&SC.prev.name===m.name;SC.prev=m;if(m.sim>=0.93||stable)onName(m);else scMsg("Reading… "+m.name+"?");}
+    else SC.prev=null;
+    const needSet=SC.cur&&!SC.cur.fail&&!SC.cur.setKnown&&SC.cur.tries<14;
+    if(needSet||!ok){try{const d=await ocr(zoneCanvas("zSet",{h:180,maxScale:3}));bottom=d.text||"";}catch(e){}
+      if(needSet)SC.cur.tries++;const pb=parseBottom(bottom);if(pb.set&&pb.cn)onCollector(pb,!ok);}
+    if(!ok&&!SC.cur&&Date.now()-SC.seen>1800)scMsg("Fit the card in the frame: name at the top, set code at the bottom left.");
+    SC.busy=false;SC.cycles=(SC.cycles||0)+1;
+    window.__scanDebug={raw:lines.join(" | "),bottom,m,ms:Math.round(performance.now()-t0),cycles:SC.cycles,sinceReady:SC.readyAt?Math.round(performance.now()-SC.readyAt):null,cur:SC.cur&&{name:SC.cur.name,set:SC.cur.card&&SC.cur.card.set,known:SC.cur.setKnown}};}
+  if(SC.run)SC.timer=setTimeout(loop,100);}
+/* a new name: show it, add one copy (auto mode), never add it again while it is the current card */
+function onName(m,card){if(SC.cur&&!SC.cur.fail&&SC.cur.name===m.name){if(card&&!SC.cur.setKnown)applyCard(card,true);return;}
+  SC.cur={name:m.name,from:m.from,card:null,setKnown:false,tries:0,entry:null,tried:new Set()};
+  if(card)applyCard(card,true);else{renderCurrent();setTimeout(()=>{const c=SC.cur;if(c&&c.name===m.name&&!c.card)defaultPrinting(c);},2600);}
+  if(SC.auto)addCopy();if(navigator.vibrate)try{navigator.vibrate(40)}catch(e){}}
+/* set code + collector number read at the bottom: check it belongs to the current card (or, with no name read, identify by it) */
+const pendingCol={key:null,n:0};
+async function onCollector(pb,noName){const key=pb.set+"|"+pb.cn+"|"+(pb.lang||"");
+  if(noName){if(pendingCol.key!==key){pendingCol.key=key;pendingCol.n=1;return;}if(++pendingCol.n<2)return;}
+  const cur=SC.cur;if(cur&&cur.tried.has(key))return;if(cur)cur.tried.add(key);
+  const c=(pb.lang&&pb.lang!=="en"&&await sfJSON("cards/"+pb.set+"/"+pb.cn+"/"+pb.lang))||await sfJSON("cards/"+pb.set+"/"+pb.cn);if(!c)return;
+  if(SC.cur&&!SC.cur.fail){if(nk(c.name)===nk(SC.cur.name)||norm(c.name)===norm(SC.cur.name))applyCard(c,true);}
+  else if(noName)onName({name:c.name,from:c.lang},c);}
+async function defaultPrinting(cur){const c=(cur.from&&cur.from!=="en"&&await sfJSON("cards/search?unique=prints&include_multilingual=true&q="+encodeURIComponent('!"'+cur.name+'" lang:'+cur.from)).then(j=>j&&j.data&&j.data[0]))||await sfJSON("cards/named?exact="+encodeURIComponent(cur.name));
+  if(c&&SC.cur===cur&&!cur.setKnown&&nk(c.name)===nk(cur.name))applyCard(c,false);}
+function applyCard(c,exact){const cur=SC.cur;if(!cur)return;cur.card=c;if(exact)cur.setKnown=true;
+  const e=cur.entry;if(e&&(exact||!e.set)){e.set=c.set;e.cn=c.collector_number;e.lang=c.lang;mergeEntry(e);syncScanText();renderScanList();}
+  renderCurrent();if(exact)scMsg("Found: "+c.name+" · "+c.set.toUpperCase()+" #"+c.collector_number+(c.lang&&c.lang!=="en"?" · "+c.lang.toUpperCase():""));}
+function mergeEntry(e){const o=SC.list.find(x=>x!==e&&x.name===e.name&&x.set===e.set&&x.cn===e.cn);if(o){o.qty+=e.qty;SC.list.splice(SC.list.indexOf(e),1);if(SC.cur&&SC.cur.entry===e)SC.cur.entry=o;}}
+function addCopy(){const cur=SC.cur;if(!cur||cur.fail)return;
+  if(cur.entry&&SC.list.includes(cur.entry))cur.entry.qty++;
+  else{const c=cur.card;cur.entry={name:cur.name,set:c?c.set:"",cn:c?c.collector_number:"",lang:c?c.lang:"",qty:1};SC.list.unshift(cur.entry);mergeEntry(cur.entry);}
+  syncScanText();renderScanList();renderCurrent();scMsg("In the list: "+cur.entry.qty+"× "+cur.name+". Tap the card for another copy.");}
 /* Scryfall asks for at most ~10 requests a second: one queue, spaced calls, retries on 429 and network errors */
 let sfQ=Promise.resolve(),sfLast=0;
 function sfJSON(u){const run=async()=>{for(let k=0;k<3;k++){const wait=Math.max(0,sfLast+120-Date.now());if(wait)await sleep(wait);sfLast=Date.now();
     try{const r=await fetch("https://api.scryfall.com/"+u);if(r.ok)return await r.json();if(r.status===404)return null;if(r.status===429)await sleep(1000*(k+1));else await sleep(400*(k+1));}
     catch(e){await sleep(600*(k+1));}}return null;};
   const p=sfQ.then(run,run);sfQ=p.catch(()=>{});return p;}
-function showResult(c){const R=document.getElementById("scanRes");SC.cur=c;
-  if(!c){R.innerHTML="";return;}
-  if(c.fail){R.innerHTML='<div class="scfail"><p>Could not recognise this card'+(c.title?' (read "'+esc(c.title)+'")':'')+'. Type the name instead.</p><div class="exrow"><input id="scName" placeholder="Card name" autocomplete="off"><button type="button" id="scFind">Find</button></div></div>';return;}
-  const nm=c.name;
-  R.innerHTML='<div class="scard"><img alt="" src="'+esc(imgOfCard(c))+'"><div><b>'+esc(nm)+'</b>'+(c.printed_name&&c.printed_name!==nm?'<small>'+esc(c.printed_name)+'</small>':'')+
-    '<label class="scprint"><span class="vh">Printing</span><select id="scPrint"><option value="'+esc(c.set+"|"+c.collector_number+"|"+c.lang)+'">'+esc(c.provisional?c.set_name:c.set_name+" · #"+c.collector_number+" · "+c.lang.toUpperCase())+'</option></select></label>'+
-    '<div class="exrow"><span class="qctl"><button type="button" data-sq="-1" aria-label="One less">−</button><b id="scQty">1</b><button type="button" data-sq="1" aria-label="One more">+</button></span><button type="button" class="btn-acc" id="scAdd">Add</button><button type="button" id="scSkip">Discard</button></div></div></div>';
-  scMsg("Found: "+nm);if(navigator.vibrate)try{navigator.vibrate(40)}catch(e){}
-  if(!c.provisional)sfJSON("cards/search?unique=prints&order=released&q="+encodeURIComponent('!"'+nm+'"')).then(j=>{if(!j||!j.data||SC.cur!==c)return;const S=document.getElementById("scPrint");if(!S)return;
-    j.data.forEach(p=>{const v=p.set+"|"+p.collector_number+"|"+p.lang;if(v===S.options[0].value)return;const o=document.createElement("option");o.value=v;o.textContent=p.set_name+" · #"+p.collector_number;S.appendChild(o);});});}
+function renderCurrent(){const R=document.getElementById("scanRes");const cur=SC.cur;
+  if(!cur){R.innerHTML="";return;}
+  if(cur.fail){R.innerHTML='<div class="scfail"><p>Could not recognise this card. Type the name instead.</p><div class="exrow"><input id="scName" placeholder="Card name" autocomplete="off"><button type="button" id="scFind">Find</button></div></div>';return;}
+  const c=cur.card,n=cur.entry&&SC.list.includes(cur.entry)?cur.entry.qty:0;
+  const img=c?imgOfCard(c):"https://api.scryfall.com/cards/named?exact="+encodeURIComponent(front(cur.name))+"&format=image&version=normal";
+  R.innerHTML='<div class="scard"><button type="button" class="scimg" id="scTap" aria-label="Add another copy of '+esc(cur.name)+'"><img alt="" src="'+esc(img)+'">'+(n?'<em>'+n+'×</em>':'')+'</button><div><b>'+esc(cur.name)+'</b>'+(c&&c.printed_name&&c.printed_name!==cur.name?'<small>'+esc(c.printed_name)+'</small>':'')+
+    '<small class="scset'+(cur.setKnown?" ok":"")+'">'+(c?esc(c.set_name+" · #"+c.collector_number+" · "+(c.lang||"en").toUpperCase())+(cur.setKnown?" · read from the card":" · most recent printing, reading the set…"):"Reading the set…")+'</small>'+
+    '<label class="scprint"><span class="vh">Change printing</span><select id="scPrint"><option value="">Change printing…</option></select></label>'+
+    '<div class="exrow"><button type="button" class="btn-acc" id="scAdd">'+(n?"+1 copy":"Add")+'</button>'+(n?'<button type="button" id="scUndo">Remove one</button>':'')+'</div></div></div>';
+  if(c&&!cur.printsLoading){cur.printsLoading=true;sfJSON("cards/search?unique=prints&order=released&include_multilingual=true&q="+encodeURIComponent('!"'+cur.name+'"')).then(j=>{cur.prints=j&&j.data||[];fillPrints();});}else fillPrints();}
+function fillPrints(){const S=document.getElementById("scPrint"),cur=SC.cur;if(!S||!cur||!cur.prints)return;
+  cur.prints.forEach((p,i)=>{const o=document.createElement("option");o.value=String(i);o.textContent=p.set_name+" · #"+p.collector_number+" · "+(p.lang||"en").toUpperCase();if(cur.card&&p.id===cur.card.id)o.selected=true;S.appendChild(o);});}
 const scLine=x=>x.qty+" "+x.name+(x.set?" ("+x.set.toUpperCase()+") "+x.cn:"");
 function syncScanText(){const T=document.getElementById("imText");T.value=[SC.base||""].concat(SC.list.slice().reverse().map(scLine)).map(x=>x.trim()).filter(Boolean).join("\n");imPreview();lsSet(NS+"-scanbuf",SC.list);}
-function addScanned(){const c=SC.cur;if(!c||c.fail)return;const q=+document.getElementById("scQty").textContent||1;const [set,cn]=document.getElementById("scPrint").value.split("|");
-  const ex=SC.list.find(x=>x.name===c.name&&x.set===set&&x.cn===cn);if(ex)ex.qty+=q;else SC.list.unshift({name:c.name,set,cn,qty:q});
-  syncScanText();
-  SC.last={name:c.name,at:Date.now()};showResult(null);renderScanList();scMsg("Added "+q+"× "+c.name+". Next card.");}
+function addScanned(){addCopy();}
 function renderScanList(){const L=document.getElementById("scanList");if(!L)return;const n=SC.list.reduce((a,x)=>a+x.qty,0);
   L.innerHTML=SC.list.length?'<p class="lbl">Scanned <b>'+n+'</b> card'+(n===1?"":"s")+'</p>'+SC.list.map((x,i)=>'<div class="srow"><span class="sq">'+x.qty+'×</span><span class="sn">'+esc(x.name)+' <small>'+esc((x.set||"…").toUpperCase())+'</small></span><span class="qctl"><button type="button" data-li="'+i+'" data-d="-1" aria-label="One less '+esc(x.name)+'">−</button><button type="button" data-li="'+i+'" data-d="1" aria-label="One more '+esc(x.name)+'">+</button></span></div>').join("")+'<button type="button" class="ghostbtn" id="scClear">Clear the scanned list</button>':'<p class="note">Scanned cards collect here, one after another.</p>';}
 /* restore an unfinished scan session; forget it once a deck has been created from it */
@@ -3668,19 +3700,19 @@ async function scanPhoto(f){SC.busy=true;scMsg("Reading the photo…");
     let best=bestOfLines((top.lines||[]).map(l=>l.text||""));
     if(!best||best.sim<0.85){await w.setParameters({tessedit_pageseg_mode:"3"});const d=(await w.recognize(c)).data;await w.setParameters({tessedit_pageseg_mode:"6"});
       const b2=bestOfLines((d.lines||[]).map(l=>l.text||""));if(b2&&(!best||b2.sim>best.sim))best=b2;}
-    SC.busy=false;if(best&&best.sim>=0.78){SC.last=null;await recognised(best);}else showResult({fail:true,title:""});}
+    SC.busy=false;if(best&&best.sim>=0.78){SC.cur=null;onName(best);}else{SC.cur={fail:true};renderCurrent();}}
   catch(e){SC.busy=false;scMsg(e.message||"The photo could not be read.");}}
 (function(){const P=document.querySelector('#importModal [data-ip="scan"]');if(!P)return;
   document.getElementById("scanShot").addEventListener("click",()=>{if(SC.run){SC.run=false;clearTimeout(SC.timer);setRunBtn();scMsg("Paused.");}else if(SC.stream){SC.run=true;setRunBtn();loop();}else startScan();});
   document.getElementById("scanAuto").addEventListener("change",e=>{SC.auto=e.target.checked;scMsg(SC.auto?"Auto-add on: each new card goes straight into the list.":"Auto-add off.");});
   document.getElementById("scanFile").addEventListener("change",e=>{const f=e.target.files&&e.target.files[0];e.target.value="";if(f)scanPhoto(f);});
   P.addEventListener("click",async e=>{const b=e.target.closest("button");if(!b)return;
-    if(b.dataset.sq){const q=document.getElementById("scQty");q.textContent=Math.max(1,(+q.textContent||1)+(+b.dataset.sq));}
-    else if(b.id==="scAdd")addScanned();
-    else if(b.dataset.li){const x=SC.list[+b.dataset.li];if(x){x.qty+=(+b.dataset.d);if(x.qty<1)SC.list.splice(+b.dataset.li,1);syncScanText();renderScanList();}}
+    if(b.id==="scAdd"||b.id==="scTap")addCopy();
+    else if(b.id==="scUndo"){const e2=SC.cur&&SC.cur.entry;if(e2){e2.qty--;if(e2.qty<1)SC.list.splice(SC.list.indexOf(e2),1);syncScanText();renderScanList();renderCurrent();}}
+    else if(b.dataset.li){const x=SC.list[+b.dataset.li];if(x){x.qty+=(+b.dataset.d);if(x.qty<1)SC.list.splice(+b.dataset.li,1);syncScanText();renderScanList();renderCurrent();}}
     else if(b.id==="scClear"){if(!await ask("Remove every scanned card from the list?","Clear"))return;SC.list=[];syncScanText();renderScanList();}
-    else if(b.id==="scSkip"){SC.last={name:SC.cur&&SC.cur.name,at:Date.now()};showResult(null);scMsg("Discarded.");}
-    else if(b.id==="scFind"){const n=document.getElementById("scName").value.trim();if(!n)return;const c=await sfJSON("cards/named?fuzzy="+encodeURIComponent(n));showResult(c||{fail:true,title:n});}});})();
+    else if(b.id==="scFind"){const n=document.getElementById("scName").value.trim();if(!n)return;const c=await sfJSON("cards/named?fuzzy="+encodeURIComponent(n));if(c){SC.cur=null;onName({name:c.name,from:"en"},c);}}});
+  P.addEventListener("change",e=>{if(e.target.id!=="scPrint"||!SC.cur||!SC.cur.prints)return;const p=SC.cur.prints[+e.target.value];if(p)applyCard(p,true);});})();
 let imWasOpen=false;new MutationObserver(()=>{const o=imM.classList.contains("open");if(!o){stopScan();SC.mode=null;scanCls(false);}if(o&&!imWasOpen){setImTab(SC.openScan?"scan":"text");SC.openScan=false;setTimeout(imPreview,0);}scanCls(o&&SC.mode==="scan");imWasOpen=o;}).observe(imM,{attributes:true,attributeFilter:["class"]});
 
 window.addEventListener("hashchange",()=>{if(/^#add=/i.test(location.hash))location.reload();});
