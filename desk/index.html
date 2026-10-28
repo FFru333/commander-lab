@@ -1371,6 +1371,10 @@ function promoteIn(d,S,name){const v=S[name];if(!v||!v.alt||!v.altName||!v.altNa
   SEED.patches.forEach(P=>{if(DECKS.patches.includes(P.id))return;changed=0;
     const isCur=DECKS.current===SEED.id,S=isCur?state:loadState(SEED.id),now=Date.now();
     const names=new Set();DECKS.list[SEED.id].deck.forEach(([,cards])=>cards.forEach(n=>names.add(n)));
+    if(P.swap){const d=DECKS.list[SEED.id];P.swap.forEach(([o,n])=>{let hit=false;const has=names.has(n);
+      d.deck.forEach(x=>{const i=x[1].indexOf(o);if(i<0)return;hit=true;if(has)x[1].splice(i,1);else x[1][i]=n;});
+      if(!hit)return;["cmd","newTags","lands"].forEach(f=>{if(Array.isArray(d[f]))d[f]=d[f].map(v=>v===o?n:v).filter((v,i,a)=>a.indexOf(v)===i);});
+      if(d.qty&&d.qty[o]){if(!has)d.qty[n]=d.qty[o];delete d.qty[o];}if(d.prints)delete d.prints[o];delete S[o];names.delete(o);names.add(n);changed++;});}
     if(P.promoteAlts){Object.keys(S).forEach(n=>{if(names.has(n)&&promoteIn(DECKS.list[SEED.id],S,n))changed++;});}
     (P.owned||[]).forEach(x=>{
       const viaAlt=[...names].find(n=>{const v=S[n];return v&&v.alt&&v.altName&&norm(v.altName)===norm(x);});
@@ -2993,6 +2997,21 @@ document.getElementById("deckEdit").addEventListener("click",()=>openImport(true
 document.getElementById("deckDel").addEventListener("click",async()=>{if(!CUR)return;if(!await ask("Delete the deck \""+CUR.name+"\" and all its marks? This cannot be undone.","Delete deck"))return;
   try{localStorage.removeItem(KEY)}catch(e){}delete DECKS.list[DECKS.current];DECKS.current=Object.keys(DECKS.list)[0]||null;saveDecks();location.reload();});
 document.getElementById("cfNo").addEventListener("keydown",e=>{if(e.key==="Escape")document.getElementById("confirmModal").classList.remove("open");});
+window.addEventListener("hashchange",()=>{if(/^#add=/i.test(location.hash))location.reload();});
+/* add a shared deck from a link: #add=<slug> loads decks/<slug>.json (deck + marks) next to the page */
+(function(){const m=/^#add=([a-z0-9-]+)$/i.exec(location.hash||"");if(!m)return;const slug=m[1].toLowerCase();window.__adding=true;
+  history.replaceState(null,"","#home");
+  const have=Object.keys(DECKS.list).find(id=>DECKS.list[id].from===slug);
+  if(have){flash("\""+DECKS.list[have].name+"\" is already in your decks.");return;}
+  fetch("decks/"+slug+".json",{cache:"no-store"}).then(r=>{if(!r.ok)throw new Error(r.status);return r.json();}).then(j=>{
+    if(!j||!j.deck||!Array.isArray(j.deck.deck))throw new Error("bad file");
+    const fresh=lsGet(NS+"-decks");if(fresh&&fresh.list)DECKS=fresh;
+    const id="d"+Date.now().toString(36);DECKS.list[id]=Object.assign({},j.deck,{from:slug,created:Date.now()});
+    lsSet(stateKey(id),j.state||{});saveDecks();
+    try{sessionStorage.setItem(NS+"-msg","Added \""+j.deck.name+"\" with all its marks.")}catch(e){}
+    openDeck(id);
+  }).catch(()=>flash("That deck link could not be loaded. Check your connection and open the link again."));
+})();
 /* ---------- boot ---------- */
 (function(){const sel=document.getElementById("deckSel");
   const ids=Object.keys(DECKS.list).sort((a,b)=>DECKS.list[a].name.localeCompare(DECKS.list[b].name));
@@ -3004,7 +3023,7 @@ document.getElementById("cfNo").addEventListener("keydown",e=>{if(e.key==="Escap
   if(has){document.getElementById("deckTitle").textContent=CUR.name;}
   let msg=null;try{msg=sessionStorage.getItem(NS+"-msg");sessionStorage.removeItem(NS+"-msg")}catch(e){}
   if(msg)flash(msg);
-  if(!ids.length){setView("home");setTimeout(()=>openImport(false),0);}
+  if(!ids.length){setView("home");if(!window.__adding)setTimeout(()=>openImport(false),0);}
   else setView(view);
   let intent=null;try{intent=sessionStorage.getItem(NS+"-intent");sessionStorage.removeItem(NS+"-intent")}catch(e){}
   if(intent&&has){setView("deck");runIntent(intent);}
