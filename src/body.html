@@ -1,0 +1,312 @@
+<body>
+<nav class="top" aria-label="Sections"><div class="wrap topin">
+  <a class="brand" href="#home" data-go="home"><span class="mark" aria-hidden="true"></span>Commander Desk</a>
+  <div class="tabs" role="navigation" aria-label="Main">
+    <button class="tab" type="button" data-view="home"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 11.5 12 5l8 6.5V19a1 1 0 0 1-1 1h-4.5v-5h-5v5H5a1 1 0 0 1-1-1z"/></svg><span>Home</span></button>
+    <button class="tab" type="button" data-view="decks"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="7" y="3.5" width="11" height="15" rx="2"/><path d="M5 7v11.5A2.5 2.5 0 0 0 7.5 21H15"/></svg><span>Decks</span></button>
+    <button class="tab" type="button" data-view="coll"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="7" height="7" rx="1.6"/><rect x="13" y="4" width="7" height="7" rx="1.6"/><rect x="4" y="13" width="7" height="7" rx="1.6"/><rect x="13" y="13" width="7" height="7" rx="1.6"/></svg><span>Collection</span></button>
+    <button class="tab" type="button" data-view="print"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 9V4h10v5"/><rect x="4" y="9" width="16" height="7" rx="2"/><path d="M7 14h10v6H7z"/></svg><span>Print House</span></button>
+  </div>
+  <div class="navr">
+    <select id="deckSel" aria-label="Current deck"></select>
+    <button id="themeOpen" type="button" class="themeBtn"><i aria-hidden="true"></i>Theme</button>
+    <button id="deckNew" type="button" class="btn-acc">New deck</button>
+  </div>
+</div></nav>
+<main class="wrap">
+<section class="empty" id="emptyState" hidden data-old="1">
+  <h2>No decks yet</h2>
+  <p>Paste a decklist from Moxfield, Archidekt or one card per line. The page builds the checklist, the mana curve, the proxy sheet, the token list and your collection.</p>
+  <button id="emptyImport" type="button" class="btn-acc">Import a deck</button>
+</section>
+
+<section id="vHome" class="view" aria-labelledby="homeTitle" hidden>
+  <div class="vhead hhead">
+    <div class="vtitle" data-eyebrow="Commander Desk">
+      <h1 class="ttl" id="homeTitle">Good evening</h1>
+      <p class="sub" id="homeSub"></p>
+    </div>
+    <div class="vtools"><button type="button" class="btn-acc" data-act="new">New deck</button><button type="button" data-go="coll">My collection</button></div>
+  </div>
+  <div class="bento" id="homeStats"></div>
+  <div class="hsec"><h2>My decks</h2><button type="button" class="ghostbtn" data-go="decks">See all</button></div>
+  <div class="deckcards" id="homeDecks"></div>
+  <div class="hsec"><h2>Print House</h2><button type="button" class="ghostbtn" data-go="print">Open</button></div>
+  <div class="toolcards mini" id="homeTools"></div>
+</section>
+
+<section id="vDecks" class="view" aria-labelledby="decksTitle" hidden>
+  <div class="vhead">
+    <div class="vtitle" data-eyebrow="Library">
+      <h1 class="ttl" id="decksTitle">My decks</h1>
+      <p class="sub" id="decksSub">Every deck you imported. Open one to mark cards, print proxies or find its tokens.</p>
+    </div>
+    <div class="vtools"><button type="button" class="btn-acc" data-act="new">New deck</button></div>
+  </div>
+  <div class="deckcards big" id="allDecks"></div>
+</section>
+
+<section id="vPrint" class="view" aria-labelledby="printHouseTitle" hidden>
+  <div class="vhead">
+    <div class="vtitle" data-eyebrow="Toolkit">
+      <h1 class="ttl" id="printHouseTitle">Print House</h1>
+      <p class="sub">Proxy sheets at real size, token lists and exports. Pick a deck here, or start the same tools from inside a deck.</p>
+    </div>
+  </div>
+  <div class="toolcards" id="printTools"></div>
+</section>
+
+<section id="vDeck" class="view" aria-labelledby="deckTitle">
+  <div class="vhead">
+    <div class="vtitle" data-eyebrow="Deck checklist">
+      <h1 class="ttl" id="deckTitle">Deck</h1>
+      <p class="sub">Mark each card as Owned, Proxy, Missing or Alternative. Proxy plus Missing means you own one copy but need a proxy for this deck. Hover a name to see the card.</p>
+    </div>
+    <div class="vtools">
+      <button id="openProxy" type="button">Proxy sheet</button>
+      <button id="openTokens" type="button">Tokens</button>
+      <button id="openExport" type="button">Export</button>
+      <button id="editLDeck" type="button" class="editL" data-grid="deck" aria-pressed="false">Edit layout</button>
+      <button id="deckEdit" type="button">Edit list</button>
+      <button id="restore" type="button">Restore my data</button>
+      <button id="reset" type="button">Clear marks</button>
+      <button id="deckDel" type="button" class="danger">Delete deck</button>
+    </div>
+  </div>
+  <div class="card lab" id="labHead" aria-label="Deck insights"></div>
+  <div class="dtabs" id="dtabs" role="tablist" aria-label="Deck sections"><button type="button" role="tab" data-t="cards" aria-selected="true">Cards</button><button type="button" role="tab" data-t="sug" aria-selected="false">Suggestions</button><button type="button" role="tab" data-t="combo" aria-selected="false">Combos</button></div>
+  <p id="combo" class="combo" role="status"></p>
+  <p id="imMsg" class="combo" role="status"></p>
+  <div class="wbar" data-grid="deck" hidden>
+    <button type="button" class="addW btn-acc">Add widget</button>
+    <button type="button" class="resetL">Reset layout</button>
+    <span class="note">Drag a widget by its header. Resize it from the bottom-right corner. Use the gear to change what it shows.</span>
+    <button type="button" class="doneL">Done</button>
+  </div>
+  <div data-dtab="cards" class="wgrid" id="gDeck" data-grid="deck"></div>
+
+  <div data-dtab="cards" class="card filters" role="search" aria-label="Filter the deck">
+    <label class="f-q">Search<input id="fQ" type="search" placeholder="Card or alternative name" autocomplete="off"></label>
+    <label>Deck role<select id="fCat"><option value="">All roles</option></select></label>
+    <label>Status<select id="fState"><option value="all">All</option><option value="u">Undecided</option><option value="have">Owned</option><option value="proxy">To proxy</option><option value="buy">To buy</option><option value="alt">With alternative</option></select></label>
+    <label>Card type<select id="fType"><option value="">All types</option><option value="Commander">Commander</option><option value="Creature">Creatures</option><option value="Planeswalker">Planeswalkers</option><option value="Instant">Instants</option><option value="Sorcery">Sorceries</option><option value="Artifact">Artifacts</option><option value="Enchantment">Enchantments</option><option value="Battle">Battles</option><option value="Land">Lands</option></select></label>
+    <label>Sort within types<select id="fSort"><option value="name">Name</option><option value="price">Price, highest first</option><option value="state">Status, undecided first</option><option value="cat">Deck role (Ramp, Removal…)</option></select></label>
+    <button id="fReset" type="button">Reset filters</button>
+  </div>
+  <p class="fchip" id="fChip" hidden></p>
+  <div data-dtab="cards" class="listbar"><p class="tcount" id="tcount" aria-live="polite"></p><div class="lbtools"><button type="button" id="foldAll" class="ghostbtn">Collapse all</button><div class="seg2" data-for="deck" role="group" aria-label="List view"><button type="button" data-v="full" aria-pressed="true">Detailed</button><button type="button" data-v="compact" aria-pressed="false">Compact</button></div></div></div>
+  <div data-dtab="cards" class="card tbl" id="tbl">
+    <div class="thead"><span class="hsel"><input type="checkbox" id="selAll" class="selbox" aria-label="Select all shown cards"><span aria-hidden="true">Card</span></span><span class="h-cat">Role</span><span>Status</span><span>Printing</span><span class="r">Price</span><span class="h-shop">Shops</span></div>
+  </div>
+  <div data-dtab="sug" id="dtSug" hidden>
+    <div class="sugbar">
+      <label class="sq"><span class="vh">Search suggestions</span><input id="sugQ" type="search" placeholder="Search suggestions" autocomplete="off"></label>
+      <label class="ssort"><span class="vh">Sort</span><select id="sugSort"><option value="syn">Synergy</option><option value="inc">Most played</option><option value="name">Name</option></select></label>
+      <label class="tog"><input type="checkbox" id="sugOwn"> From my collection</label>
+      <label class="tog"><input type="checkbox" id="sugGC"> Hide Game Changers</label>
+    </div>
+    <div class="sugtabs" id="sugTabs" role="tablist" aria-label="Suggestion lists"></div>
+    <div class="labroles sroles" id="sugRoles"></div>
+    <div class="maybe" id="maybeBox" hidden></div>
+    <p class="tcount" id="sugInfo" aria-live="polite"></p>
+    <div class="sgrid" id="sugGrid"></div>
+  </div>
+  <div data-dtab="combo" id="dtCombo" hidden>
+    <div class="sugtabs" id="comboTabs" role="tablist" aria-label="Combo lists"></div>
+    <p class="tcount" id="comboInfo" aria-live="polite"></p>
+    <div class="clist" id="comboList"></div>
+  </div>
+</section>
+
+<section id="vColl" class="view" aria-labelledby="collTitle" hidden>
+  <div class="vhead">
+    <div class="vtitle" data-eyebrow="All decks">
+      <h1 class="ttl" id="collTitle">Collection</h1>
+      <p class="sub">Every card you marked as Owned in any deck, with prices from Scryfall. Cards to proxy or to buy stay visible through the Status filter.</p>
+    </div>
+    <div class="vtools">
+      <button id="editLColl" type="button" class="editL" data-grid="coll" aria-pressed="false">Edit layout</button>
+      <button id="collCsv" type="button">Copy as CSV</button>
+    </div>
+  </div>
+  <div class="wbar" data-grid="coll" hidden>
+    <button type="button" class="addW btn-acc">Add widget</button>
+    <button type="button" class="resetL">Reset layout</button>
+    <span class="note">Drag a widget by its header. Resize it from the bottom-right corner. Use the gear to change what it shows.</span>
+    <button type="button" class="doneL">Done</button>
+  </div>
+  <div class="wgrid" id="gColl" data-grid="coll"></div>
+
+  <div class="card filters cfilters" role="search" aria-label="Filter the collection">
+    <label class="f-q">Search<input id="cQ" type="search" placeholder="Name, set or type" autocomplete="off"></label>
+    <label>Status<select id="cStatus"><option value="have">Owned</option><option value="all">All cards in decks</option><option value="proxy">To proxy</option><option value="buy">To buy</option><option value="u">Undecided</option></select></label>
+    <label>Deck<select id="cDeck"><option value="">All decks</option></select></label>
+    <label>Type<select id="cType"><option value="">All types</option></select></label>
+    <label>Color<select id="cColor"><option value="">All colors</option><option value="W">White</option><option value="U">Blue</option><option value="B">Black</option><option value="R">Red</option><option value="G">Green</option><option value="C">Colorless</option><option value="M">Multicolor</option></select></label>
+    <label>Rarity<select id="cRarity"><option value="">All rarities</option><option value="common">Common</option><option value="uncommon">Uncommon</option><option value="rare">Rare</option><option value="mythic">Mythic</option><option value="special">Special</option></select></label>
+    <label>Set<select id="cSet"><option value="">All sets</option></select></label>
+    <label class="f-num">Min €<input id="cMin" type="number" min="0" step="0.5" inputmode="decimal"></label>
+    <label class="f-num">Max €<input id="cMax" type="number" min="0" step="0.5" inputmode="decimal"></label>
+    <label>Sort by<select id="cSort"><option value="name">Name</option><option value="price">Price</option><option value="value">Total value</option><option value="set">Set</option><option value="added">Recently added</option><option value="decks">Most decks</option><option value="rarity">Rarity</option></select></label>
+    <button id="cReset" type="button">Reset filters</button>
+  </div>
+  <p class="fchip" id="cChip" hidden></p>
+  <div class="listbar"><p class="tcount" id="ccount" aria-live="polite"></p><div class="lbtools"><div class="seg2" data-for="coll" role="group" aria-label="List view"><button type="button" data-v="full" aria-pressed="true">Detailed</button><button type="button" data-v="compact" aria-pressed="false">Compact</button></div></div></div>
+  <div class="card ctbl-wrap">
+    <table class="ctbl" id="ctbl">
+      <colgroup><col class="k-n"><col class="k-set"><col class="k-ra"><col class="k-st"><col class="k-dk"><col class="k-q"><col class="k-p"><col class="k-v"><col class="k-ad"></colgroup>
+      <thead><tr><th>Card</th><th>Set</th><th>Rarity</th><th>Status</th><th>Decks</th><th class="r">Qty</th><th class="r">Price</th><th class="r">Value</th><th class="r">Added</th></tr></thead>
+      <tbody></tbody>
+    </table>
+  </div>
+</section>
+</main>
+
+<div id="wcfgModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="wcTitle">
+  <div class="box" style="width:min(560px,100%)">
+    <h3 id="wcTitle">Widget settings</h3>
+    <p class="note">Changes show on the widget straight away.</p>
+    <div class="wcfgform" id="wcfgBody"></div>
+  </div>
+</div>
+<div id="addWModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="awTitle">
+  <div class="box" style="width:min(560px,100%)">
+    <h3 id="awTitle">Add a widget</h3>
+    <div class="awlist" id="awList"></div>
+    <div class="exrow"><button id="awClose" type="button">Close</button></div>
+  </div>
+</div>
+<div id="bulkBar" class="bulkbar" role="toolbar" aria-label="Selected cards" hidden><span class="bcount" id="bulkCount"></span><span class="bsep" aria-hidden="true"></span><span class="blab">Mark as</span><button type="button" data-b="f">Owned</button><button type="button" data-b="p">Proxy</button><button type="button" data-b="m">Missing</button><button type="button" data-b="u">Undecided</button><button type="button" class="bx" data-b="x" aria-label="Clear selection">✕</button></div>
+<div id="cmenu" class="cmenu" role="menu" aria-label="Card actions" hidden></div>
+<div id="preview" aria-hidden="true"></div>
+<div id="sheet" class="modal" role="dialog" aria-modal="true" aria-label="Card preview"></div>
+<div id="printModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="printTitle">
+  <div class="box"><h3 id="printTitle">Choose a printing</h3><div class="exrow"><button id="printDefault">Default printing</button><button id="printClose">Close</button></div><div id="printStatus" class="note"></div><div class="prints" id="prints"></div></div>
+</div>
+<div id="proxyModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="pxTitle">
+  <div class="box" style="width:min(980px,100%)">
+    <h3 id="pxTitle">Proxy print sheet</h3>
+    <p class="note">Cards at 1:1 scale (63 × 88 mm). For each card you can change the printing, remove it from the sheet or add your own art with "Art". When printing, set the scale to 100% and turn off "fit to page".</p>
+    <div class="pxctl">
+      <label>Paper size<select id="pxPaper"><option value="210x297">A4</option><option value="297x420">A3</option><option value="215.9x279.4">Letter</option><option value="215.9x355.6">Legal</option></select></label>
+      <label>Orientation<select id="pxOrient"><option value="p">Portrait</option><option value="l">Landscape</option></select></label>
+      <label>Gap between cards (mm)<input id="pxGap" type="number" min="0" max="15" step="0.5" value="3"></label>
+      <label>Page margin (mm)<input id="pxMargin" type="number" min="0" max="20" step="0.5" value="5"></label>
+      <label class="chk"><input id="pxMarks" type="checkbox" checked> Cut marks</label>
+    </div>
+    <div class="pxinfo" id="pxInfo"></div>
+    <div class="exrow"><button id="pxPdf" class="btn-acc">Download PDF</button><button id="pxPrint">Open print sheet</button><button id="pxReset">Restore proxy list</button><button id="pxClose">Close</button></div>
+    <div class="pxgrid" id="pxGrid"></div>
+    <div class="removed-list" id="pxRemoved"></div>
+    <div class="pxadd"><input id="pxAddName" list="pxNames" placeholder="Add a card to the sheet (also outside the deck)" aria-label="Add card"><button id="pxAdd">Add</button></div>
+    <datalist id="pxNames"></datalist>
+  </div>
+</div>
+<div id="artModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="artTitle">
+  <div class="box" style="width:min(860px,100%)">
+    <h3 id="artTitle">Custom art</h3>
+    <div class="artwrap">
+      <div><div id="artPrev" class="artprev" aria-label="Card preview. Drag to move the image."><div id="artCard"></div><div id="artHandles" hidden></div></div>
+        <p class="note">Drag on the preview to move the image, or drop a file here to upload it.</p></div>
+      <div class="artctl">
+        <div><div class="note" style="margin-bottom:4px">Art type</div>
+          <div class="seg" role="group" aria-label="Art type">
+            <button type="button" data-m="none">Original</button>
+            <button type="button" data-m="full">Full art</button>
+            <button type="button" data-m="frame">Art in frame</button>
+          </div></div>
+        <div class="exrow" style="margin:0"><button id="artUpload" type="button">Upload image</button><button id="artRemove" type="button">Remove image</button><button id="artBase" type="button">Change base printing</button>
+          <input id="artFile" type="file" accept="image/*" hidden></div>
+        <label id="artTextCtl" style="flex-direction:row;align-items:center;gap:8px;color:var(--ink)"><input id="artText" type="checkbox" checked> Name, type and rules text over the image</label>
+        <div id="layCtl" class="artctl" style="gap:8px">
+          <label>Text size <input id="layFs" type="range" min="2.4" max="5.2" step="0.05"></label>
+          <div class="exrow" style="margin:0"><button id="layFit" type="button">Fit box to text</button><button id="layReset" type="button">Reset layout</button></div>
+          <p class="note" style="margin:0">Use the orange handles on the preview: top of the text box, bottom, side margins and name position.</p>
+        </div>
+        <label>Zoom <input id="artZoom" type="range" min="100" max="400" step="1" value="100"></label>
+        <div class="exrow" style="margin:0"><button id="artCenter" type="button">Center</button></div>
+        <div id="artFrameCtl">
+          <label>Art area<select id="artPreset">
+            <option value="modern">Modern frame (2015 on)</option>
+            <option value="m8">2003–2014 frame</option>
+            <option value="old">Classic frame (before 2003)</option>
+            <option value="custom">Custom</option>
+          </select></label>
+          <details><summary>Adjust the area by hand</summary>
+            <div class="boxgrid">
+              <label>Left % <input id="bx" type="range" min="0" max="40" step="0.1"></label>
+              <label>Top % <input id="by" type="range" min="0" max="40" step="0.1"></label>
+              <label>Width % <input id="bw" type="range" min="20" max="100" step="0.1"></label>
+              <label>Height % <input id="bh" type="range" min="10" max="90" step="0.1"></label>
+            </div></details>
+        </div>
+        <p class="note" id="artNote"></p>
+        <div class="exrow" style="margin:0"><button id="artClose" type="button" class="btn-acc">Done</button></div>
+      </div>
+    </div>
+  </div>
+</div>
+<div id="tokenModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="tkTitle">
+  <div class="box" style="width:min(980px,100%)">
+    <h3 id="tkTitle">Deck tokens</h3>
+    <p class="note">Paste a full list (Moxfield, Archidekt or one card per line). Scryfall is searched for every token each card makes, including Treasure, Food, Clue, Eldrazi Spawn and similar.</p>
+    <textarea id="tkInput" class="tkin" aria-label="Decklist" placeholder="1 Sol Ring&#10;1 Smothering Tithe&#10;..."></textarea>
+    <div class="exrow"><button id="tkUseMine">Use the current deck</button><button id="tkScan" class="btn-acc">Find tokens</button><button id="tkPrint">Print tokens</button><button id="tkExport">Copy token list</button><button id="tkClose">Close</button><span id="tkStatus" class="note" role="status"></span></div>
+    <div id="tkOut"></div>
+  </div>
+</div>
+<div id="importModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="imTitle">
+  <div class="box" style="width:min(760px,100%)">
+    <h3 id="imTitle">Import a deck</h3>
+    <p class="note">Accepted formats: "1 Sol Ring", "1x Sol Ring (CMM) 400", lines with categories in square brackets (Archidekt, e.g. "[Ramp]") or section titles ("Creatures", "// Ramp", "Lands (35)"). A set code and collector number, when present, become the chosen printing.</p>
+    <div class="imgrid">
+      <label>Deck name<input id="imName" placeholder="e.g. Atraxa superfriends"></label>
+      <label class="acwrap">Commander (if the list does not mark it)<input id="imCmd" placeholder="Start typing, e.g. atraxa" autocomplete="off" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="cmdList"><ul id="cmdList" class="aclist" role="listbox" hidden></ul></label>
+      <label>Categories<select id="imCat"><option value="auto">From the list when present, otherwise by card type</option><option value="type">Always by card type</option></select></label>
+    </div>
+    <textarea id="imText" class="tkin" style="height:260px" aria-label="Decklist" placeholder="1 Atraxa, Praetors' Voice&#10;1 Sol Ring&#10;1 Arcane Signet&#10;..."></textarea>
+    <div class="exrow"><button id="imGo" type="button" class="btn-acc">Create</button><button id="imClose" type="button">Cancel</button><span id="imStatus" class="note" role="status"></span></div>
+  </div>
+</div>
+<div id="exportModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="exTitle">
+  <div class="box">
+    <h3 id="exTitle">Export</h3>
+    <div class="exrow" role="group" aria-label="Format">
+      <button class="exfmt" data-x="claude" aria-pressed="true">Summary for Claude</button>
+      <button class="exfmt" data-x="moxfield" aria-pressed="false">Moxfield (final list)</button>
+      <button class="exfmt" data-x="buy" aria-pressed="false">To buy</button>
+      <button class="exfmt" data-x="proxy" aria-pressed="false">To proxy</button>
+      <button class="exfmt" data-x="prices" aria-pressed="false">To buy with prices</button>
+    </div>
+    <textarea id="extext" readonly aria-label="Exported text"></textarea>
+    <div class="exrow"><button id="copy">Copy</button><button id="download">Download .txt</button><button id="exClose">Close</button><span id="exstatus" role="status"></span></div>
+  </div>
+</div>
+<div id="themeModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="thTitle">
+  <div class="box" style="width:min(820px,100%)">
+    <h3 id="thTitle">Theme</h3>
+    <p class="note">Pick a color to change, then choose it on the wheel. Borders, soft tints and muted text are worked out from your choices. Changes apply live and are saved in this browser.</p>
+    <div class="thwrap">
+      <div class="wheelbox">
+        <div class="wheel" id="wheel"><canvas id="wheelCv" width="440" height="440" aria-label="Color wheel: hue around, saturation from the center"></canvas><span class="mk" id="wheelMk"></span></div>
+        <label class="vslider">Brightness<input id="wheelV" type="range" min="0" max="100" step="1"></label>
+        <div class="hexrow"><span class="sw" id="wheelSw"></span><input id="wheelHex" aria-label="Hex color" maxlength="7" spellcheck="false"></div>
+        <p class="contrast" id="thContrast"></p>
+      </div>
+      <div>
+        <div class="thsec">Colors</div>
+        <div class="roles" id="thRoles"></div>
+        <div class="thsec">Presets</div>
+        <div class="presets" id="thPresets"></div>
+      </div>
+    </div>
+    <div class="exrow" style="margin-top:16px"><button id="thDone" type="button" class="btn-acc">Done</button><button id="thSystem" type="button">Default (follows light/dark mode)</button></div>
+  </div>
+</div>
+<div id="confirmModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="cfTitle">
+  <div class="box" style="width:min(440px,100%)">
+    <h3 id="cfTitle">Are you sure?</h3>
+    <p id="cfText" class="note"></p>
+    <div class="exrow"><button id="cfYes" type="button" class="danger">Confirm</button><button id="cfNo" type="button">Cancel</button></div>
+  </div>
+</div>

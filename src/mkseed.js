@@ -1,0 +1,15 @@
+const fs=require("fs");
+const h=fs.readFileSync(process.argv[2],"utf8");const s=h.split("<script>")[1];
+const grab=(start,endMarker)=>{const i=s.indexOf(start);const j=s.indexOf(endMarker,i);return s.slice(i,j);};
+const code=grab("const DECK=[","const KEY=");
+const f=new Function(code+";return {DECK,NEW,seed};");
+const {DECK,NEW,seed}=f();
+const CAT={"Commander":"Commander","Terre":"Lands","Ramp":"Ramp","Riduttori di costo":"Cost reducers","Rapidità e pescate":"Haste and card draw","Trasformano il comandante avversario":"Commander neutralizers","Rimozioni":"Removal","Controincantesimi":"Counterspells","Protezione":"Protection","Draghi":"Dragons"};
+const deck=DECK.map(([c,cards])=>{if(!CAT[c])throw new Error("cat "+c);return [CAT[c],cards];});
+const lands=DECK.find(([c])=>c==="Terre")[1];
+const st=seed();
+const SWAPS=[["Smaug the Magnificent","Lathliss, Dragon Queen"],["Smuggler's Surprise","Breaching Dragonstorm"],["Lightning Greaves","Swiftfoot Boots"],["Nomad Outpost","Reflecting Pool"],["Opal Palace","The World Tree"]];
+const OWNED_2026_10_26=["Ganax, Astral Hunter","Atsushi, the Blazing Sky","Blast-Furnace Hellkite","Draconic Visitor","Miirym, Sentinel Wyrm","Hellkite Courser","Scion of the Ur-Dragon","Goldspan Dragon","Terror of the Peaks","Scourge of Valkas","Thundermaw Hellkite","Klauth, Unrivaled Ancient","Twinflame Tyrant","Skithiryx, the Blight Dragon","Junji, the Midnight Sky","Zenos yae Galvus // Shinryu, Transcendent Rival","Goldlust Triad","Dragonhawk, Fate's Tempest","Ancient Copper Dragon","Tiamat","Ancient Gold Dragon","Balefire Dragon","Atarka, World Render","Ureni, the Song Unending"];
+const SEED={id:"ur",legacyKey:"urdragon-2026-v1",patches:[{id:"2026-10-26-dragons",owned:OWNED_2026_10_26,note:"Checklist updated from your photo: {n} dragons marked as Owned. Everything else is unchanged."},{id:"2026-10-26-dragons-b",owned:OWNED_2026_10_26,note:"Checklist updated from your photo: {n} dragons marked as Owned. Everything else is unchanged."},{id:"2026-10-26-promote-alts",promoteAlts:true,note:"Alternatives made permanent: {n} cards now show only the replacement, with its status and printing."},{id:"2026-10-28-final-list",swap:SWAPS,note:"Final list applied: {n} cards swapped (Lathliss, Breaching Dragonstorm, Swiftfoot Boots, Reflecting Pool, The World Tree)."}],deck:{name:"The Ur-Dragon 2026",deck,qty:{},prints:{},lands,cmd:["The Ur-Dragon"],newTags:[...NEW],created:Date.now()},state:st};
+fs.writeFileSync(process.argv[3],'const NS="urdragon";const SEED='+JSON.stringify(SEED)+';');
+console.log("cards",deck.reduce((a,[,c])=>a+c.length,0),"state keys",Object.keys(st).length);
