@@ -1,7 +1,7 @@
 Estimating resolution as 291
 Estimating resolution as 291
 Detected 13 diacritics
-{"feed":0,"psm3":{"ms":223,"lines":["> tl S","li, Tempesta Primo"]},"psm6":{"ms":380,"lines":["— Oe Re","Etali, Tempesta Primordiale dee)","Tn ae Kk ys","2 7 |","5 & - a E:"]},"psm11":{"ms":176,"lines":["a","ld","Etal , Tempesta Prir imo","le","9"]},"slide":{"ms":379,"out":[[259,"a SY a",31],[299,"- - cr ~~",26],[339,"3 Etali, Tempesta Primordiale 42@)",68],[379,"",0],[419,"",0],[459,"",0]]}}
+{"feed":0,"psm3":{"ms":201,"lines":["> tl S","li, Tempesta Primo"]},"psm6":{"ms":399,"lines":["— Oe Re","Etali, Tempesta Primordiale dee)","Tn ae Kk ys","2 7 |","5 & - a E:"]},"psm11":{"ms":183,"lines":["a","ld","Etal , Tempesta Prir imo","le","9"]},"slide":{"ms":395,"out":[[259,"a SY a",31],[299,"- - cr ~~",26],[339,"3 Etali, Tempesta Primordiale 42@)",68],[379,"",0],[419,"",0],[459,"",0]]}}
 Estimating resolution as 331
 Estimating resolution as 331
 Bottom=0, top=80, base=0, x=0
@@ -15,7 +15,7 @@ Max=0.00 Really=0
 Range=1
 Mean= 0.00
 SD= 0.00
-{"feed":1,"psm3":{"ms":206,"lines":["DD __\\","ly","Lathliss, Dragon Queen dee)"]},"psm6":{"ms":88,"lines":["Lathliss, Dragon Queen dee)!"]},"psm11":{"ms":220,"lines":["me","pres TREES N","dee)","Lathliss, Dragon Queen","Sa."]},"slide":{"ms":460,"out":[[259,"EE",11],[299,"EE aN a",34],[339,"",0],[379,"{ { Lathliss, Dragon GEE 42)",67],[419,"3 Salas = — —— 'B",23],[459,"Nl. J = In",31]]}}
+{"feed":1,"psm3":{"ms":222,"lines":["DD __\\","ly","Lathliss, Dragon Queen dee)"]},"psm6":{"ms":93,"lines":["Lathliss, Dragon Queen dee)!"]},"psm11":{"ms":233,"lines":["me","pres TREES N","dee)","Lathliss, Dragon Queen","Sa."]},"slide":{"ms":508,"out":[[259,"EE",11],[299,"EE aN a",34],[339,"",0],[379,"{ { Lathliss, Dragon GEE 42)",67],[419,"3 Salas = — —— 'B",23],[459,"Nl. J = In",31]]}}
 Estimating resolution as 348
 Estimating resolution as 348
 Estimating resolution as 348
@@ -42,7 +42,7 @@ Max=0.00 Really=0
 Range=1
 Mean= 0.00
 SD= 0.00
-{"feed":2,"psm3":{"ms":35,"lines":[]},"psm6":{"ms":105,"lines":["ll Terror of the Peaks 3ee","5 a"]},"psm11":{"ms":54,"lines":[]},"slide":{"ms":548,"out":[[259,"EE",11],[299,"EE",11],[339,"sa",21],[379,"J = = kad —\\",54],[419,"f Terror of the Peali 3ee |",69],[459,") error o € Can : = A",62]]}}
+{"feed":2,"psm3":{"ms":37,"lines":[]},"psm6":{"ms":109,"lines":["ll Terror of the Peaks 3ee","5 a"]},"psm11":{"ms":55,"lines":[]},"slide":{"ms":571,"out":[[259,"EE",11],[299,"EE",11],[339,"sa",21],[379,"J = = kad —\\",54],[419,"f Terror of the Peali 3ee |",69],[459,") error o € Can : = A",62]]}}
 Estimating resolution as 1128
 Estimating resolution as 1128
 Bottom=0, top=80, base=0, x=0
@@ -78,4 +78,4 @@ Max=0.00 Really=0
 Range=1
 Mean= 0.00
 SD= 0.00
-{"feed":3,"psm3":{"ms":28,"lines":[]},"psm6":{"ms":37,"lines":[]},"psm11":{"ms":88,"lines":["rR)"]},"slide":{"ms":631,"out":[[259,"EE",11],[299,"EE",11],[339,"EE",11],[379,": CN",35],[419,"- ey gee yen pe EE a",33],[459,"a = Ring TL ee 0)",52]]}}
+{"feed":3,"psm3":{"ms":30,"lines":[]},"psm6":{"ms":37,"lines":[]},"psm11":{"ms":91,"lines":["rR)"]},"slide":{"ms":641,"out":[[259,"EE",11],[299,"EE",11],[339,"EE",11],[379,": CN",35],[419,"- ey gee yen pe EE a",33],[459,"a = Ring TL ee 0)",52]]}}
