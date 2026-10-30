@@ -1680,7 +1680,7 @@ function promoteIn(d,S,name){const v=S[name];if(!v||!v.alt||!v.altName||!v.altNa
 function applyDeckPatch(id,P,isSeed){const d=DECKS.list[id];if(!d)return 0;let changed=0;
   const isCur=DECKS.current===id,S=isCur?state:loadState(id),now=Date.now();
   const names=new Set();d.deck.forEach(([,cards])=>cards.forEach(n=>names.add(n)));
-  if(P.swap){P.swap.forEach(([o,n,cat])=>{let hit=false;const has=names.has(n);
+  if(P.swap){P.swap.forEach(([o0,n,cat])=>{let hit=false;const o=[...names].find(v=>norm(v)===norm(o0))||o0;const has=[...names].some(v=>norm(v)===norm(n));
     d.deck.forEach(x=>{const i=x[1].indexOf(o);if(i<0)return;hit=true;if(has||cat)x[1].splice(i,1);else x[1][i]=n;});
     if(!hit)return;
     if(cat&&!has){let c=d.deck.find(x=>x[0]===cat);if(!c){c=[cat,[]];d.deck.push(c);}c[1].push(n);c[1].sort((a,b)=>a.localeCompare(b));}
@@ -1692,7 +1692,7 @@ function applyDeckPatch(id,P,isSeed){const d=DECKS.list[id];if(!d)return 0;let c
   (P.owned||[]).forEach(x=>{
     const viaAlt=[...names].find(n=>{const v=S[n];return v&&v.alt&&v.altName&&norm(v.altName)===norm(x);});
     if(viaAlt){const v=S[viaAlt];if(v.altS!=="f"){v.altS="f";v.at=now;changed++;}return;}
-    if(names.has(x)){const v=S[x]||(S[x]={});if(!(v.f&&!v.alt)){v.f=true;v.p=false;v.m=false;v.alt=false;v.t=now;changed++;}}
+    {const xn=[...names].find(v=>norm(v)===norm(x));if(xn)x=xn;}if(names.has(x)){const v=S[x]||(S[x]={});if(!(v.f&&!v.alt)){v.f=true;v.p=false;v.m=false;v.alt=false;v.t=now;changed++;}}
   });
   lsSet(stateKey(id),S);if(isCur)Object.assign(state,S);
   if(P.note&&changed)try{sessionStorage.setItem(NS+"-msg",((sessionStorage.getItem(NS+"-msg")||"")+" "+P.note.replace("{n}",changed)).trim())}catch(e){}
@@ -1702,11 +1702,11 @@ function applyDeckPatch(id,P,isSeed){const d=DECKS.list[id];if(!d)return 0;let c
   saveDecks();})();
 /* updates for Luca's Ur-Dragon list, wherever it lives: the seeded deck in his file, or the copy added online from the deck link */
 const DECK_PATCHES=[
-  {id:"2026-10-30-swaps",match:"ur-dragon",swap:[["Crumbling Necropolis","Tireless Provisioner","Ramp"],["Dragon's Hoard","Sarkhan, Dragon Ascendant","Ramp"]],owned:["Tireless Provisioner","Sarkhan, Dragon Ascendant"],
+  {id:"2026-10-30-swaps-b",match:"ur-dragon",swap:[["Crumbling Necropolis","Tireless Provisioner","Ramp"],["Dragon's Hoard","Sarkhan, Dragon Ascendant","Ramp"]],owned:["Tireless Provisioner","Sarkhan, Dragon Ascendant"],
    note:"Deck updated: Tireless Provisioner in for Crumbling Necropolis, Sarkhan, Dragon Ascendant in for Dragon's Hoard, both marked Owned."}];
 (function(){let any=false;
   Object.keys(DECKS.list).forEach(id=>{const d=DECKS.list[id];
-    const isUr=id==="ur"||d.from==="ur-dragon";if(!isUr)return;
+    const isUr=id==="ur"||d.from==="ur-dragon"||(d.cmd||[]).some(c=>norm(c)===norm("The Ur-Dragon"));if(!isUr)return;
     d.patchesDone=d.patchesDone||[];
     DECK_PATCHES.forEach(P=>{if(d.patchesDone.includes(P.id))return;applyDeckPatch(id,P,false);d.patchesDone.push(P.id);any=true;});});
   if(any)saveDecks();})();
