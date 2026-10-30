@@ -1,4 +1,14 @@
 <script>
+/* Scryfall limits: /cards/search, /named, /random and /collection at 2 requests a second, the rest at 10; a 429 blocks for 30 s.
+   Every Scryfall call in the app goes through this queue so the limits are never hit. */
+(function(){if(window.__sfq)return;window.__sfq=1;const F=window.fetch.bind(window);const SLOW=/^https:\/\/api\.scryfall\.com\/cards\/(search|named|random|collection)\b/;let tS=0,tF=0,block=0;
+  window.fetch=async function(input,init){const u=typeof input==="string"?input:(input&&input.url)||"";if(!u.startsWith("https://api.scryfall.com/"))return F(input,init);
+    const slow=SLOW.test(u),gap=slow?550:120,now=Date.now();const at=Math.max(now,block,(slow?tS:tF)+gap);if(slow)tS=at;else tF=at;
+    if(at>now)await new Promise(r=>setTimeout(r,at-now));
+    let res=await F(input,init);
+    if(res.status===429){block=Date.now()+31000;if(slow)tS=block;else tF=block;await new Promise(r=>setTimeout(r,31000));res=await F(input,init);}
+    return res;};})();
+
 /*CONFIG*/const NS="cmdr-tool";const SEED=null;/*/CONFIG*/
 /* ---------- storage helpers ---------- */
 const lsGet=k=>{try{const v=localStorage.getItem(k);return v?JSON.parse(v):null}catch(e){return null}};

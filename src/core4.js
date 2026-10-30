@@ -32,7 +32,7 @@ async function resolveImgs(names){
     await sleep(110);}
   saveImgs();
 }
-const labImg=n=>LAB.img[nk(n)]||"https://api.scryfall.com/cards/named?exact="+encodeURIComponent(front(n))+"&format=image&version=normal";
+const labImg=n=>LAB.img[nk(n)]||"data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==";
 
 /* ---------- roles from Scryfall tags (Tagger project) ---------- */
 async function sfSearch(q,maxPages){const out=[];let url="https://api.scryfall.com/cards/search?q="+encodeURIComponent(q);let p=0;
