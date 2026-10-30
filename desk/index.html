@@ -1345,6 +1345,11 @@ details.anhow p{margin:8px 0 0;line-height:1.5}
 .ptr.spin i{animation:ptrspin .8s linear infinite;transform:none!important}
 @keyframes ptrspin{to{transform:rotate(360deg)}}
 .animg{margin-top:14px;height:34px;padding:0 14px;font-size:12.5px;border:1px solid var(--line2,var(--line))!important;color:var(--ink)}
+.animodal{position:fixed;inset:0;z-index:10000;background:rgba(6,7,8,.78);display:grid;place-items:center;padding:20px;overflow:auto}
+.animbox{display:grid;gap:14px;justify-items:center;max-width:min(92vw,420px);width:100%}
+.animbox img{display:block;width:100%;max-height:74vh;object-fit:contain;border-radius:18px;box-shadow:0 18px 60px rgba(0,0,0,.6)}
+.animact{display:flex;gap:10px}
+.animact button{min-width:110px;height:42px}
 
 </style>
 </head>
@@ -4460,7 +4465,7 @@ function anColours(a){const ci=deckCI(),maxDem=Math.max(1,...COLORS.map(k=>a.dem
     '<div class="ancol"><span class="pip p'+k+'">'+k+'</span><div><div class="anrow"><span>Pips</span>'+bar(a.dem[k],maxDem)+'<b>'+a.dem[k]+'</b></div><div class="anrow"><span>Sources</span>'+bar(a.src[k],Math.max(1,...COLORS.map(x=>a.src[x])),"src")+'<b>'+a.src[k]+'</b></div></div><em class="'+(a.src[k]<12?"low":"")+'">'+(a.src[k]<12?"Thin":"OK")+'</em></div>').join("")+
     '</div><p class="note">Sources are lands, rocks and mana creatures that can make the colour. Around 12 or more per main colour is a common rule of thumb, not a hard limit.</p>';}
 function anVerdict(V){return '<section class="anverdict" data-tier="'+V.ti+'"><div class="anvtext"><div class="anvhead"><p class="ankick">The verdict</p><button type="button" class="ghostbtn anre" data-anre="1" aria-label="Write another version of the verdict">&#8635; Another take</button></div><h3>'+V.title+'</h3>'+(V.arch.length?'<p class="anchips">'+V.arch.map(x=>'<span class="chipk">'+esc(x.name)+'</span>').join("")+'</p>':'')+'<p>'+V.lines.join(" ")+'</p>'+'</div>'+
-  '<div class="anvgauge"><b>'+V.p+'%</b><small>chance per game that somebody at the table groans, by turn '+ANN_TURNS+'</small><div class="anscale"><i style="left:'+V.p+'%"></i></div><div class="anticks"><span>0</span><span>25</span><span>50</span><span>75</span><span>100</span></div><button type="button" class="ghostbtn animg" data-animg="1">Save as image</button></div></section>';}
+  '<div class="anvgauge"><b>'+V.p+'%</b><small>chance per game that somebody at the table groans, by turn '+ANN_TURNS+'</small><div class="anscale"><i style="left:'+V.p+'%"></i></div><div class="anticks"><span>0</span><span>25</span><span>50</span><span>75</span><span>100</span></div><button type="button" class="ghostbtn animg" data-animg="1">Save</button></div></section>';}
 function anBrief(a,Pw){const emi=AN.emi&&HAS_EMI(),cv=curveData(emi),base=curveData(false),mx=Math.max(1,...cv.b,...base.b);
   const g=[["Consistency",Pw.cons],["Efficiency",Pw.eff],["Interaction",Pw.inter],["Win conditions",Pw.win]];
   const nlands=a.lands.reduce((t,r)=>t+r.qty,0),nb=a.basics.reduce((t,r)=>t+r.qty,0);
@@ -4520,7 +4525,7 @@ async function openAnalytics(){renderAnalytics();const ok=await loadCards();rend
   if(LAB.combos&&!LAB.match){LAB.match=matchCombos();}else if(!LAB.combos)loadCombos().then(()=>{if(LAB.combos){LAB.match=matchCombos();renderAnalytics();}});
   loadSalt();if(typeof loadEDH==='function')loadEDH().then(renderAnalytics).catch(()=>{});}
 /* the installed app can keep an old copy alive in the background: on open and on return, compare with the published build and reload if it is newer */
-const APP_BUILD=20;
+const APP_BUILD=21;
 function checkUpdate(){if(location.protocol!=="https:")return;fetch(location.href.split("#")[0],{cache:"no-store"}).then(r=>r.ok?r.text():"").then(t=>{const m=t.match(/const APP_BUILD=(\d+);/);
   if(m&&+m[1]>APP_BUILD){let last=0;try{last=+sessionStorage.getItem("cd-rl")||0;}catch(e){}if(Date.now()-last>30000){try{sessionStorage.setItem("cd-rl",String(Date.now()));}catch(e){}hardRefresh();}}}).catch(()=>{});}
 setTimeout(checkUpdate,2500);document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible")checkUpdate();});
@@ -4550,37 +4555,46 @@ function anWrap(c,text,maxW){const words=text.split(/\s+/),lines=[];let cur="";w
 async function anImageCanvas(V,cmdName){const W=1080,H=1920,cv=document.createElement("canvas");cv.width=W;cv.height=H;const c=cv.getContext("2d");
   const FD="Geist, system-ui, -apple-system, 'Segoe UI', sans-serif",FM="'Geist Mono', ui-monospace, Menlo, monospace";
   try{await Promise.all([document.fonts.load("700 80px Geist"),document.fonts.load("400 40px Geist"),document.fonts.load("500 24px 'Geist Mono'")]);}catch(e){}
-  const accent=(getComputedStyle(document.documentElement).getPropertyValue("--accent")||"").trim()||"#e8745e",INK="#f4efe6",MUTED="#b9b1a4";
+  const accent=(getComputedStyle(document.documentElement).getPropertyValue("--accent")||"").trim()||"#e8745e",INK="#f4efe6",MUTED="#c4bcae";
   const art=cmdName?await anLoadArt(cmdName):null;
   if(art){const iw=art.width,ih=art.height,k=Math.max(W/iw,H/ih),dw=iw*k,dh=ih*k;c.drawImage(art,(W-dw)/2,(H-dh)/2,dw,dh);}
   else{const g=c.createLinearGradient(0,0,W,H);g.addColorStop(0,"#2d3b4f");g.addColorStop(.6,"#3a2522");g.addColorStop(1,accent);c.fillStyle=g;c.fillRect(0,0,W,H);}
-  const ov=c.createLinearGradient(0,0,0,H);ov.addColorStop(0,"rgba(8,9,10,.40)");ov.addColorStop(.5,"rgba(8,9,10,.55)");ov.addColorStop(1,"rgba(8,9,10,.85)");c.fillStyle=ov;c.fillRect(0,0,W,H);
-  const CW=900,PAD=60,IW=CW-PAD*2,text=V.lines.join(" "),cap="chance per game that somebody at the table groans, by turn "+ANN_TURNS;c.font="400 28px "+FD;const capL=anWrap(c,cap,IW),capH=capL.length*36;let pf=44,lines,lh;
-  for(;pf>=28;pf-=2){c.font="400 "+pf+"px "+FD;lines=anWrap(c,text,IW);lh=Math.round(pf*1.42);const h=PAD+30+110+(V.arch.length?84:20)+lines.length*lh+60+150+capH+34+70+PAD+10;if(h<=H-300)break;}
-  const chipsH=V.arch.length?84:20,CH=PAD+30+110+chipsH+lines.length*lh+60+150+capH+34+70+PAD+10,CX=(W-CW)/2,CY=Math.round((H-CH)/2);
-  c.save();c.shadowColor="rgba(0,0,0,.5)";c.shadowBlur=60;c.fillStyle="rgba(22,20,18,.82)";anRR(c,CX,CY,CW,CH,56);c.fill();c.restore();
-  c.strokeStyle="rgba(255,255,255,.16)";c.lineWidth=2;anRR(c,CX,CY,CW,CH,56);c.stroke();
+  const ov=c.createLinearGradient(0,0,0,H);ov.addColorStop(0,"rgba(8,9,10,.15)");ov.addColorStop(.5,"rgba(8,9,10,.22)");ov.addColorStop(1,"rgba(8,9,10,.6)");c.fillStyle=ov;c.fillRect(0,0,W,H);
+  /* a compact card in the lower part, so the commander stays visible above it */
+  const CW=860,PAD=46,IW=CW-PAD*2,text=V.lines.join(" "),cap="chance per game that somebody at the table groans, by turn "+ANN_TURNS;
+  c.font="400 24px "+FD;const capL=anWrap(c,cap,IW),capH=capL.length*30;let pf=32,lines,lh;
+  const chipsH=V.arch.length?66:12,fixed=PAD+22+74+chipsH+34+100+capH+26+58+PAD;
+  for(;pf>=22;pf-=1){c.font="400 "+pf+"px "+FD;lines=anWrap(c,text,IW);lh=Math.round(pf*1.42);if(fixed+lines.length*lh<=H*.62)break;}
+  const CH=fixed+lines.length*lh,CX=(W-CW)/2,CY=H-CH-150;
+  c.save();c.shadowColor="rgba(0,0,0,.45)";c.shadowBlur=50;c.fillStyle="rgba(20,18,16,.74)";anRR(c,CX,CY,CW,CH,48);c.fill();c.restore();
+  c.strokeStyle="rgba(255,255,255,.18)";c.lineWidth=2;anRR(c,CX,CY,CW,CH,48);c.stroke();
   let y=CY+PAD,x=CX+PAD;c.textBaseline="alphabetic";
-  c.font="500 26px "+FM;c.fillStyle=MUTED;c.fillText("THE VERDICT",x,y+22);y+=30;
-  c.font="700 100px "+FD;c.fillStyle=INK;c.fillText(V.title,x,y+88);y+=110;
-  if(V.arch.length){let cx=x;c.font="500 28px "+FD;V.arch.forEach(a=>{const w=c.measureText(a.name).width+44;c.fillStyle="rgba(255,255,255,.10)";anRR(c,cx,y+6,w,52,26);c.fill();c.fillStyle=INK;c.fillText(a.name,cx+22,y+43);cx+=w+12;});y+=84;}else y+=20;
-  c.font="400 "+pf+"px "+FD;c.fillStyle=INK;lines.forEach((l,i)=>c.fillText(l,x,y+pf+i*lh));y+=lines.length*lh+60;
-  c.font="700 150px "+FD;c.fillStyle=accent;c.fillText(V.p+"%",x,y+120);y+=150;
-  c.font="400 28px "+FD;c.fillStyle=MUTED;capL.forEach((l,i)=>c.fillText(l,x,y+28+i*36));y+=capH+34;
-  const g=c.createLinearGradient(x,0,x+IW,0);g.addColorStop(0,"#4caf6a");g.addColorStop(.45,"#ffbf65");g.addColorStop(.75,"#e8745e");g.addColorStop(1,"#c8452f");c.fillStyle=g;anRR(c,x,y,IW,22,11);c.fill();
-  const mx=x+IW*V.p/100;c.fillStyle="#1b1a18";c.beginPath();c.arc(mx,y+11,22,0,7);c.fill();c.lineWidth=7;c.strokeStyle=INK;c.stroke();
-  c.font="500 24px "+FM;c.fillStyle=MUTED;[0,25,50,75,100].forEach((t,i)=>{c.textAlign=i===0?"left":i===4?"right":"center";c.fillText(String(t),x+IW*t/100,y+66);});c.textAlign="left";
-  c.font="500 24px "+FM;c.fillStyle="rgba(244,239,230,.75)";c.textAlign="center";c.fillText("COMMANDER DESK",W/2,H-96);c.textAlign="left";
+  c.font="500 22px "+FM;c.fillStyle=MUTED;c.fillText("THE VERDICT",x,y+18);y+=22;
+  c.font="700 72px "+FD;c.fillStyle=INK;c.fillText(V.title,x,y+62);y+=74;
+  if(V.arch.length){let cx=x;c.font="500 24px "+FD;V.arch.forEach(a=>{const w=c.measureText(a.name).width+36;c.fillStyle="rgba(255,255,255,.12)";anRR(c,cx,y+4,w,44,22);c.fill();c.fillStyle=INK;c.fillText(a.name,cx+18,y+35);cx+=w+10;});y+=66;}else y+=12;
+  c.font="400 "+pf+"px "+FD;c.fillStyle=INK;lines.forEach((l,i)=>c.fillText(l,x,y+pf+i*lh));y+=lines.length*lh+34;
+  c.font="700 100px "+FD;c.fillStyle=accent;c.fillText(V.p+"%",x,y+82);y+=100;
+  c.font="400 24px "+FD;c.fillStyle=MUTED;capL.forEach((l,i)=>c.fillText(l,x,y+22+i*30));y+=capH+26;
+  const g=c.createLinearGradient(x,0,x+IW,0);g.addColorStop(0,"#4caf6a");g.addColorStop(.45,"#ffbf65");g.addColorStop(.75,"#e8745e");g.addColorStop(1,"#c8452f");c.fillStyle=g;anRR(c,x,y,IW,18,9);c.fill();
+  const mx=x+IW*V.p/100;c.fillStyle="#1b1a18";c.beginPath();c.arc(mx,y+9,18,0,7);c.fill();c.lineWidth=6;c.strokeStyle=INK;c.stroke();
+  c.font="500 20px "+FM;c.fillStyle=MUTED;[0,25,50,75,100].forEach((t,i)=>{c.textAlign=i===0?"left":i===4?"right":"center";c.fillText(String(t),x+IW*t/100,y+54);});c.textAlign="left";
+  c.font="500 22px "+FM;c.fillStyle="rgba(244,239,230,.8)";c.textAlign="center";c.fillText("COMMANDER DESK",W/2,H-80);c.textAlign="left";
   return cv;}
-async function anShareImage(btn){const V=AN.lastV;if(!V)return;const old=btn.textContent;btn.textContent="Making the image…";btn.disabled=true;
-  try{const cv=await anImageCanvas(V,AN.lastCmd);const blob=await new Promise(r=>cv.toBlob(r,"image/png"));
-    if(!blob)throw new Error("no image");const nm="verdict-"+((CUR&&CUR.name)||"deck").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"")+".png";
-    const file=new File([blob],nm,{type:"image/png"});
-    if(navigator.canShare&&navigator.canShare({files:[file]})){try{await navigator.share({files:[file],title:"Commander verdict"});}catch(e){}}
-    else{const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=nm;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),4000);}
-    btn.textContent="Done";}
-  catch(e){btn.textContent="Could not make the image";}
-  setTimeout(()=>{btn.textContent=old;btn.disabled=false;},2200);}
+/* Save opens a preview; the Save inside the preview hands the picture to the share sheet (or downloads it) */
+function anCloseModal(){const m=document.getElementById("anImgModal");if(m){if(m.dataset.url)URL.revokeObjectURL(m.dataset.url);m.remove();}}
+function anSend(blob,nm){const file=new File([blob],nm,{type:"image/png"});
+  if(navigator.canShare&&navigator.canShare({files:[file]}))return navigator.share({files:[file],title:"Commander verdict"}).catch(()=>{});
+  const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=nm;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),4000);return Promise.resolve();}
+async function anShareImage(btn){const V=AN.lastV;if(!V)return;const old=btn.textContent;btn.textContent="…";btn.disabled=true;
+  try{const cv=await anImageCanvas(V,AN.lastCmd),blob=await new Promise(r=>cv.toBlob(r,"image/png"));if(!blob)throw new Error("no image");
+    const nm="verdict-"+((CUR&&CUR.name)||"deck").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"")+".png",url=URL.createObjectURL(blob);
+    anCloseModal();const m=document.createElement("div");m.id="anImgModal";m.className="animodal";m.dataset.url=url;m.setAttribute("role","dialog");m.setAttribute("aria-label","Image preview");
+    m.innerHTML='<div class="animbox"><img alt="Verdict image preview"><div class="animact"><button type="button" class="btn-acc" data-s="1">Save</button><button type="button" class="ghostbtn" data-c="1">Close</button></div></div>';
+    m.querySelector("img").src=url;document.body.appendChild(m);
+    m.addEventListener("click",e=>{if(e.target===m||e.target.closest("[data-c]"))anCloseModal();else if(e.target.closest("[data-s]"))anSend(blob,nm);});
+    document.addEventListener("keydown",function k(e){if(e.key==="Escape"){anCloseModal();document.removeEventListener("keydown",k);}});}
+  catch(e){btn.textContent="Could not make the image";setTimeout(()=>{btn.textContent=old;btn.disabled=false;},2200);return;}
+  btn.textContent=old;btn.disabled=false;}
 
 window.addEventListener("hashchange",()=>{if(/^#add=/i.test(location.hash))location.reload();});
 /* add a shared deck from a link: #add=<slug> loads decks/<slug>.json (deck + marks) next to the page */
