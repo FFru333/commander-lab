@@ -1,0 +1,21 @@
+== card crux-of-fate
+HTTP/2 200 
+access-control-allow-origin: *
+SALT /container/json_dict/card/salt 0.6292134831460674
+top keys ['creature', 'instant', 'sorcery', 'artifact', 'enchantment', 'battle', 'planeswalker', 'land', 'basic', 'nonbasic', 'similar', 'header', 'panels', 'description', 'container']
+card {"num_decks": 104771, "potential_decks": 5279247, "salt": 0.6292134831460674, "cmc": 5.0, "color_identity": ["B"], "id": "11721b88-2654-482c-b9d4-80e54efdbf63", "image_uris": [{"normal": "https://card-images.edhrec.com/normal/front/1/1/11721b88-2654-482c-b9d4-80e54efdbf63.jpg?1783935910", "art_crop": "https://card-images.edhrec.com/art_crop/front/1/1/11721b88-2654-482c-b9d4-80e54efdbf63.jpg?1783935910"}], "layout": "normal", "name": "Crux of Fate", "names": ["Crux of Fate"], "prices": {"cardhoarder": {"price": 0.02, "slug": "140289"}, "cardkingdom": {"price": 0.59, "slug": "mtg/final-fantasy-commander-decks/crux-of-fate"}, "cardmarket": {"price": 0.54, "set": "Commander: FINAL FANTASY", "slu
+== card sol-ring
+HTTP/2 200 
+access-control-allow-origin: *
+SALT /container/json_dict/card/salt 1.593900481540931
+top keys ['creature', 'instant', 'sorcery', 'artifact', 'enchantment', 'battle', 'planeswalker', 'land', 'basic', 'nonbasic', 'similar', 'header', 'panels', 'description', 'container']
+card {"num_decks": 8690664, "potential_decks": 10434750, "salt": 1.593900481540931, "cmc": 1.0, "color_identity": [], "id": "fc817e07-c1f3-469f-9cf7-0945dea7400f", "image_uris": [{"normal": "https://card-images.edhrec.com/normal/front/f/c/fc817e07-c1f3-469f-9cf7-0945dea7400f.jpg?1793021181", "art_crop": "https://card-images.edhrec.com/art_crop/front/f/c/fc817e07-c1f3-469f-9cf7-0945dea7400f.jpg?1793021181"}], "layout": "normal", "name": "Sol Ring", "names": ["Sol Ring"], "prices": {"cardhoarder": {"price": 0.04, "slug": "132109"}, "cardkingdom": {"price": 2.79, "slug": "mtg/marvel-super-heroes-eternal-legal/sol-ring-0213"}, "cardmarket": {"price": 0.72, "set": "Commander: Streets of New Capenna", 
+== card thundermaw-hellkite
+HTTP/2 200 
+access-control-allow-origin: *
+SALT /container/json_dict/card/salt 0.2777777777777778
+top keys ['creature', 'instant', 'sorcery', 'artifact', 'enchantment', 'battle', 'planeswalker', 'land', 'basic', 'nonbasic', 'similar', 'header', 'panels', 'description', 'container']
+card {"num_decks": 20379, "potential_decks": 5182798, "salt": 0.2777777777777778, "cmc": 5.0, "color_identity": ["R"], "id": "a75f6bb4-ab06-42ca-a0df-326d9a098a26", "image_uris": [{"normal": "https://card-images.edhrec.com/normal/front/a/7/a75f6bb4-ab06-42ca-a0df-326d9a098a26.jpg?1783935524", "art_crop": "https://card-images.edhrec.com/art_crop/front/a/7/a75f6bb4-ab06-42ca-a0df-326d9a098a26.jpg?1783935524"}], "layout": "normal", "name": "Thundermaw Hellkite", "names": ["Thundermaw Hellkite"], "prices": {"cardhoarder": {"price": 0.02, "slug": "45414"}, "cardkingdom": {"price": 1.29, "slug": "mtg/starter-commander-decks/thundermaw-hellkite"}, "cardmarket": {"price": 1.41, "set": "Starter Commander 
+== top salt
+[('', 100)]
+{"id": "5902c2aa-c77c-4c6a-9a1e-77cb9bb53aa1", "name": "Stasis", "sanitized": "stasis", "slug": "stasis", "url": "/cards/stasis", "image_version": "1783948573", "num_decks": 18392, "potential_decks": 0, "salt": 3.0530035335689045}
