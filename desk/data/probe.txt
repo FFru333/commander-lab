@@ -56,7 +56,7 @@ otag:graveyard-hate 409
 otag:extra-turn 53
 otag:mass-land-denial 106
 otag:lifegain 2477
-otag:finisher You are being rate-limited, try again after 60 seconds. DO NOT IGNORE THIS WARNI
+otag:finisher Your query didn’t match any cards. Adjust your search terms or refer to the synt
 otag:wincon You are being rate-limited, try again after 60 seconds. DO NOT IGNORE THIS WARNI
 otag:gives-haste You are being rate-limited, try again after 60 seconds. DO NOT IGNORE THIS WARNI
 otag:cost-reducer You are being rate-limited, try again after 60 seconds. DO NOT IGNORE THIS WARNI
