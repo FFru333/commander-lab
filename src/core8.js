@@ -138,19 +138,19 @@ const AN_L1=[
   ["This deck is so fair it could run a customer-service desk. {p}% to upset anyone in a game: less than the odds of someone resenting how slowly you shuffle.",
    "Are you playing to win or to please your friends? At {p}% the honest answer is the second one, and you're doing that timidly.",
    "Nobody has ever left a table because of this deck. Nobody has ever remembered playing against it either."],
-  ["A little edge, no real offence: {p}% per game that someone sighs. You're the person who says sorry while casting {top}.",
-   "Mildly seasoned. Enough bite to be taken seriously, not enough to be uninvited. {p}% per game, with {top} doing the biting.",
+  ["A little edge, no real offence: {p}% per game that someone sighs. You're the person who says sorry while doing it.",
+   "Mildly seasoned. Enough bite to be taken seriously, not enough to be uninvited. {p}% per game.",
    "{p}% chance of a sigh per game. Your friends will describe this deck as 'fine', which is how people describe food they are not going to finish."],
-  ["{p}% per game that somebody puts their cards down harder than usual. {top} is the reason. Healthy: this is what the format is for.",
-   "Real spice, led by {top}. Your friends will call it 'fine' through their teeth, and {p}% of the time they won't even manage 'fine'.",
+  ["{p}% per game that somebody puts their cards down harder than usual. Healthy: this is what the format is for.",
+   "Real spice. Your friends will call it 'fine' through their teeth, and {p}% of the time they won't even manage 'fine'.",
    "You are the pepper at this table, {p}% per game. Not a villain yet, but you've clearly looked at the villain's decklist with interest."],
-  ["You built this to be disliked and it shows: {p}% per game that someone reaches for the rulebook, or the door. {top} is doing most of the damage.",
-   "{p}% per game. {top} leads, the rest of the list helps it get away with it. Somebody is already composing their speech about 'the spirit of the format'.",
-   "Salty. {p}% that your playgroup groans in any given game, mostly thanks to {top}. You're not misunderstood; you're understood perfectly."],
-  ["{p}%. Statistically, somebody leaves this game angry, and you're fine with that. Good. Lead with {top} and stop pretending.",
-   "This isn't a deck, it's a character flaw with a decklist. {p}% per game, and {top} is the smoking gun.",
+  ["You built this to be disliked and it shows: {p}% per game that someone reaches for the rulebook, or the door.",
+   "{p}% per game. Somebody is already composing their speech about 'the spirit of the format', and you wrote the first line yourself.",
+   "Salty. {p}% that your playgroup groans in any given game. You're not misunderstood; you're understood perfectly."],
+  ["{p}%. Statistically, somebody leaves this game angry, and you're fine with that. Funny how the analysis makes it so obvious why you hate your friends.",
+   "This isn't a deck, it's a character flaw with a decklist. {p}% per game.",
    "{p}% per game that someone is genuinely upset. Rule zero for this deck is a legal waiver."],
-  ["Do you actually hate your friends? {p}% per game says you do. Good. Own the chair, lead with {top}, and don't apologise.",
+  ["Do you actually hate your friends? {p}% per game says you do. Good. Own the chair and don't apologise.",
    "{p}%. This is not a game plan, it's a restraining order waiting to happen. Commit to it.",
    "{p}% per game. Friendship ender. Whoever sits across from this deck should get a hazard-pay clause and a hug."]];
 const AN_L2={
@@ -172,15 +172,14 @@ const AN_L2={
 function verdictOf(a,Pw,N){const p=Math.round(N.P*100),ti=AN_TIERS.findIndex(t=>p<t[0]),seed=anHash((CUR&&CUR.name)||"deck");
   const top=N.top[0]?N.top[0].name:"nothing in particular";const fill=s=>s.replace(/\{p\}/g,p).replace(/\{top\}/g,esc(top));
   const L=[];
-  if(!N.all.length)L.push("Not one card here makes anybody sigh. This is a deck for people who say 'good game' and mean it. Are you playing to win, or to be invited back?");
+  if(!N.all.length)L.push("Nothing here makes anybody sigh. This is a deck for people who say 'good game' and mean it. Are you playing to win, or to be invited back?");
   else L.push(fill(anPick(AN_L1[ti],seed)));
-  const dom=N.classes[0];if(dom&&dom.share>=.3&&N.all.length)L.push(AN_L2[dom.k]);
   const pl=Pw.pl;
   if(pl>=7.5&&p>=50)L.push("Fast, strong and rude. At least choose your pod carefully.");
   else if(pl>=7.5&&p<25)L.push("Strong and unobjectionable: the most dangerous kind of deck, since nobody can complain about it with a straight face.");
   else if(pl<=4.5&&p>=40)L.push("Low power, high annoyance: you won't win, you'll just make the game longer and sadder.");
   else if(pl<5&&p<10)L.push("Fair and gentle. Nobody is losing sleep, including you.");
-  if(ti>=2&&N.cutNames.length>1){const q=Math.round(N.cut*100);L.push("Cut "+esc(N.cutNames[0])+" and "+esc(N.cutNames[1])+" and the odds fall from "+p+"% to "+q+"%. Your friends would love that, which is exactly why you won't.");}
+  if(ti>=2&&N.cutNames.length>1){const q=Math.round(N.cut*100);L.push("Remove the two worst offenders and the odds fall from "+p+"% to "+q+"%. Your friends would love that, which is exactly why you won't.");}
   return {p,ti,title:AN_TIERS[ti][1],lines:L};}
 /* ---------- brief: what to look at first ---------- */
 function insightsOf(a,Pw,cv){const w=[],g=[];const nl=a.lands.reduce((t,r)=>t+r.qty,0),r=Pw.ramp;
@@ -230,9 +229,9 @@ function anDeep(a,N){const call=anCallouts(a,N),maxC=Math.max(.0001,...N.classes
       '<section class="antile"><h4>Most annoying cards</h4>'+N.top.slice(0,10).map(x=>'<div class="ancard"><span class="nm">'+esc(x.name)+'<small>'+esc(reason(x))+(x.e!=null?' · EDHREC '+x.e.toFixed(1):'')+'</small></span>'+bar(x.u,1,"salt")+'<b>'+Math.round(x.u*100)+'</b></div>').join("")+
         '<p class="ansub">Number = how annoying the card is when it lands (0–100), not how likely you are to draw it.</p></section></div>'+
       '<div class="angrid two"><section class="antile"><h4>Tell the table first</h4>'+(call.length?call.map(([k,v])=>'<div class="ancall"><b>'+k+'</b>'+(v?'<small>'+esc(v)+'</small>':'')+'</div>').join(""):'<p class="ansub">Nothing that usually needs a rule-zero talk.</p>')+'</section>'+
-      (N.pow.length?'<section class="antile"><h4>Strong, not salty</h4>'+N.pow.map(x=>'<div class="anrow"><span>'+esc(x.name)+'</span>'+bar(x.e,4)+'<b>'+x.e.toFixed(1)+'</b></div>').join("")+'<p class="ansub">Mana and lands the community rates highly. They add power, not table anger, so they stay out of the verdict.</p></section>':'')+'</div>'
+      ''+'</div>'
      :'<p class="w-empty">No card here annoys anybody. Nothing to report.</p>')+
-    '<details class="anhow"><summary>How this is calculated</summary><p>Each card gets an annoyance from 0 to 100 from what it does: land destruction, stax, commander neutralizers, theft, extra turns, hand attack, taxes, wipes, edicts, poison, counterspells, tutors, combos and out-of-nowhere wins. A high EDHREC salt vote lifts it. Mana rocks, lands and plain staples count as power, so Sol Ring is not salt.</p>'+
+    '<details class="anhow"><summary>How this is calculated</summary><p>Each card gets an annoyance from 0 to 100 from what it does: land destruction, stax, commander neutralizers, theft, extra turns, hand attack, taxes, wipes, edicts, poison, counterspells, tutors, combos and out-of-nowhere wins. A high EDHREC salt vote lifts it. Mana, lands and plain staples count as power, not salt.</p>'+
     '<p>The chance per game is 1 minus the product of (1 − chance the card is among the first '+(7+ANN_TURNS)+' you see × '+Math.round(ANN_PLAYED*100)+'% that it actually gets played and lands × its annoyance). The commander counts as 80% to show up. It is our own formula: a way to compare decks, not a measurement.</p>'+
     '<p>For reference, the raw EDHREC salt sum is <b>'+N.raw.toFixed(1)+'</b> over '+N.rated+' rated cards. It counts every staple, so it is not used for the verdict.'+(AN.saltBusy?' Still reading votes…':'')+'</p></details>';
   const nlands=a.lands.reduce((t,r)=>t+r.qty,0);
