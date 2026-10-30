@@ -4253,6 +4253,7 @@ const AN_POSTURE={
   control:["It plays control: answers everything, wins eventually, and makes the waiting miserable for everyone.","You'll spend the game saying no like it's your job, and charging for it."],
   aggro:["It's aggressive and impatient: the table doesn't get to sit down before it's already hurting.","Fast and creature-heavy: it treats the opening turns like a mugging."],
   big:["It's all big, slow, expensive things: patient, until the moment it isn't, and then everyone pays for the wait.","A battlecruiser at heart: build up, wait, and sit on top of the table like a landlord."],
+  inter:["Midrange with a toolbox: it kills whatever you play and beats you with whatever is left.","A bully with answers: it removes your best thing, then reminds you what it was."],
   mid:["A middle-of-the-road midrange pile: a bit of everything, a commitment to nothing.","Not control, not aggro, not combo. The deck answers 'what do you play?' with a shrug."]};
 const AN_INTER={
   none:["And there's almost nothing in it to stop what anyone else does. Your defence plan is hope.","Interaction {i}/100: when somebody does something, you watch, like a nature documentary."],
@@ -4281,11 +4282,11 @@ function verdictOf(a,Pw,N){const p=Math.round(N.P*100),ti=AN_TIERS.findIndex(t=>
   const spice=p<25?"f":p<55?"m":"s",perf=pl<4.5?"w":pl<6.8?"o":"g";
   const crShare=a.creatures/Math.max(1,a.nl),dom=N.classes[0];
   const posture=(dom&&p>=40&&dom.share>=.4&&["mld","stax","tax"].includes(dom.k))?"lock"
-    :(a.combos.length>=3||a.two>=1)&&Pw.win>=45?"combo":Pw.inter>=55&&crShare<.5?"control":crShare>=.55&&a.avg<=3.3?"aggro":a.avg>=3.6?"big":"mid";
+    :((a.two>=1&&a.combos.length>=2)||a.combos.length>=4)&&Pw.win>=45?"combo":(a.counter+a.wipe*2>=5&&Pw.inter>=45&&crShare<.5)?"control":crShare>=.55&&a.avg<=3.3?"aggro":Pw.inter>=55?"inter":a.avg>=3.6?"big":"mid";
   const coh=(pl<4&&Pw.cons<40&&Pw.win<35)?"messy":Pw.win<25?"nowin":Pw.cons<35?"cons":Pw.eff<50?"slow":(pl>=7&&Pw.cons>=60)?"good":"ok";
   const L=[fill(anPick(AN_MOOD[spice+perf],h("a")))];
   let s2=anPick(AN_POSTURE[posture],h("b"));
-  if(Pw.inter<20)s2+=" "+fill(anPick(AN_INTER.none,h("i")));else if(Pw.inter>=60&&posture!=="control")s2+=" "+fill(anPick(AN_INTER.high,h("i")));
+  if(Pw.inter<20)s2+=" "+fill(anPick(AN_INTER.none,h("i")));else if(Pw.inter>=60&&posture!=="control"&&posture!=="inter")s2+=" "+fill(anPick(AN_INTER.high,h("i")));
   L.push(s2);L.push(fill(anPick(AN_COH[coh],h("c"))));L.push(anPick(AN_L3X[spice+perf]||AN_L3[ti],h("d")));
   return {p,ti,title:AN_TIERS[ti][1],lines:L,posture,coh};}
 /* ---------- brief: what to look at first ---------- */
