@@ -21,6 +21,12 @@
   <div class="lmenu" id="lMenu" hidden></div>
   <div class="lsheet" id="lSheet" hidden></div>
 </div>
+<div id="dataModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="dataTitle">
+  <div class="box" style="width:min(560px,100%)">
+    <h3 id="dataTitle">Your data</h3>
+    <div id="dataBody"></div>
+  </div>
+</div>
 <main class="wrap">
 <section class="empty" id="emptyState" hidden data-old="1">
   <h2>No decks yet</h2>
@@ -36,6 +42,7 @@
     </div>
     <div class="vtools"><button type="button" class="btn-acc" data-act="new">New deck</button><button type="button" data-act="play">Life counter</button><button type="button" data-go="coll">My collection</button></div>
   </div>
+  <div class="installtip" id="installTip" hidden></div>
   <div class="bento" id="homeStats"></div>
   <div class="hsec"><h2>My decks</h2><button type="button" class="ghostbtn" data-go="decks">See all</button></div>
   <div class="deckcards" id="homeDecks"></div>
@@ -49,7 +56,7 @@
       <h1 class="ttl" id="decksTitle">My decks</h1>
       <p class="sub" id="decksSub">Every deck you imported. Open one to mark cards, print proxies or find its tokens.</p>
     </div>
-    <div class="vtools"><button type="button" class="btn-acc" data-act="new">New deck</button></div>
+    <div class="vtools"><button type="button" class="btn-acc" data-act="new">New deck</button><button type="button" data-act="backup">Back up data</button><button type="button" data-act="restore">Restore</button></div>
   </div>
   <div class="deckcards big" id="allDecks"></div>
 </section>
@@ -266,6 +273,7 @@
 <div id="importModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="imTitle">
   <div class="box" style="width:min(760px,100%)">
     <h3 id="imTitle">Import a deck</h3>
+    <p class="imrestore" id="imRestore" hidden>Moving your decks from another browser or phone? <button type="button" class="linkbtn" data-act="restore">Restore a backup</button></p>
     <div class="imtabs" id="imTabs" role="tablist" aria-label="How to add cards"><button type="button" role="tab" data-it="text" aria-selected="true">Text</button><button type="button" role="tab" data-it="link" aria-selected="false">Link</button><button type="button" role="tab" data-it="scan" aria-selected="false">Scan cards</button></div>
     <div data-ip="text">
       <textarea id="imText" class="tkin" style="height:260px" aria-label="Decklist" placeholder="1 Atraxa, Praetors' Voice&#10;1 Sol Ring&#10;10 Mountain&#10;Forest x5&#10;two Plains"></textarea>

@@ -103,7 +103,7 @@ const DECK_PATCHES=[
    note:"Deck updated: Tireless Provisioner in for Crumbling Necropolis, Sarkhan, Dragon Ascendant in for Dragon's Hoard, both marked Owned."}];
 (function(){let any=false;
   Object.keys(DECKS.list).forEach(id=>{const d=DECKS.list[id];
-    const isUr=(SEED&&id===SEED.id&&SEED.id==="ur")||d.from==="ur-dragon";if(!isUr)return;
+    const isUr=id==="ur"||d.from==="ur-dragon";if(!isUr)return;
     d.patchesDone=d.patchesDone||[];
     DECK_PATCHES.forEach(P=>{if(d.patchesDone.includes(P.id))return;applyDeckPatch(id,P,false);d.patchesDone.push(P.id);any=true;});});
   if(any)saveDecks();})();

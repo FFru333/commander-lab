@@ -235,3 +235,12 @@ html.lifeon,html.lifeon body{overflow:hidden}
 .lroll{margin:12px 0 0;font:700 22px/1.2 var(--fd)}
 .lname{left:5cqw;transform:none;max-width:60%}
 .life.upright .lhub{left:auto;right:calc(14px + env(safe-area-inset-right,0px));bottom:calc(14px + env(safe-area-inset-bottom,0px));transform:none}
+/* ===== install tip, backup ===== */
+.installtip{display:flex;gap:12px;align-items:flex-start;justify-content:space-between;padding:14px 16px;margin:0 0 14px;border:1px solid var(--line);border-radius:var(--r-sm);background:var(--card)}
+.installtip b{display:block;font-size:15px;margin-bottom:4px}
+.installtip p{margin:0;font-size:13.5px;color:var(--muted);line-height:1.5}
+.kbd{display:inline-block;padding:1px 7px;border-radius:6px;background:var(--head);color:var(--ink);font-weight:600;font-size:12.5px}
+.linkbtn{height:auto;min-height:0;padding:0;border:0;background:none;color:var(--have);font:inherit;font-weight:600;text-decoration:underline;cursor:pointer}
+.imrestore{margin:-4px 0 12px;font-size:13.5px;color:var(--muted)}
+.filebtn{cursor:pointer;height:40px;padding:0 16px}
+#dataModal textarea{width:100%;margin-top:10px}

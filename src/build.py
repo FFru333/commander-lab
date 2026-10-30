@@ -23,7 +23,7 @@ i=h.index("/* mana curve */");j=h.index("const _upd=update;");j=h.index("\n",j)+
 h=h[:i]+rd("core2.js")+"\n"+h[j:]
 # core 3: boot
 i=h.index('(function(){const sel=document.getElementById("deckSel");');j=h.index("update();\n</script>")+len("update();\n")
-h=h[:i]+rd("core4.js")+"\n"+rd("core5.js")+"\n"+rd("core6.js")+"\n"+rd("core3.js")+h[j:]
+h=h[:i]+rd("core4.js")+"\n"+rd("core5.js")+"\n"+rd("core6.js")+"\n"+rd("core7.js")+"\n"+rd("core3.js")+h[j:]
 
 rep('function parseList(txt){','function parseListBase(txt){')
 rep('async function scryLookup(entries){','async function scryLookupBase(entries){')
@@ -145,4 +145,6 @@ seed_js=sys.argv[2] if len(sys.argv)>2 else None
 if seed_js:
     cfg=open(seed_js).read().strip()
     rep('/*CONFIG*/const NS="cmdr-tool";const SEED=null;/*/CONFIG*/','/*CONFIG*/'+cfg+'/*/CONFIG*/')
+if not seed_js:
+    rep('<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">','<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">\n<link rel="manifest" href="manifest.webmanifest">\n<link rel="apple-touch-icon" href="apple-touch-icon.png">\n<link rel="icon" type="image/png" href="icon-192.png">\n<meta name="apple-mobile-web-app-capable" content="yes">\n<meta name="mobile-web-app-capable" content="yes">\n<meta name="apple-mobile-web-app-title" content="Commander Desk">\n<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">\n<meta name="theme-color" content="#13181b">')
 open(out,"w").write(h);print("built",out,len(h))
