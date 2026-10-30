@@ -316,13 +316,16 @@ const AN_TITLE_TIER=[
   ["Salty {A}","The {C} Salt Mine","{K}'s Salt Shaker","The {T} Wrecking Crew","{A} Without Remorse","Pass the Salt, {K}"],
   ["{T} Table Wrecker","{A} Demolition Crew","{K} Ruins Dinner","The {C} Wrecking Ball","{A} With a Body Count","Game Night Arsonist"],
   ["{K}: Friendship Ender","{A} Divorce Lawyer","The {C} Group-Chat Killer","End of the Pod, {A} Edition","{T} Apocalypse, Table for Four","Restraining Order, {A} Edition"]];
+const AN_FLAVOR={Dragon:"Jaws",Elf:"Pointy Ears",Goblin:"Chaos Goblins",Zombie:"Rot",Vampire:"Fangs",Angel:"Halos",Merfolk:"Fins",Wizard:"Pointy Hats",Human:"Taxpayers",Elemental:"Tantrums",Beast:"Claws",Hydra:"Heads",Cat:"Claws",Dinosaur:"Teeth",Knight:"Lances",Soldier:"Boots",Spirit:"Chills",Demon:"Contracts",Skeleton:"Bones",Rat:"Plague",Wolf:"Howls",Warrior:"Grudges",Cleric:"Sermons",Rogue:"Pickpockets",Artifact:"Gears",Insect:"Swarm",Sphinx:"Riddles",Giant:"Footsteps"};
+const AN_TITLE_FLAVOR=["Wrecking {F}","Mind the {F}","Nothing but {F}","{F} Out for Blood","Too Many {F}","{F} and No Manners","{F} at the Table","Pass the {F}","Full of {F}"];
+const AN_TITLE_STRONG=new Set(["Tokens","+1/+1 Counters","Aristocrats","Enchantress","Equipment","Auras","Voltron","Reanimator","Mill","Lifegain","Landfall","Blink","Storm","Extra Turns","Wheels","Theft","Group Hug","Group Slug","Pillow Fort","Burn","Clones","Infect","Vehicles","Planeswalkers","Stax","Big Mana"]);
 const AN_TITLE_WEAK=["{A}, Allegedly","{A} That Forgot to Win","Lots of {A}, Zero Plan","A {T} Pile With Ambitions","{C} and Confused","{K}, Please Read the Rules"];
 const AN_TITLE_GOOD=["{A} Done Right","Clean, Cold {A}","{A}, No Notes","{C} Efficiency Expert","The {T} Problem"];
 const AN_TITLE_TRAIT=["{X}, Served Cold","{X} and Zero Regrets","{C} {X}","The {X} Problem","{X} Enjoyer","Professional {X} Offender","{K}'s {X} Habit"];
 const AN_TRAIT_NOUN={edict:"Edicts",sacrifice:"Sacrifice",hand:"Discard",steal:"Theft",stax:"Stax",combo:"Combo",cheat:"Cheating",control:"Control",controlNoBlue:"Blueless Control",counters:"Counterspells",poison:"Poison",fastmana:"Fast Mana",wipe:"Wipes",aggro:"Aggro",big:"Big Things",tribal:"Tribal",ramp:"Ramp",nofast:"Patience"};
-function anTitle(ti,pl,p,ctx,h){const V={A:ctx.top||(ctx.tribe?ctx.tribe+"s":""),T:ctx.tribe||"",C:ctx.ci?ctx.ci.charAt(0).toUpperCase()+ctx.ci.slice(1):"",K:ctx.k||"",X:(ctx.traits||[]).map(k=>k==="tribal"?(ctx.tribe?ctx.tribe+"s":""):AN_TRAIT_NOUN[k]).filter(Boolean)[0]||""};
+function anTitle(ti,pl,p,ctx,h){const V={A:ctx.tribal&&ctx.tribe?ctx.tribe+"s":ctx.top||"",T:ctx.tribe||"",F:ctx.tribal&&AN_FLAVOR[ctx.tribe]||"",C:ctx.ci?ctx.ci.charAt(0).toUpperCase()+ctx.ci.slice(1):"",K:ctx.k||"",X:(ctx.traits||[]).map(k=>k==="combo"?"":k==="tribal"?(ctx.tribe?ctx.tribe+"s":""):AN_TRAIT_NOUN[k]).filter(Boolean)[0]||""};
   const ok=t=>(t.match(/\{(\w)\}/g)||[]).every(m=>V[m[1]]);
-  let pool=AN_TITLE_TIER[ti].concat(pl<4.5?AN_TITLE_WEAK:[],pl>=6.8&&p<35?AN_TITLE_GOOD:[],ti>=2?AN_TITLE_TRAIT:[]).filter(ok);
+  let pool=AN_TITLE_TIER[ti].concat(pl<4.5?AN_TITLE_WEAK:[],pl>=6.8&&p<35?AN_TITLE_GOOD:[],ti>=2?AN_TITLE_TRAIT:[],V.F?AN_TITLE_FLAVOR.concat(AN_TITLE_FLAVOR):[]).filter(ok);
   if(!pool.length)pool=AN_TITLE_TIER[ti].filter(t=>!/\{/.test(t)).concat(["Table wrecker"]);
   return anPick(pool,h("title")).replace(/\{(\w)\}/g,(m,k)=>V[k]);}
 function verdictOf(a,Pw,N){const p=Math.round(N.P*100),ti=AN_TIERS.findIndex(t=>p<t[0]),pl=Pw.pl;
@@ -367,7 +370,8 @@ function verdictOf(a,Pw,N){const p=Math.round(N.P*100),ti=AN_TIERS.findIndex(t=>
   cand.slice(0,2).forEach(x=>L.push(x));
   L.push(anPick(AN_L3X[spice+perf]||AN_L3[ti],h("d")));
   const capPool=(p<25?AN_CAP.lo:p<55?AN_CAP.mid:AN_CAP.hi).concat(pl<4.5?AN_CAP.weak.concat(AN_CAP.weak):[],pl>=6.8&&p<25?AN_CAP.strong:[],AN_CAP_ANY),cap=anPick(capPool,h("cap"));
-  const title=anTitle(ti,pl,p,{top:idr.top,tribe:(a.tribe&&a.tribeN>=20)?a.tribe:"",ci:ci.length?ciName:"",k:kName,traits:idr.traits},h);
+  const tribalOn=!!(a.tribe&&a.tribeN>=20),topA=arch.find(x=>x.name===idr.top),titleTop=idr.top&&(AN_TITLE_STRONG.has(idr.top)||(topA&&topA.score>=2))?idr.top:((arch.find(x=>AN_TITLE_STRONG.has(x.name))||{}).name||"");
+  const title=anTitle(ti,pl,p,{top:titleTop,tribal:tribalOn,tribe:tribalOn?a.tribe:"",ci:ci.length?ciName:"",k:kName,traits:idr.traits},h);
   return {p,ti,cap,title,tierName:AN_TIERS[ti][1],lines:L,posture,issues,ci:ciName,arch,dep,own,ev:idr.ev};}
 /* ---------- brief: what to look at first ---------- */
 function insightsOf(a,Pw,cv){const w=[],g=[];const nl=a.lands.reduce((t,r)=>t+r.qty,0),r=Pw.ramp;
@@ -454,7 +458,7 @@ async function openAnalytics(){renderAnalytics();const ok=await loadCards();rend
   if(LAB.combos&&!LAB.match){LAB.match=matchCombos();}else if(!LAB.combos)loadCombos().then(()=>{if(LAB.combos){LAB.match=matchCombos();renderAnalytics();}});
   loadSalt();if(typeof loadEDH==='function')loadEDH().then(renderAnalytics).catch(()=>{});}
 /* the installed app can keep an old copy alive in the background: on open and on return, compare with the published build and reload if it is newer */
-const APP_BUILD=28;
+const APP_BUILD=29;
 function checkUpdate(){if(location.protocol!=="https:")return;fetch(location.href.split("#")[0],{cache:"no-store"}).then(r=>r.ok?r.text():"").then(t=>{const m=t.match(/const APP_BUILD=(\d+);/);
   if(m&&+m[1]>APP_BUILD){let last=0;try{last=+sessionStorage.getItem("cd-rl")||0;}catch(e){}if(Date.now()-last>30000){try{sessionStorage.setItem("cd-rl",String(Date.now()));}catch(e){}hardRefresh();}}}).catch(()=>{});}
 setTimeout(checkUpdate,2500);document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible")checkUpdate();});
