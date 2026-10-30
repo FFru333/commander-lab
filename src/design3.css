@@ -329,3 +329,4 @@ details.anhow{margin-top:12px;padding:12px 16px;border-radius:var(--r-sm);backgr
 details.anhow summary{cursor:pointer;color:var(--ink);font-weight:600}
 details.anhow p{margin:8px 0 0;line-height:1.5}
 @media (max-width:820px){.anverdict{grid-template-columns:1fr;padding:16px}.anvgauge b{font-size:44px}}
+.anchips{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 10px!important}

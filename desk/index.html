@@ -1335,6 +1335,7 @@ details.anhow{margin-top:12px;padding:12px 16px;border-radius:var(--r-sm);backgr
 details.anhow summary{cursor:pointer;color:var(--ink);font-weight:600}
 details.anhow p{margin:8px 0 0;line-height:1.5}
 @media (max-width:820px){.anverdict{grid-template-columns:1fr;padding:16px}.anvgauge b{font-size:44px}}
+.anchips{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 10px!important}
 
 </style>
 </head>
@@ -4270,6 +4271,13 @@ const AN_SLOP={
   cons:[4,["Consistency {cons}/100: the deck draws what it draws and prays. More engines, fewer ideas.","Consistency {cons}/100. Every game is a different deck, and most of them are bad."]],
   slow:[3,["Efficiency {eff}/100: clunky. Half the hand is a paperweight until it's too late.","Efficiency {eff}/100: it works eventually, as long as nobody is in a hurry, and somebody always is."]],
   noint:[3,["There's almost nothing in it to stop what anyone else does. Your defence plan is hope.","Interaction {inter}/100: when somebody does something, you watch, like a nature documentary."]]};
+const AN_THEME=["EDHREC would file it under {t}.","Strip away the jokes and it reads as {t}.","The crowd on EDHREC would call it {t} and move on."];
+const AN_DEP_HI=["Everything leans on the commander: neutralise it and the plan goes with it{prot}.","This deck is a hostage situation, and the commander is the hostage{prot}.","Take the commander away and the rest is a list of cards looking at each other{prot}."];
+const AN_DEP_LO=["The commander is decoration: take it away and the deck hardly notices.","Remove the commander and nothing changes. It could have been any legend with the right colours."];
+const AN_OWN=[
+  [.9,["Almost all of it is really yours: {have} of {total}. The other {miss} are wishful thinking{cost}.","{have} of {total} owned. The last {miss} are the difference between a deck and a plan{cost}."]],
+  [.5,["Only {have} of {total} cards are actually yours: {proxy} are printer ink and {buy} are a shopping list{cost}.","{have}/{total} owned, {proxy} to proxy, {buy} to buy{cost}. A deck in cosplay."]],
+  [0,["You own {have} of {total} cards. This isn't a deck, it's a wishlist with a commander{cost}.","{have} real cards out of {total}. The rest exists mostly in your head{cost}."]]];
 const AN_GOOD=["Consistency {cons}/100, efficiency {eff}/100: it works, it works often, and that's the real insult.","The numbers say it's coherent: {cons} consistency, {eff} efficiency. Any loss is yours to own."];
 const AN_MEH=["{cons} consistency and {eff} efficiency: not broken, not sharp. Respectable, in the way beige is.","{cons} consistency, {eff} efficiency. It works until you're tempted to be clever."];
 const AN_L3=[
@@ -4283,6 +4291,56 @@ const AN_L3X={
   fg:["Keep winning politely. It's the cruellest thing you can do.","Nobody can accuse you of anything, and that's exactly what bothers them.","At least be rude about it. You've earned it."],
   mw:["Be annoying or be good. Doing the first without the second gets you nowhere.","You're the table's most irritating loss. Work on that.","Pick a lane: win properly or stop annoying people for nothing."],
   sw:["Fix the list first, then the attitude. Right now it's all attitude.","All that spite and nothing to show for it. Even your enemies are disappointed.","Cut the cruelty, add a plan. Or keep the cruelty and accept the losses."]};
+/* ---------- archetypes (EDHREC theme names) read from card text, and commander dependence ---------- */
+const anTxt=r=>r.c.ot||"";
+const AN_ARCH=[
+  ["Tokens",r=>/create [^.]*\btokens?\b|\btokens? you control/i.test(anTxt(r)),9],
+  ["+1/+1 Counters",r=>/\+1\/\+1 counters?|proliferate/i.test(anTxt(r)),9],
+  ["Aristocrats",r=>/whenever [^.]*(dies|is put into a graveyard from the battlefield)|sacrifice (a|an|another|two) [^.]*(creature|permanent)[^.:]*:/i.test(anTxt(r)),8],
+  ["Spellslinger",r=>(isType(r.c,"Instant")||isType(r.c,"Sorcery"))?1:/whenever you cast (an? )?(instant|sorcery|noncreature)|magecraft|copy target (instant|sorcery)/i.test(anTxt(r))?3:0,26,true],
+  ["Artifacts",r=>(isType(r.c,"Artifact")?1:0)+(/artifacts? you control|artifact spell/i.test(anTxt(r))?3:0),18,true],
+  ["Enchantress",r=>(isType(r.c,"Enchantment")?1:0)+(/whenever an enchantment|enchantment spell|enchantments? you control/i.test(anTxt(r))?3:0),14,true],
+  ["Equipment",r=>/\bEquipment\b/.test(r.c.tl)?1:0,6,true],
+  ["Auras",r=>/\bAura\b/.test(r.c.tl)?1:0,8,true],
+  ["Voltron",r=>/\b(Equipment|Aura)\b/.test(r.c.tl)?1:0,9,true],
+  ["Reanimator",r=>/return [^.]*creature card[^.]*from (a|your|any|their) graveyard to the battlefield|reanimate/i.test(anTxt(r)),4],
+  ["Graveyard",r=>/from your graveyard|put the top [^.]*cards of your library into your graveyard|\bmills?\b|\bescape\b|flashback|delve/i.test(anTxt(r)),9],
+  ["Mill",r=>/(target (player|opponent)|each opponent) mills?|mills? (that many|\w+) cards?/i.test(anTxt(r)),5],
+  ["Lifegain",r=>/you gain \d+ life|you gain life|\blifelink\b|whenever you gain life/i.test(anTxt(r)),8],
+  ["Landfall",r=>/landfall|whenever a land enters the battlefield under your control|play an additional land|additional land/i.test(anTxt(r)),6],
+  ["Blink",r=>/exile (target|another|up to one target) [^.]*(creature|permanent)[^.]*(then )?return it|\bblink\b|flicker/i.test(anTxt(r)),4],
+  ["Treasure",r=>/\bTreasure\b/.test(anTxt(r)),6],
+  ["Storm",r=>/\bstorm\b|copy target (instant|sorcery)|copy (that|target) spell/i.test(anTxt(r)),3],
+  ["Extra Turns",r=>/extra turns?/i.test(anTxt(r)),2],
+  ["Wheels",r=>/each player discards (their|his or her) hand[^.]*draws?|discards? (their|your) hand, then draws?/i.test(anTxt(r)),2],
+  ["Theft",r=>/gain control of (target|up to|each|all|that|another)|cast [^.]*(from|owned by) (an opponent|target opponent)|exile the top card of (target )?(an )?opponent's library/i.test(anTxt(r)),3],
+  ["Group Hug",r=>/each player (draws|may draw|gains|creates|puts)|target player draws|each opponent draws/i.test(anTxt(r)),4],
+  ["Group Slug",r=>/deals? \d+ damage to each (opponent|player)|whenever an opponent [^.]*(draws|casts|attacks)/i.test(anTxt(r)),5],
+  ["Lifedrain",r=>/each opponent loses \d+ life|target (player|opponent) loses \d+ life|drains?/i.test(anTxt(r)),6],
+  ["Pillow Fort",r=>/can't attack you|creatures can't attack|prevent all combat damage/i.test(anTxt(r)),3],
+  ["Burn",r=>/deals? \d+ damage to (any target|target (player|opponent)|each opponent)/i.test(anTxt(r)),8],
+  ["Clones",r=>/enter[s]? the battlefield as a copy|create a token that's a copy|copy of target (creature|permanent)|becomes a copy/i.test(anTxt(r)),4],
+  ["Infect",r=>(r.c.kw||[]).some(k=>/Infect|Toxic|Poisonous/i.test(k))||/poison counter/i.test(anTxt(r)),4],
+  ["Vehicles",r=>/\bVehicle\b/.test(r.c.tl)||/\bcrew \d/i.test(anTxt(r)),4],
+  ["Planeswalkers",r=>isType(r.c,"Planeswalker")?1:0,7]];
+function anArchetypes(a,Pw,N){const rows=(a.R||[]).filter(r=>!isType(r.c,"Land")||/Land/.test(r.c.tl)&&false);const out=[];
+  AN_ARCH.forEach(([name,fn,thr])=>{let n=0;rows.forEach(r=>{const v=fn(r);if(v)n+=(r.qty||1)*(v===true?1:v)*(r.cmd?3:1);});if(n>=thr)out.push({name,n,score:n/thr});});
+  const by=Object.fromEntries(N.classes.map(c=>[c.k,c]));const stx=["stax","mld","tax"].reduce((t,k)=>t+(by[k]?by[k].n:0),0);
+  if(stx>=5)out.push({name:"Stax",n:stx,score:stx/5});
+  if(a.combos.length>=4)out.push({name:"Combo",n:a.combos.length,score:a.combos.length/4});
+  if(Pw.ramp>=13&&a.fin>=5)out.push({name:"Big Mana",n:Pw.ramp,score:Pw.ramp/13});
+  if(a.tribe&&a.tribeN>=20)out.push({name:a.tribe+"s",n:a.tribeN,score:a.tribeN/20});
+  const eq=out.find(x=>x.name==="Voltron");if(eq){out.forEach(x=>{if(x.name==="Equipment"||x.name==="Auras")x.score*=.7;});}
+  return out.sort((x,y)=>y.score-x.score).slice(0,3);}
+function anDepend(a){const cmd=(a.R||[]).filter(r=>r.cmd);if(!cmd.length)return null;
+  const ot=cmd.map(r=>r.c.ot||"").join(" ");
+  const engine=/whenever|at the beginning of|spells you cast|you control (get|have)|each (creature|spell)|\{T\}[^.]*:|enters the battlefield|put [^.]*onto the battlefield/i.test(ot)?1:0;
+  const E=LAB.edh;let share=null;
+  if(E&&E.by&&Object.keys(E.by).length){const rows=(a.R||[]).filter(r=>!r.cmd&&!isType(r.c,"Land"));
+    const hi=rows.filter(r=>{const x=E.by[norm(r.name)];return x&&x.syn>=.2;}).reduce((t,r)=>t+r.qty,0);share=rows.length?hi/rows.reduce((t,r)=>t+r.qty,0):0;}
+  const dep=share==null?null:Math.round(clamp((engine?30:10)+Math.min(1,share/.7)*65));
+  return {dep,engine:!!engine,share,protect:a.protect};}
+function anOwnership(){try{const o=deckStats(DECKS.current);const marked=o.have+o.proxy+o.buy;if(marked<o.total*.6)return null;const miss=o.proxy+o.buy;if(!miss)return null;return {have:o.have,total:marked,proxy:o.proxy,buy:o.buy,cost:o.buyCost||0,share:o.have/Math.max(1,marked)};}catch(e){return null;}}
 const AN_CIN={"W":"mono-white","U":"mono-blue","B":"mono-black","R":"mono-red","G":"mono-green","WU":"Azorius","UB":"Dimir","BR":"Rakdos","RG":"Gruul","GW":"Selesnya","WB":"Orzhov","UR":"Izzet","BG":"Golgari","RW":"Boros","GU":"Simic",
   "WUB":"Esper","UBR":"Grixis","BRG":"Jund","RGW":"Naya","GWU":"Bant","WBR":"Mardu","URG":"Temur","BGW":"Abzan","RWU":"Jeskai","GUB":"Sultai"};
 function anCiName(ci){const set=COLORS.filter(c=>ci.includes(c)).sort().join("");
@@ -4301,7 +4359,8 @@ function verdictOf(a,Pw,N){const p=Math.round(N.P*100),ti=AN_TIERS.findIndex(t=>
   const thinC=COLORS.filter(k=>ci.includes(k)&&a.dem[k]>=6&&a.src[k]<12).sort((x,y)=>a.dem[y]-a.dem[x])[0];
   const off=ci.length?nonCmd.filter(r=>(r.c.ci||[]).some(c=>!ci.includes(c))).length:0;
   const dupes=cr.filter(r=>r.qty>1&&!/\bBasic\b/.test(r.c.tl||"")).length;
-  const vars={p,pl:pl.toFixed(1),inter:Math.round(Pw.inter),win:Math.round(Pw.win),cons:Math.round(Pw.cons),eff:Math.round(Pw.eff),fast,n:off,lands:nlands,mv:a.avg.toFixed(2),ramp,draw:a.draw,tapped:(a.tapped||[]).length,
+  const arch=anArchetypes(a,Pw,N),dep=anDepend(a),own=anOwnership();
+  const vars={t:arch.slice(0,2).map(x=>x.name).join(" with a side of "),p,pl:pl.toFixed(1),inter:Math.round(Pw.inter),win:Math.round(Pw.win),cons:Math.round(Pw.cons),eff:Math.round(Pw.eff),fast,n:off,lands:nlands,mv:a.avg.toFixed(2),ramp,draw:a.draw,tapped:(a.tapped||[]).length,
     col:thinC?CNAME[thinC]:"",src:thinC?a.src[thinC]:0,pips:thinC?a.dem[thinC]:0,ci:ci.length?ciName:"",Ci:ci.length?ciName.charAt(0).toUpperCase()+ciName.slice(1):""};
   const fill=s=>{const t=s.replace(/\{(\w+)\}/g,(m,k)=>k in vars?vars[k]:m).replace(/\s{2,}/g," ").trim();return t.charAt(0).toUpperCase()+t.slice(1);};
   const spice=p<25?"f":p<55?"m":"s",perf=pl<4.5?"w":pl<6.8?"o":"g";
@@ -4315,11 +4374,19 @@ function verdictOf(a,Pw,N){const p=Math.round(N.P*100),ti=AN_TIERS.findIndex(t=>
   issues.sort((x,y)=>AN_SLOP[y][0]-AN_SLOP[x][0]);
   /* one paragraph: who it is, how rude/strong it is, what is wrong with the build (or how well it works), closing verdict */
   const L=[fill(anPick(AN_POSTURE[posture],h("b"))),fill(anPick(AN_MOOD[spice+perf],h("a")))];
-  if(cheatCmd&&cheatOthers<=3)L.push("Everything hangs on the commander: neutralise it and what's left is a pile of expensive creatures"+(a.protect<=1?" with almost nothing to protect them.":"."));
-  issues.slice(0,L.length>2?1:2).forEach((k,i)=>L.push(fill(anPick(AN_SLOP[k][1],h("s"+i)))));
-  if(!issues.length)L.push(fill(anPick(Pw.cons>=70&&Pw.eff>=70?AN_GOOD:AN_MEH,h("g"))));
+  /* at most two extra sentences, most telling first: a severe build problem, an incomplete collection, how much hangs on the commander, a lesser problem */
+  const prot=a.protect<=1?", and there's almost nothing to protect it":"";const cand=[];
+  if(issues[0]&&AN_SLOP[issues[0]][0]>=6)cand.push(fill(anPick(AN_SLOP[issues[0]][1],h("s0"))));
+  if(own){const tier=AN_OWN.find(x=>own.share>=x[0]),miss=own.proxy+own.buy;
+    cand.push(fill(anPick(tier[1],h("o")).replace("{miss}",miss).replace("{have}",own.have).replace("{total}",own.total).replace("{proxy}",own.proxy).replace("{buy}",own.buy).replace("{cost}",own.cost>0?" and "+fmtE0(own.cost)+" still to spend":"")));}
+  if(dep&&dep.dep!=null&&dep.dep>=65)cand.push(fill(anPick(AN_DEP_HI,h("dh")).replace("{prot}",prot)));
+  else if(dep&&dep.dep!=null&&dep.dep<=30)cand.push(anPick(AN_DEP_LO,h("dl")));
+  else if(dep&&dep.dep==null&&cheatCmd&&cheatOthers<=3)cand.push("Everything hangs on the commander: neutralise it and what's left is a pile of expensive creatures"+(a.protect<=1?" with almost nothing to protect them.":"."));
+  issues.forEach((k,i)=>{if(i>0||AN_SLOP[k][0]<6)cand.push(fill(anPick(AN_SLOP[k][1],h("s"+i))));});
+  if(!issues.length)cand.push(fill(anPick(Pw.cons>=70&&Pw.eff>=70?AN_GOOD:AN_MEH,h("g"))));
+  cand.slice(0,2).forEach(x=>L.push(x));
   L.push(anPick(AN_L3X[spice+perf]||AN_L3[ti],h("d")));
-  return {p,ti,title:AN_TIERS[ti][1],lines:L,posture,issues,ci:ciName};}
+  return {p,ti,title:AN_TIERS[ti][1],lines:L,posture,issues,ci:ciName,arch,dep,own};}
 /* ---------- brief: what to look at first ---------- */
 function insightsOf(a,Pw,cv){const w=[],g=[];const nl=a.lands.reduce((t,r)=>t+r.qty,0),r=Pw.ramp;
   if(cv.avg>=3.5)w.push("Top-heavy: the average mana value is "+cv.avg.toFixed(2)+". Expect clunky turns before turn 5.");
@@ -4344,7 +4411,7 @@ function anColours(a){const ci=deckCI(),maxDem=Math.max(1,...COLORS.map(k=>a.dem
   return '<h3 class="anh">Colour demand and sources</h3><div class="ancolors">'+COLORS.filter(k=>ci.includes(k)||a.dem[k]).map(k=>
     '<div class="ancol"><span class="pip p'+k+'">'+k+'</span><div><div class="anrow"><span>Pips</span>'+bar(a.dem[k],maxDem)+'<b>'+a.dem[k]+'</b></div><div class="anrow"><span>Sources</span>'+bar(a.src[k],Math.max(1,...COLORS.map(x=>a.src[x])),"src")+'<b>'+a.src[k]+'</b></div></div><em class="'+(a.src[k]<12?"low":"")+'">'+(a.src[k]<12?"Thin":"OK")+'</em></div>').join("")+
     '</div><p class="note">Sources are lands, rocks and mana creatures that can make the colour. Around 12 or more per main colour is a common rule of thumb, not a hard limit.</p>';}
-function anVerdict(V){return '<section class="anverdict" data-tier="'+V.ti+'"><div class="anvtext"><p class="ankick">The verdict</p><h3>'+V.title+'</h3>'+'<p>'+V.lines.join(" ")+'</p>'+'</div>'+
+function anVerdict(V){return '<section class="anverdict" data-tier="'+V.ti+'"><div class="anvtext"><p class="ankick">The verdict</p><h3>'+V.title+'</h3>'+(V.arch.length?'<p class="anchips">'+V.arch.map(x=>'<span class="chipk">'+esc(x.name)+'</span>').join("")+'</p>':'')+'<p>'+V.lines.join(" ")+'</p>'+'</div>'+
   '<div class="anvgauge"><b>'+V.p+'%</b><small>chance per game that somebody at the table groans, by turn '+ANN_TURNS+'</small><div class="anscale"><i style="left:'+V.p+'%"></i></div><div class="anticks"><span>0</span><span>25</span><span>50</span><span>75</span><span>100</span></div></div></section>';}
 function anBrief(a,Pw){const emi=AN.emi&&HAS_EMI(),cv=curveData(emi),base=curveData(false),mx=Math.max(1,...cv.b,...base.b);
   const g=[["Consistency",Pw.cons],["Efficiency",Pw.eff],["Interaction",Pw.inter],["Win conditions",Pw.win]];
@@ -4373,8 +4440,11 @@ function anDeep(a,N){const call=anCallouts(a,N),maxC=Math.max(.0001,...N.classes
     '<details class="anhow"><summary>How this is calculated</summary><p>Each card gets an annoyance from 0 to 100 from what it does: land destruction, stax, commander neutralizers, theft, extra turns, hand attack, taxes, wipes, edicts, poison, counterspells, tutors, combos and out-of-nowhere wins. A high EDHREC salt vote lifts it. Mana, lands and plain staples count as power, not salt.</p>'+
     '<p>The chance per game is 1 minus the product of (1 − chance the card is among the first '+(7+ANN_TURNS)+' you see × '+Math.round(ANN_PLAYED*100)+'% that it actually gets played and lands × its annoyance). The commander counts as 80% to show up. It is our own formula: a way to compare decks, not a measurement.</p>'+
     '<p>For reference, the raw EDHREC salt sum is <b>'+N.raw.toFixed(1)+'</b> over '+N.rated+' rated cards. It counts every staple, so it is not used for the verdict.'+(AN.saltBusy?' Still reading votes…':'')+'</p></details>';
+  const Pw=pillars(a),arch=anArchetypes(a,Pw,N),dep=anDepend(a),maxA=Math.max(.0001,...arch.map(x=>x.score));
+  const read='<h3 class="anh">What it is</h3><div class="angrid two"><section class="antile"><h4>Archetypes</h4>'+(arch.length?arch.map(x=>'<div class="anrow"><span>'+esc(x.name)+'</span>'+bar(x.score,maxA)+'<b>'+Math.round(x.n)+'</b></div>').join("")+'<p class="ansub">EDHREC theme names, read from card text. Number = cards or points that match.</p>':'<p class="ansub">No clear archetype: a pile of good stuff.</p>')+'</section>'+
+    '<section class="antile"><h4>Commander dependence</h4>'+(dep&&dep.dep!=null?'<div class="anrow"><span>Reliance</span>'+bar(dep.dep,100,"hot")+'<b>'+dep.dep+'</b></div>'+kv("Commander has an engine",dep.engine?"yes":"no")+kv("Cards EDHREC links to it",Math.round(dep.share*100)+"%")+kv("Protection pieces",a.protect)+'<p class="ansub">'+(dep.dep>=65?"Neutralise it and the plan stalls.":dep.dep<=30?"The deck would barely notice losing it.":"It matters, but the deck can keep going without it.")+'</p>':'<p class="ansub">Needs the EDHREC page for this commander. It loads in a moment, or does not exist yet.</p>')+'</section></div>';
   const nlands=a.lands.reduce((t,r)=>t+r.qty,0);
-  return salt+'<h3 class="anh">Deck fingerprint</h3><div class="angrid">'+
+  return salt+read+'<h3 class="anh">Deck fingerprint</h3><div class="angrid">'+
    tile("Composition",Object.keys(a.comp).filter(k=>a.comp[k]).map(k=>'<div class="anrow"><span>'+k+'</span>'+bar(a.comp[k],Math.max(...Object.values(a.comp)))+'<b>'+a.comp[k]+'</b></div>').join(""),a.nl+" nonland · "+Math.round(a.perm/Math.max(1,a.nl)*100)+"% permanents")+
    tile("Curve and speed",anCurve(a.curve,Math.max(1,...a.curve))+kv("Average mana value",a.avg.toFixed(2))+kv("Cheap (2 or less)",a.cheap)+kv("Finishers (6+)",a.fin),"Printed costs")+
    tile("Ramp",kv("Mana rocks",a.rocks.length)+kv("Mana creatures",a.dorks.length)+kv("Land ramp",a.landRamp.length)+kv("Treasure makers",a.treas.length)+kv("Rituals",a.rituals.length)+kv("Cost reducers",a.reducers.length),pillars(a).ramp+" pieces in total")+
@@ -4391,12 +4461,12 @@ function renderAnalytics(){const B=document.getElementById("anBody");if(!B||!CUR
   B.innerHTML=(AN.prog?'<p class="labprog" role="status">'+esc(AN.prog)+'</p>':'')+anVerdict(V)+
    '<div class="anvsw"><div class="seg2" role="group" aria-label="Analytics detail"><button type="button" data-anv="brief" aria-pressed="'+!deep+'">Brief</button><button type="button" data-anv="deep" aria-pressed="'+deep+'">In-depth</button></div><p>'+(deep?"Every number, with the reasoning.":"The main things, in a nutshell.")+'</p></div>'+
    (deep?anDeep(a,N):anBrief(a,Pw))+
-   '<p class="note">Sources: card text from Scryfall, roles from Scryfall tags, combos from Commander Spellbook, salt votes from EDHREC. Power level, pillars and the annoyance chance are our own formulas; levels like "Dense" compare to a typical Commander deck. Build 8.</p>';
+   '<p class="note">Sources: card text from Scryfall, roles from Scryfall tags, combos from Commander Spellbook, salt votes from EDHREC. Power level, pillars and the annoyance chance are our own formulas; levels like "Dense" compare to a typical Commander deck. Build 10.</p>';
   B.querySelectorAll("[data-anv]").forEach(b=>b.addEventListener("click",()=>{AN.view=b.dataset.anv;lsSet(NS+"-anview",AN.view);renderAnalytics();}));
   const e=B.querySelector("[data-anemi]");if(e)e.addEventListener("click",()=>{AN.emi=!AN.emi;lsSet(NS+"-anemi",AN.emi);renderAnalytics();});}
 async function openAnalytics(){renderAnalytics();const ok=await loadCards();renderAnalytics();if(!ok){const B=document.getElementById("anBody");if(B&&!Object.keys(AN.cards).length)B.innerHTML='<p class="w-empty">Scryfall could not be reached. Try again in a moment.</p>';}
   if(LAB.combos&&!LAB.match){LAB.match=matchCombos();}else if(!LAB.combos)loadCombos().then(()=>{if(LAB.combos){LAB.match=matchCombos();renderAnalytics();}});
-  loadSalt();}
+  loadSalt();if(typeof loadEDH==='function')loadEDH().then(renderAnalytics).catch(()=>{});}
 
 window.addEventListener("hashchange",()=>{if(/^#add=/i.test(location.hash))location.reload();});
 /* add a shared deck from a link: #add=<slug> loads decks/<slug>.json (deck + marks) next to the page */
