@@ -2,7 +2,7 @@ name: Probe import sources
 on:
   push:
     branches: [gh-pages]
-    paths: ['tools/ocr/**','tools/probe2.sh','.github/workflows/probe.yml']
+    paths: ['tools/probe3.sh','.github/workflows/probe.yml']
 permissions:
   contents: write
 jobs:
@@ -11,11 +11,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with: { ref: gh-pages }
-      - uses: actions/setup-node@v4
-        with: { node-version: 20 }
-      - run: mkdir -p desk/data && bash tools/probe2.sh > desk/data/probe2.txt 2>&1 || true
-      - run: cd tools/ocr && npm install --silent && node test.js > ../../desk/data/ocr-test.txt 2>&1 || true
-      - run: |
+      - run: mkdir -p desk/data && bash tools/probe3.sh > desk/data/probe3.txt 2>&1 || true
+      - if: always()
+        run: |
           git config user.name "commander-desk-bot"; git config user.email "actions@users.noreply.github.com"
-          git pull -q --rebase origin gh-pages || true
-          git add desk/data && git commit -m "Probe results [skip ci]" && git push || echo "nothing"
+          git add desk/data && git commit -m "Probe results [skip ci]" && (git pull -q --rebase origin gh-pages; git push) || echo "nothing"
