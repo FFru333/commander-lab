@@ -23,7 +23,7 @@ i=h.index("/* mana curve */");j=h.index("const _upd=update;");j=h.index("\n",j)+
 h=h[:i]+rd("core2.js")+"\n"+h[j:]
 # core 3: boot
 i=h.index('(function(){const sel=document.getElementById("deckSel");');j=h.index("update();\n</script>")+len("update();\n")
-h=h[:i]+rd("core4.js")+"\n"+rd("core5.js")+"\n"+rd("core6.js")+"\n"+rd("core7.js")+"\n"+rd("core3.js")+h[j:]
+h=h[:i]+rd("core4.js")+"\n"+rd("core5.js")+"\n"+rd("core6.js")+"\n"+rd("core7.js")+"\n"+rd("core8.js")+"\n"+rd("core3.js")+h[j:]
 
 rep('function parseList(txt){','function parseListBase(txt){')
 rep('async function scryLookup(entries){','async function scryLookupBase(entries){')

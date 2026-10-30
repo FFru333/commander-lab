@@ -130,11 +130,11 @@ document.addEventListener("click",e=>{const H=e.target.closest("#labHead");if(!H
     document.getElementById("tbl").scrollIntoView({block:"start",behavior:"smooth"});}});
 
 /* ---------- deck sub-tabs ---------- */
-let DTAB=lsGet(NS+"-dtab")||"cards";if(!["cards","sug","combo"].includes(DTAB))DTAB="cards";
+let DTAB=lsGet(NS+"-dtab")||"cards";if(!["cards","sug","combo","stats"].includes(DTAB))DTAB="cards";
 function setDTab(t){DTAB=t;lsSet(NS+"-dtab",t);document.getElementById("vDeck").dataset.tab=t;
   document.querySelectorAll("#vDeck [data-dtab]").forEach(el=>el.hidden=el.dataset.dtab!==t);
   document.querySelectorAll("#dtabs [data-t]").forEach(b=>b.setAttribute("aria-selected",b.dataset.t===t));
-  if(t==="sug")openSug();if(t==="combo")openCombos();}
+  if(t==="sug")openSug();if(t==="combo")openCombos();if(t==="stats")openAnalytics();}
 document.getElementById("dtabs").addEventListener("click",e=>{const b=e.target.closest("[data-t]");if(b)setDTab(b.dataset.t);});
 
 /* ---------- maybeboard ---------- */
@@ -267,6 +267,6 @@ function renderCombos(){const B=document.getElementById("comboList"),T=document.
     else if(b.dataset.view){fill(sheet,{name:b.dataset.view});sheet.classList.add("open");}});})();
 
 /* ---------- start ---------- */
-function renderLab(){renderLabHead();if(DTAB==="sug"&&LAB.edh)renderSug();}
+function renderLab(){renderLabHead();if(DTAB==="sug"&&LAB.edh)renderSug();if(DTAB==="stats")renderAnalytics();}
 function startLab(){if(!CUR)return;renderLabHead();setDTab(DTAB);
   setTimeout(()=>{tagDeck(false);if(!LAB.combos)loadCombos().then(()=>{if(LAB.combos){LAB.match=matchCombos();renderLabHead();if(DTAB==="combo")renderCombos();}});},400);}

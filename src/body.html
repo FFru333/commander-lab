@@ -89,7 +89,7 @@
     </div>
   </div>
   <div class="card lab" id="labHead" aria-label="Deck insights"></div>
-  <div class="dtabs" id="dtabs" role="tablist" aria-label="Deck sections"><button type="button" role="tab" data-t="cards" aria-selected="true">Cards</button><button type="button" role="tab" data-t="sug" aria-selected="false">Suggestions</button><button type="button" role="tab" data-t="combo" aria-selected="false">Combos</button></div>
+  <div class="dtabs" id="dtabs" role="tablist" aria-label="Deck sections"><button type="button" role="tab" data-t="cards" aria-selected="true">Cards</button><button type="button" role="tab" data-t="sug" aria-selected="false">Suggestions</button><button type="button" role="tab" data-t="combo" aria-selected="false">Combos</button><button type="button" role="tab" data-t="stats" aria-selected="false">Analytics</button></div>
   <p id="combo" class="combo" role="status"></p>
   <p id="imMsg" class="combo" role="status"></p>
   <div class="wbar" data-grid="deck" hidden>
@@ -126,6 +126,7 @@
     <p class="tcount" id="sugInfo" aria-live="polite"></p>
     <div class="sgrid" id="sugGrid"></div>
   </div>
+  <div data-dtab="stats" id="dtStats" hidden><div id="anBody"></div></div>
   <div data-dtab="combo" id="dtCombo" hidden>
     <div class="sugtabs" id="comboTabs" role="tablist" aria-label="Combo lists"></div>
     <p class="tcount" id="comboInfo" aria-live="polite"></p>
