@@ -4246,26 +4246,32 @@ const AN_MOOD={
   sg:["{p}% per game with a power level of {pl}: fast, strong and rude, the full set. Pick a pod that has already stopped speaking to you.",
       "{p}%. A weapon. Anyone sitting across from you is braver than you deserve.",
       "{p}% per game, power {pl}. You don't hate your friends, you hate losing to them, and this deck is the cure."]};
-/* how it plays: lock, combo, control, aggro, big, mid */
+/* how it plays: {ci} is the colour identity name, e.g. "Gruul" or "mono-red" */
 const AN_POSTURE={
-  lock:["The plan is simple: nobody gets to play, and you get to feel clever about it.","It doesn't want to win so much as to cancel everybody's evening."],
-  combo:["It's built to win out of nowhere, so your friends learn the plot at the same time as the ending.","Every turn is a countdown to a sentence that starts with 'wait, actually'."],
-  control:["It plays control: answers everything, wins eventually, and makes the waiting miserable for everyone.","You'll spend the game saying no like it's your job, and charging for it."],
-  aggro:["It's aggressive and impatient: the table doesn't get to sit down before it's already hurting.","Fast and creature-heavy: it treats the opening turns like a mugging."],
-  big:["It's all big, slow, expensive things: patient, until the moment it isn't, and then everyone pays for the wait.","A battlecruiser at heart: build up, wait, and sit on top of the table like a landlord."],
-  bomb:["A ticking time bomb: {fast} pieces of fast mana, free creatures, and a game that's over before anybody finishes their drink.","Ruthless and brutal by design: cheat the big thing in early and let the table work out how far behind it is."],
-  inter:["Midrange with a toolbox: it kills whatever you play and beats you with whatever is left.","A bully with answers: it removes your best thing, then reminds you what it was."],
-  mid:["A middle-of-the-road midrange pile: a bit of everything, a commitment to nothing.","Not control, not aggro, not combo. The deck answers 'what do you play?' with a shrug."]};
-const AN_INTER={
-  none:["And there's almost nothing in it to stop what anyone else does. Your defence plan is hope.","Interaction {i}/100: when somebody does something, you watch, like a nature documentary."],
-  high:["Interaction {i}/100: you will use all of it, and you will enjoy that more than you should.","Interaction {i}/100: everyone's best moment of the game has your name written on it."]};
-const AN_COH={
-  messy:["Synergy is thin and the list reads like a bag of favourite cards. That's not a deck, that's a mood board.","The pieces don't talk to each other. It's less a deck than a group of strangers sharing an elevator."],
-  nowin:["Win conditions {win}/100: there's no clear way to actually finish the game. It's a hobby, not a deck.","With win conditions at {win}/100, it's not clear this deck wants to win, or even knows what that looks like."],
-  cons:["Consistency {cons}/100: the deck draws what it draws and prays. More engines, fewer ideas.","Consistency {cons}/100. Every game is a different deck, and most of them are bad."],
-  slow:["Efficiency {eff}/100: clunky. Half the hand is a paperweight until it's too late.","Efficiency {eff}/100: it does eventually work, as long as nobody is in a hurry, and somebody always is."],
-  good:["Consistency {cons}/100, efficiency {eff}/100: it works, it works often, and that's the real insult.","The numbers say it's coherent: {cons} consistency, {eff} efficiency. Any loss is yours to own."],
-  ok:["The pieces mostly fit: {cons} consistency, {eff} efficiency. It works until you're tempted to be clever.","{cons} consistency and {eff} efficiency: not broken, not sharp. Respectable, in the way beige is."]};
+  lock:["{Ci} stax: nobody gets to play, and you get to feel clever about it.","A {ci} deck that doesn't want to win so much as to cancel everybody's evening."],
+  combo:["A {ci} deck built to win out of nowhere, so your friends learn the plot at the same time as the ending.","A {ci} countdown to a sentence that starts with 'wait, actually'."],
+  control:["{Ci} control: answers everything, wins eventually and makes the waiting miserable for everyone.","A {ci} deck that says no like it's a job, and charges for it."],
+  aggro:["A {ci} deck that is impatient: the table doesn't get to sit down before it's already hurting.","A {ci} deck that treats the opening turns like a mugging."],
+  bomb:["A {ci} time bomb: {fast} pieces of fast mana, free creatures, and a game that's over before anybody finishes their drink.","A {ci} deck that cheats the big thing in early and lets the table work out how far behind it is."],
+  inter:["{Ci} midrange with a toolbox: it kills whatever you play and beats you with whatever is left.","A {ci} bully with answers: it removes your best thing, then reminds you what it was."],
+  big:["A {ci} deck of big, slow, expensive things: patient, until the moment it isn't, and then everyone pays for the wait.","A {ci} battlecruiser: build up, wait, and sit on top of the table like a landlord."],
+  mid:["A {ci} midrange pile: a bit of everything, a commitment to nothing.","A {ci} deck that is not control, not aggro, not combo, and answers 'what do you play?' with a shrug."]};
+/* things that make the list look badly built, each with a severity (higher is picked first) */
+const AN_SLOP={
+  off:[9,["Cards outside the commander's colours: {n}. Did you build this in the dark, or do you just not read?","{n} off-colour cards in the list. Assembled blindfolded, or just optimistic?"]],
+  dupes:[8,["Some non-basic cards appear more than once. This is singleton Commander, not a hobby.","You've got repeats in a format that bans them. Counting is not your strong suit."]],
+  messy:[8,["Synergy is thin and the list reads like a bag of favourite cards. That's not a deck, that's a mood board.","The pieces don't talk to each other. Less a deck, more a group of strangers sharing an elevator."]],
+  nowin:[7,["Win conditions {win}/100: it's not clear this deck knows what winning looks like.","With win conditions at {win}/100, this is a hobby, not a deck."]],
+  thin:[6,["{col} is thin: {src} sources for {pips} pips. Pray to the shuffler, because nothing else will help.","You want {col} and you brought {src} sources for {pips} pips. Ambition is free; mana isn't."]],
+  curve:[6,["Average mana value {mv} with only {ramp} ramp pieces: you built a feast for a table with no cutlery.","Average mana value {mv} and just {ramp} ramp pieces. Bold of you to assume you'll live that long."]],
+  lands:[5,["{lands} lands for a deck this hungry. Either trust the maths or stop pretending.","{lands} lands in a deck that wants more. The mana base was an afterthought, and it shows."]],
+  nodraw:[5,["{draw} sources of card draw. When the hand runs dry you'll be playing top-deck roulette.","Card draw: {draw}. Your hand will empty and so will your plan."]],
+  tapped:[4,["{tapped} lands enter tapped. Slow on purpose, or by accident?","{tapped} tapped lands. The deck begins every game by apologising for its own speed."]],
+  cons:[4,["Consistency {cons}/100: the deck draws what it draws and prays. More engines, fewer ideas.","Consistency {cons}/100. Every game is a different deck, and most of them are bad."]],
+  slow:[3,["Efficiency {eff}/100: clunky. Half the hand is a paperweight until it's too late.","Efficiency {eff}/100: it works eventually, as long as nobody is in a hurry, and somebody always is."]],
+  noint:[3,["There's almost nothing in it to stop what anyone else does. Your defence plan is hope.","Interaction {inter}/100: when somebody does something, you watch, like a nature documentary."]]};
+const AN_GOOD=["Consistency {cons}/100, efficiency {eff}/100: it works, it works often, and that's the real insult.","The numbers say it's coherent: {cons} consistency, {eff} efficiency. Any loss is yours to own."];
+const AN_MEH=["{cons} consistency and {eff} efficiency: not broken, not sharp. Respectable, in the way beige is.","{cons} consistency, {eff} efficiency. It works until you're tempted to be clever."];
 const AN_L3=[
   ["Pick a side: play to win, or keep pleasing your friends. Right now you're doing neither.","Bring a stronger plan or a better excuse.","Next time, try wanting something."],
   ["Add some teeth, or admit you're here for the snacks.","Nobody is afraid of you. Fix that.","Be a little meaner. They'll thank you, eventually."],
@@ -4277,26 +4283,43 @@ const AN_L3X={
   fg:["Keep winning politely. It's the cruellest thing you can do.","Nobody can accuse you of anything, and that's exactly what bothers them.","At least be rude about it. You've earned it."],
   mw:["Be annoying or be good. Doing the first without the second gets you nowhere.","You're the table's most irritating loss. Work on that.","Pick a lane: win properly or stop annoying people for nothing."],
   sw:["Fix the list first, then the attitude. Right now it's all attitude.","All that spite and nothing to show for it. Even your enemies are disappointed.","Cut the cruelty, add a plan. Or keep the cruelty and accept the losses."]};
+const AN_CIN={"W":"mono-white","U":"mono-blue","B":"mono-black","R":"mono-red","G":"mono-green","WU":"Azorius","UB":"Dimir","BR":"Rakdos","RG":"Gruul","GW":"Selesnya","WB":"Orzhov","UR":"Izzet","BG":"Golgari","RW":"Boros","GU":"Simic",
+  "WUB":"Esper","UBR":"Grixis","BRG":"Jund","RGW":"Naya","GWU":"Bant","WBR":"Mardu","URG":"Temur","BGW":"Abzan","RWU":"Jeskai","GUB":"Sultai"};
+function anCiName(ci){const set=COLORS.filter(c=>ci.includes(c)).sort().join("");
+  for(const k in AN_CIN)if(k.split("").sort().join("")===set)return AN_CIN[k];
+  if(set.length===0)return "colourless";if(set.length===4)return "four-colour (no "+CNAME[COLORS.find(c=>!ci.includes(c))].toLowerCase()+")";return "five-colour";}
 const AN_CHEAT=/(from (your|their) hand|from (your|their) library|top (\w+ )?cards? of (your|their) library)[^.]*onto the battlefield|onto the battlefield[^.]*from (your|their) hand|without paying (its|their|that|the) mana cost/i;
 const anCheat=r=>AN_CHEAT.test(r.c.ot||"")&&/\b(creature|permanent)\b/i.test(r.c.ot||"");
 function verdictOf(a,Pw,N){const p=Math.round(N.P*100),ti=AN_TIERS.findIndex(t=>p<t[0]),pl=Pw.pl;
   const key=((CUR&&CUR.name)||"deck")+"|"+a.cmds.join("+")+"|"+a.total,h=k=>anHash(key+k);
-  const fill=s=>s.replace(/\{p\}/g,p).replace(/\{pl\}/g,pl.toFixed(1)).replace(/\{i\}/g,Math.round(Pw.inter)).replace(/\{win\}/g,Math.round(Pw.win)).replace(/\{cons\}/g,Math.round(Pw.cons)).replace(/\{eff\}/g,Math.round(Pw.eff)).replace(/\{fast\}/g,fast);
-  const spice=p<25?"f":p<55?"m":"s",perf=pl<4.5?"w":pl<6.8?"o":"g";
+  const ci=deckCI(),ciName=anCiName(ci),cr=a.R||[],nonCmd=cr.filter(r=>!r.cmd&&!isType(r.c,"Land")),cmdRows=cr.filter(r=>r.cmd);
   const crShare=a.creatures/Math.max(1,a.nl),dom=N.classes[0];
-  const cr=a.R||[],nonCmd=cr.filter(r=>!r.cmd&&!isType(r.c,"Land")),cmdRows=cr.filter(r=>r.cmd);
   const cheatCmd=cmdRows.some(anCheat),cheatOthers=nonCmd.filter(anCheat).length,cheat=cheatOthers+(cheatCmd?1:0);
   const fast=(a.rocks||[]).filter(r=>r.c.cmc<=2).length+(a.dorks||[]).filter(r=>r.c.cmc<=2).length+(a.rituals||[]).length+(a.landRamp||[]).filter(r=>r.c.cmc<=2).length;
-  const counterReal=nonCmd.filter(r=>ANN_RX.counter.test(r.c.ot||"")).reduce((t,r)=>t+r.qty,0),hasU=deckCI().includes("U");
+  const counterReal=nonCmd.filter(r=>ANN_RX.counter.test(r.c.ot||"")).reduce((t,r)=>t+r.qty,0),hasU=ci.includes("U");
+  const nlands=(a.lands||[]).reduce((t,r)=>t+r.qty,0),ramp=Pw.ramp||0;
+  const thinC=COLORS.filter(k=>ci.includes(k)&&a.dem[k]>=6&&a.src[k]<12).sort((x,y)=>a.dem[y]-a.dem[x])[0];
+  const off=ci.length?nonCmd.filter(r=>(r.c.ci||[]).some(c=>!ci.includes(c))).length:0;
+  const dupes=cr.filter(r=>r.qty>1&&!/\bBasic\b/.test(r.c.tl||"")).length;
+  const vars={p,pl:pl.toFixed(1),inter:Math.round(Pw.inter),win:Math.round(Pw.win),cons:Math.round(Pw.cons),eff:Math.round(Pw.eff),fast,n:off,lands:nlands,mv:a.avg.toFixed(2),ramp,draw:a.draw,tapped:(a.tapped||[]).length,
+    col:thinC?CNAME[thinC]:"",src:thinC?a.src[thinC]:0,pips:thinC?a.dem[thinC]:0,ci:ciName,Ci:ciName.charAt(0).toUpperCase()+ciName.slice(1)};
+  const fill=s=>s.replace(/\{(\w+)\}/g,(m,k)=>k in vars?vars[k]:m);
+  const spice=p<25?"f":p<55?"m":"s",perf=pl<4.5?"w":pl<6.8?"o":"g";
   const posture=(dom&&p>=40&&dom.share>=.4&&["mld","stax","tax"].includes(dom.k))?"lock"
-    :((a.two>=1&&a.combos.length>=2)||a.combos.length>=4)&&Pw.win>=45?"combo":(cheat>=1&&fast>=5&&(a.fin>=4||a.avg>=3.6))?"bomb":(hasU&&counterReal+a.wipe*2>=5&&Pw.inter>=45&&crShare<.5)?"control":crShare>=.55&&a.avg<=3.3?"aggro":Pw.inter>=55?"inter":a.avg>=3.6?"big":"mid";
-  const coh=(pl<4&&Pw.cons<40&&Pw.win<35)?"messy":Pw.win<25?"nowin":Pw.cons<35?"cons":Pw.eff<50?"slow":(pl>=7&&Pw.cons>=60)?"good":"ok";
-  const L=[fill(anPick(AN_MOOD[spice+perf],h("a")))];
-  let s2=anPick(AN_POSTURE[posture],h("b"));
-  if(Pw.inter<20)s2+=" "+fill(anPick(AN_INTER.none,h("i")));else if(Pw.inter>=60&&posture!=="control"&&posture!=="inter"&&posture!=="bomb")s2+=" "+fill(anPick(AN_INTER.high,h("i")));
-  if(cheatCmd&&cheatOthers<=3)s2+=" Everything hangs on the commander: neutralise it and what's left is a pile of expensive creatures"+(a.protect<=1?" with almost nothing to protect them.":".");
-  L.push(fill(s2));L.push(fill(anPick(AN_COH[coh],h("c"))));L.push(anPick(AN_L3X[spice+perf]||AN_L3[ti],h("d")));
-  return {p,ti,title:AN_TIERS[ti][1],lines:L,posture,coh};}
+    :((a.two>=1&&a.combos.length>=2)||a.combos.length>=4)&&Pw.win>=45?"combo":(cheat>=1&&fast>=5&&(a.fin>=4||a.avg>=3.6))?"bomb"
+    :(hasU&&counterReal+a.wipe*2>=5&&Pw.inter>=45&&crShare<.5)?"control":crShare>=.55&&a.avg<=3.3?"aggro":Pw.inter>=55?"inter":a.avg>=3.6?"big":"mid";
+  const issues=[];const add=k=>issues.push(k);
+  if(off>0)add("off");if(dupes>0)add("dupes");if(pl<4&&Pw.cons<40&&Pw.win<35)add("messy");else if(Pw.win<25)add("nowin");
+  if(thinC)add("thin");if(a.avg>=4&&ramp<8)add("curve");if(nlands>0&&nlands<33&&a.avg>3.2)add("lands");if(a.rolesReady&&a.draw<4)add("nodraw");
+  if((a.tapped||[]).length>=8)add("tapped");if(Pw.cons<35&&!issues.includes("messy"))add("cons");if(Pw.eff<50)add("slow");if(a.rolesReady&&Pw.inter<20)add("noint");
+  issues.sort((x,y)=>AN_SLOP[y][0]-AN_SLOP[x][0]);
+  /* one paragraph: who it is, how rude/strong it is, what is wrong with the build (or how well it works), closing verdict */
+  const L=[fill(anPick(AN_POSTURE[posture],h("b"))),fill(anPick(AN_MOOD[spice+perf],h("a")))];
+  if(cheatCmd&&cheatOthers<=3)L.push("Everything hangs on the commander: neutralise it and what's left is a pile of expensive creatures"+(a.protect<=1?" with almost nothing to protect them.":"."));
+  issues.slice(0,L.length>2?1:2).forEach((k,i)=>L.push(fill(anPick(AN_SLOP[k][1],h("s"+i)))));
+  if(!issues.length)L.push(fill(anPick(Pw.cons>=70&&Pw.eff>=70?AN_GOOD:AN_MEH,h("g"))));
+  L.push(anPick(AN_L3X[spice+perf]||AN_L3[ti],h("d")));
+  return {p,ti,title:AN_TIERS[ti][1],lines:L,posture,issues,ci:ciName};}
 /* ---------- brief: what to look at first ---------- */
 function insightsOf(a,Pw,cv){const w=[],g=[];const nl=a.lands.reduce((t,r)=>t+r.qty,0),r=Pw.ramp;
   if(cv.avg>=3.5)w.push("Top-heavy: the average mana value is "+cv.avg.toFixed(2)+". Expect clunky turns before turn 5.");
@@ -4321,7 +4344,7 @@ function anColours(a){const ci=deckCI(),maxDem=Math.max(1,...COLORS.map(k=>a.dem
   return '<h3 class="anh">Colour demand and sources</h3><div class="ancolors">'+COLORS.filter(k=>ci.includes(k)||a.dem[k]).map(k=>
     '<div class="ancol"><span class="pip p'+k+'">'+k+'</span><div><div class="anrow"><span>Pips</span>'+bar(a.dem[k],maxDem)+'<b>'+a.dem[k]+'</b></div><div class="anrow"><span>Sources</span>'+bar(a.src[k],Math.max(1,...COLORS.map(x=>a.src[x])),"src")+'<b>'+a.src[k]+'</b></div></div><em class="'+(a.src[k]<12?"low":"")+'">'+(a.src[k]<12?"Thin":"OK")+'</em></div>').join("")+
     '</div><p class="note">Sources are lands, rocks and mana creatures that can make the colour. Around 12 or more per main colour is a common rule of thumb, not a hard limit.</p>';}
-function anVerdict(V){return '<section class="anverdict" data-tier="'+V.ti+'"><div class="anvtext"><p class="ankick">The verdict</p><h3>'+V.title+'</h3>'+V.lines.map(l=>'<p>'+l+'</p>').join("")+'</div>'+
+function anVerdict(V){return '<section class="anverdict" data-tier="'+V.ti+'"><div class="anvtext"><p class="ankick">The verdict</p><h3>'+V.title+'</h3>'+'<p>'+V.lines.join(" ")+'</p>'+'</div>'+
   '<div class="anvgauge"><b>'+V.p+'%</b><small>chance per game that somebody at the table groans, by turn '+ANN_TURNS+'</small><div class="anscale"><i style="left:'+V.p+'%"></i></div><div class="anticks"><span>0</span><span>25</span><span>50</span><span>75</span><span>100</span></div></div></section>';}
 function anBrief(a,Pw){const emi=AN.emi&&HAS_EMI(),cv=curveData(emi),base=curveData(false),mx=Math.max(1,...cv.b,...base.b);
   const g=[["Consistency",Pw.cons],["Efficiency",Pw.eff],["Interaction",Pw.inter],["Win conditions",Pw.win]];
@@ -4368,7 +4391,7 @@ function renderAnalytics(){const B=document.getElementById("anBody");if(!B||!CUR
   B.innerHTML=(AN.prog?'<p class="labprog" role="status">'+esc(AN.prog)+'</p>':'')+anVerdict(V)+
    '<div class="anvsw"><div class="seg2" role="group" aria-label="Analytics detail"><button type="button" data-anv="brief" aria-pressed="'+!deep+'">Brief</button><button type="button" data-anv="deep" aria-pressed="'+deep+'">In-depth</button></div><p>'+(deep?"Every number, with the reasoning.":"The main things, in a nutshell.")+'</p></div>'+
    (deep?anDeep(a,N):anBrief(a,Pw))+
-   '<p class="note">Sources: card text from Scryfall, roles from Scryfall tags, combos from Commander Spellbook, salt votes from EDHREC. Power level, pillars and the annoyance chance are our own formulas; levels like "Dense" compare to a typical Commander deck. Build 6.</p>';
+   '<p class="note">Sources: card text from Scryfall, roles from Scryfall tags, combos from Commander Spellbook, salt votes from EDHREC. Power level, pillars and the annoyance chance are our own formulas; levels like "Dense" compare to a typical Commander deck. Build 7.</p>';
   B.querySelectorAll("[data-anv]").forEach(b=>b.addEventListener("click",()=>{AN.view=b.dataset.anv;lsSet(NS+"-anview",AN.view);renderAnalytics();}));
   const e=B.querySelector("[data-anemi]");if(e)e.addEventListener("click",()=>{AN.emi=!AN.emi;lsSet(NS+"-anemi",AN.emi);renderAnalytics();});}
 async function openAnalytics(){renderAnalytics();const ok=await loadCards();renderAnalytics();if(!ok){const B=document.getElementById("anBody");if(B&&!Object.keys(AN.cards).length)B.innerHTML='<p class="w-empty">Scryfall could not be reached. Try again in a moment.</p>';}
