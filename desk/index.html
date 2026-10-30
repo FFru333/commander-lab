@@ -4302,8 +4302,8 @@ function verdictOf(a,Pw,N){const p=Math.round(N.P*100),ti=AN_TIERS.findIndex(t=>
   const off=ci.length?nonCmd.filter(r=>(r.c.ci||[]).some(c=>!ci.includes(c))).length:0;
   const dupes=cr.filter(r=>r.qty>1&&!/\bBasic\b/.test(r.c.tl||"")).length;
   const vars={p,pl:pl.toFixed(1),inter:Math.round(Pw.inter),win:Math.round(Pw.win),cons:Math.round(Pw.cons),eff:Math.round(Pw.eff),fast,n:off,lands:nlands,mv:a.avg.toFixed(2),ramp,draw:a.draw,tapped:(a.tapped||[]).length,
-    col:thinC?CNAME[thinC]:"",src:thinC?a.src[thinC]:0,pips:thinC?a.dem[thinC]:0,ci:ciName,Ci:ciName.charAt(0).toUpperCase()+ciName.slice(1)};
-  const fill=s=>s.replace(/\{(\w+)\}/g,(m,k)=>k in vars?vars[k]:m);
+    col:thinC?CNAME[thinC]:"",src:thinC?a.src[thinC]:0,pips:thinC?a.dem[thinC]:0,ci:ci.length?ciName:"",Ci:ci.length?ciName.charAt(0).toUpperCase()+ciName.slice(1):""};
+  const fill=s=>{const t=s.replace(/\{(\w+)\}/g,(m,k)=>k in vars?vars[k]:m).replace(/\s{2,}/g," ").trim();return t.charAt(0).toUpperCase()+t.slice(1);};
   const spice=p<25?"f":p<55?"m":"s",perf=pl<4.5?"w":pl<6.8?"o":"g";
   const posture=(dom&&p>=40&&dom.share>=.4&&["mld","stax","tax"].includes(dom.k))?"lock"
     :((a.two>=1&&a.combos.length>=2)||a.combos.length>=4)&&Pw.win>=45?"combo":(cheat>=1&&fast>=5&&(a.fin>=4||a.avg>=3.6))?"bomb"
@@ -4391,7 +4391,7 @@ function renderAnalytics(){const B=document.getElementById("anBody");if(!B||!CUR
   B.innerHTML=(AN.prog?'<p class="labprog" role="status">'+esc(AN.prog)+'</p>':'')+anVerdict(V)+
    '<div class="anvsw"><div class="seg2" role="group" aria-label="Analytics detail"><button type="button" data-anv="brief" aria-pressed="'+!deep+'">Brief</button><button type="button" data-anv="deep" aria-pressed="'+deep+'">In-depth</button></div><p>'+(deep?"Every number, with the reasoning.":"The main things, in a nutshell.")+'</p></div>'+
    (deep?anDeep(a,N):anBrief(a,Pw))+
-   '<p class="note">Sources: card text from Scryfall, roles from Scryfall tags, combos from Commander Spellbook, salt votes from EDHREC. Power level, pillars and the annoyance chance are our own formulas; levels like "Dense" compare to a typical Commander deck. Build 7.</p>';
+   '<p class="note">Sources: card text from Scryfall, roles from Scryfall tags, combos from Commander Spellbook, salt votes from EDHREC. Power level, pillars and the annoyance chance are our own formulas; levels like "Dense" compare to a typical Commander deck. Build 8.</p>';
   B.querySelectorAll("[data-anv]").forEach(b=>b.addEventListener("click",()=>{AN.view=b.dataset.anv;lsSet(NS+"-anview",AN.view);renderAnalytics();}));
   const e=B.querySelector("[data-anemi]");if(e)e.addEventListener("click",()=>{AN.emi=!AN.emi;lsSet(NS+"-anemi",AN.emi);renderAnalytics();});}
 async function openAnalytics(){renderAnalytics();const ok=await loadCards();renderAnalytics();if(!ok){const B=document.getElementById("anBody");if(B&&!Object.keys(AN.cards).length)B.innerHTML='<p class="w-empty">Scryfall could not be reached. Try again in a moment.</p>';}
