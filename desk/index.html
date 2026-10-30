@@ -4253,6 +4253,7 @@ const AN_POSTURE={
   control:["It plays control: answers everything, wins eventually, and makes the waiting miserable for everyone.","You'll spend the game saying no like it's your job, and charging for it."],
   aggro:["It's aggressive and impatient: the table doesn't get to sit down before it's already hurting.","Fast and creature-heavy: it treats the opening turns like a mugging."],
   big:["It's all big, slow, expensive things: patient, until the moment it isn't, and then everyone pays for the wait.","A battlecruiser at heart: build up, wait, and sit on top of the table like a landlord."],
+  bomb:["A ticking time bomb: {fast} pieces of fast mana, free creatures, and a game that's over before anybody finishes their drink.","Ruthless and brutal by design: cheat the big thing in early and let the table work out how far behind it is."],
   inter:["Midrange with a toolbox: it kills whatever you play and beats you with whatever is left.","A bully with answers: it removes your best thing, then reminds you what it was."],
   mid:["A middle-of-the-road midrange pile: a bit of everything, a commitment to nothing.","Not control, not aggro, not combo. The deck answers 'what do you play?' with a shrug."]};
 const AN_INTER={
@@ -4276,18 +4277,25 @@ const AN_L3X={
   fg:["Keep winning politely. It's the cruellest thing you can do.","Nobody can accuse you of anything, and that's exactly what bothers them.","At least be rude about it. You've earned it."],
   mw:["Be annoying or be good. Doing the first without the second gets you nowhere.","You're the table's most irritating loss. Work on that.","Pick a lane: win properly or stop annoying people for nothing."],
   sw:["Fix the list first, then the attitude. Right now it's all attitude.","All that spite and nothing to show for it. Even your enemies are disappointed.","Cut the cruelty, add a plan. Or keep the cruelty and accept the losses."]};
+const AN_CHEAT=/(from (your|their) hand|from (your|their) library|top (\w+ )?cards? of (your|their) library)[^.]*onto the battlefield|onto the battlefield[^.]*from (your|their) hand|without paying (its|their|that|the) mana cost/i;
+const anCheat=r=>AN_CHEAT.test(r.c.ot||"")&&/\b(creature|permanent)\b/i.test(r.c.ot||"");
 function verdictOf(a,Pw,N){const p=Math.round(N.P*100),ti=AN_TIERS.findIndex(t=>p<t[0]),pl=Pw.pl;
   const key=((CUR&&CUR.name)||"deck")+"|"+a.cmds.join("+")+"|"+a.total,h=k=>anHash(key+k);
-  const fill=s=>s.replace(/\{p\}/g,p).replace(/\{pl\}/g,pl.toFixed(1)).replace(/\{i\}/g,Math.round(Pw.inter)).replace(/\{win\}/g,Math.round(Pw.win)).replace(/\{cons\}/g,Math.round(Pw.cons)).replace(/\{eff\}/g,Math.round(Pw.eff));
+  const fill=s=>s.replace(/\{p\}/g,p).replace(/\{pl\}/g,pl.toFixed(1)).replace(/\{i\}/g,Math.round(Pw.inter)).replace(/\{win\}/g,Math.round(Pw.win)).replace(/\{cons\}/g,Math.round(Pw.cons)).replace(/\{eff\}/g,Math.round(Pw.eff)).replace(/\{fast\}/g,fast);
   const spice=p<25?"f":p<55?"m":"s",perf=pl<4.5?"w":pl<6.8?"o":"g";
   const crShare=a.creatures/Math.max(1,a.nl),dom=N.classes[0];
+  const cr=a.R||[],nonCmd=cr.filter(r=>!r.cmd&&!isType(r.c,"Land")),cmdRows=cr.filter(r=>r.cmd);
+  const cheatCmd=cmdRows.some(anCheat),cheatOthers=nonCmd.filter(anCheat).length,cheat=cheatOthers+(cheatCmd?1:0);
+  const fast=(a.rocks||[]).filter(r=>r.c.cmc<=2).length+(a.dorks||[]).filter(r=>r.c.cmc<=2).length+(a.rituals||[]).length+(a.landRamp||[]).filter(r=>r.c.cmc<=2).length;
+  const counterReal=nonCmd.filter(r=>ANN_RX.counter.test(r.c.ot||"")).reduce((t,r)=>t+r.qty,0),hasU=deckCI().includes("U");
   const posture=(dom&&p>=40&&dom.share>=.4&&["mld","stax","tax"].includes(dom.k))?"lock"
-    :((a.two>=1&&a.combos.length>=2)||a.combos.length>=4)&&Pw.win>=45?"combo":(a.counter+a.wipe*2>=5&&Pw.inter>=45&&crShare<.5)?"control":crShare>=.55&&a.avg<=3.3?"aggro":Pw.inter>=55?"inter":a.avg>=3.6?"big":"mid";
+    :((a.two>=1&&a.combos.length>=2)||a.combos.length>=4)&&Pw.win>=45?"combo":(cheat>=1&&fast>=5&&(a.fin>=4||a.avg>=3.6))?"bomb":(hasU&&counterReal+a.wipe*2>=5&&Pw.inter>=45&&crShare<.5)?"control":crShare>=.55&&a.avg<=3.3?"aggro":Pw.inter>=55?"inter":a.avg>=3.6?"big":"mid";
   const coh=(pl<4&&Pw.cons<40&&Pw.win<35)?"messy":Pw.win<25?"nowin":Pw.cons<35?"cons":Pw.eff<50?"slow":(pl>=7&&Pw.cons>=60)?"good":"ok";
   const L=[fill(anPick(AN_MOOD[spice+perf],h("a")))];
   let s2=anPick(AN_POSTURE[posture],h("b"));
-  if(Pw.inter<20)s2+=" "+fill(anPick(AN_INTER.none,h("i")));else if(Pw.inter>=60&&posture!=="control"&&posture!=="inter")s2+=" "+fill(anPick(AN_INTER.high,h("i")));
-  L.push(s2);L.push(fill(anPick(AN_COH[coh],h("c"))));L.push(anPick(AN_L3X[spice+perf]||AN_L3[ti],h("d")));
+  if(Pw.inter<20)s2+=" "+fill(anPick(AN_INTER.none,h("i")));else if(Pw.inter>=60&&posture!=="control"&&posture!=="inter"&&posture!=="bomb")s2+=" "+fill(anPick(AN_INTER.high,h("i")));
+  if(cheatCmd&&cheatOthers<=3)s2+=" Everything hangs on the commander: neutralise it and what's left is a pile of expensive creatures"+(a.protect<=1?" with almost nothing to protect them.":".");
+  L.push(fill(s2));L.push(fill(anPick(AN_COH[coh],h("c"))));L.push(anPick(AN_L3X[spice+perf]||AN_L3[ti],h("d")));
   return {p,ti,title:AN_TIERS[ti][1],lines:L,posture,coh};}
 /* ---------- brief: what to look at first ---------- */
 function insightsOf(a,Pw,cv){const w=[],g=[];const nl=a.lands.reduce((t,r)=>t+r.qty,0),r=Pw.ramp;
@@ -4360,7 +4368,7 @@ function renderAnalytics(){const B=document.getElementById("anBody");if(!B||!CUR
   B.innerHTML=(AN.prog?'<p class="labprog" role="status">'+esc(AN.prog)+'</p>':'')+anVerdict(V)+
    '<div class="anvsw"><div class="seg2" role="group" aria-label="Analytics detail"><button type="button" data-anv="brief" aria-pressed="'+!deep+'">Brief</button><button type="button" data-anv="deep" aria-pressed="'+deep+'">In-depth</button></div><p>'+(deep?"Every number, with the reasoning.":"The main things, in a nutshell.")+'</p></div>'+
    (deep?anDeep(a,N):anBrief(a,Pw))+
-   '<p class="note">Sources: card text from Scryfall, roles from Scryfall tags, combos from Commander Spellbook, salt votes from EDHREC. Power level, pillars and the annoyance chance are our own formulas; levels like "Dense" compare to a typical Commander deck.</p>';
+   '<p class="note">Sources: card text from Scryfall, roles from Scryfall tags, combos from Commander Spellbook, salt votes from EDHREC. Power level, pillars and the annoyance chance are our own formulas; levels like "Dense" compare to a typical Commander deck. Build 6.</p>';
   B.querySelectorAll("[data-anv]").forEach(b=>b.addEventListener("click",()=>{AN.view=b.dataset.anv;lsSet(NS+"-anview",AN.view);renderAnalytics();}));
   const e=B.querySelector("[data-anemi]");if(e)e.addEventListener("click",()=>{AN.emi=!AN.emi;lsSet(NS+"-anemi",AN.emi);renderAnalytics();});}
 async function openAnalytics(){renderAnalytics();const ok=await loadCards();renderAnalytics();if(!ok){const B=document.getElementById("anBody");if(B&&!Object.keys(AN.cards).length)B.innerHTML='<p class="w-empty">Scryfall could not be reached. Try again in a moment.</p>';}
