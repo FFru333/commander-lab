@@ -426,7 +426,24 @@ async function openAnalytics(){renderAnalytics();const ok=await loadCards();rend
   if(LAB.combos&&!LAB.match){LAB.match=matchCombos();}else if(!LAB.combos)loadCombos().then(()=>{if(LAB.combos){LAB.match=matchCombos();renderAnalytics();}});
   loadSalt();if(typeof loadEDH==='function')loadEDH().then(renderAnalytics).catch(()=>{});}
 /* the installed app can keep an old copy alive in the background: on open and on return, compare with the published build and reload if it is newer */
-const APP_BUILD=18;
+const APP_BUILD=19;
 function checkUpdate(){if(location.protocol!=="https:")return;fetch(location.href.split("#")[0],{cache:"no-store"}).then(r=>r.ok?r.text():"").then(t=>{const m=t.match(/const APP_BUILD=(\d+);/);
-  if(m&&+m[1]>APP_BUILD){let last=0;try{last=+sessionStorage.getItem("cd-rl")||0;}catch(e){}if(Date.now()-last>30000){try{sessionStorage.setItem("cd-rl",String(Date.now()));}catch(e){}location.reload();}}}).catch(()=>{});}
+  if(m&&+m[1]>APP_BUILD){let last=0;try{last=+sessionStorage.getItem("cd-rl")||0;}catch(e){}if(Date.now()-last>30000){try{sessionStorage.setItem("cd-rl",String(Date.now()));}catch(e){}hardRefresh();}}}).catch(()=>{});}
 setTimeout(checkUpdate,2500);document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible")checkUpdate();});
+/* pull down from the top of any screen to get the latest version. It drops the stored copy of the app (service worker and file cache) and reloads; decks and marks live in local storage and are never touched. */
+async function hardRefresh(){try{const regs=await navigator.serviceWorker.getRegistrations();await Promise.all(regs.map(r=>r.unregister()));}catch(e){}
+  try{const ks=await caches.keys();await Promise.all(ks.map(k=>caches.delete(k)));}catch(e){}
+  try{await fetch(location.href.split("#")[0],{cache:"reload"});}catch(e){}
+  location.reload();}
+(function(){const el=document.createElement("div");el.className="ptr";el.setAttribute("aria-hidden","true");el.innerHTML='<i></i>';document.body.appendChild(el);
+  let y0=null,x0=0,pull=0,busy=false;const TH=84;
+  const top=()=>(document.scrollingElement||document.documentElement).scrollTop<=0;
+  const scrolledInside=t=>{for(let n=t;n&&n!==document.body;n=n.parentElement){if(n.scrollTop>0)return true;if(/^(INPUT|TEXTAREA|SELECT)$/.test(n.tagName))return true;}return false;};
+  const paint=()=>{el.style.transform="translate(-50%,"+Math.min(pull,TH*1.4)*.7+"px)";el.style.opacity=Math.min(1,pull/TH);el.classList.toggle("ready",pull>=TH);el.firstChild.style.transform="rotate("+Math.min(360,pull/TH*270)+"deg)";};
+  document.addEventListener("touchstart",e=>{if(busy||e.touches.length!==1||!top()||scrolledInside(e.target)){y0=null;return;}y0=e.touches[0].clientY;x0=e.touches[0].clientX;pull=0;},{passive:true});
+  document.addEventListener("touchmove",e=>{if(y0==null||busy)return;const dy=e.touches[0].clientY-y0,dx=Math.abs(e.touches[0].clientX-x0);
+    if(dy<=0||dx>dy){pull=0;paint();return;}if(!top()){y0=null;pull=0;paint();return;}pull=dy;paint();},{passive:true});
+  const end=()=>{if(y0==null)return;const go=pull>=TH;y0=null;
+    if(go){busy=true;el.classList.add("spin");el.style.opacity=1;el.style.transform="translate(-50%,"+TH*.7+"px)";hardRefresh();}
+    else{pull=0;paint();}};
+  document.addEventListener("touchend",end,{passive:true});document.addEventListener("touchcancel",end,{passive:true});})();
