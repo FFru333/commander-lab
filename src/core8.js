@@ -427,7 +427,7 @@ async function openAnalytics(){renderAnalytics();const ok=await loadCards();rend
   if(LAB.combos&&!LAB.match){LAB.match=matchCombos();}else if(!LAB.combos)loadCombos().then(()=>{if(LAB.combos){LAB.match=matchCombos();renderAnalytics();}});
   loadSalt();if(typeof loadEDH==='function')loadEDH().then(renderAnalytics).catch(()=>{});}
 /* the installed app can keep an old copy alive in the background: on open and on return, compare with the published build and reload if it is newer */
-const APP_BUILD=22;
+const APP_BUILD=23;
 function checkUpdate(){if(location.protocol!=="https:")return;fetch(location.href.split("#")[0],{cache:"no-store"}).then(r=>r.ok?r.text():"").then(t=>{const m=t.match(/const APP_BUILD=(\d+);/);
   if(m&&+m[1]>APP_BUILD){let last=0;try{last=+sessionStorage.getItem("cd-rl")||0;}catch(e){}if(Date.now()-last>30000){try{sessionStorage.setItem("cd-rl",String(Date.now()));}catch(e){}hardRefresh();}}}).catch(()=>{});}
 setTimeout(checkUpdate,2500);document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible")checkUpdate();});
@@ -467,7 +467,7 @@ async function anImageCanvas(V,cmdName,owner){const W=1080,H=1920,cv=document.cr
   /* a compact card in the lower part, so the commander stays visible above it */
   const CW=860,PAD=46,IW=CW-PAD*2,text=V.lines.join(" "),cap="chance per game that somebody at the table groans, by turn "+ANN_TURNS;
   c.font="400 24px "+FD;const capL=anWrap(c,cap,IW),capH=capL.length*30;let pf=32,lines,lh;
-  const nameStr=(cmdName||"").toUpperCase(),hdr=(nameStr?40:0)+(owner?44:0),chipsH=V.arch.length?66:12,fixed=PAD+hdr+22+74+chipsH+34+100+capH+26+58+PAD;
+  const nameStr=(cmdName||"").toUpperCase(),hdr=(nameStr?40:0)+(owner?44:0),chipsH=V.arch.length?66:12,fixed=PAD+hdr+74+chipsH+34+100+capH+26+58+PAD;
   for(;pf>=22;pf-=1){c.font="400 "+pf+"px "+FD;lines=anWrap(c,text,IW);lh=Math.round(pf*1.42);if(fixed+lines.length*lh<=H*.62)break;}
   const CH=fixed+lines.length*lh,CX=(W-CW)/2,CY=H-CH-150;
   c.save();c.shadowColor="rgba(0,0,0,.45)";c.shadowBlur=50;c.fillStyle="rgba(20,18,16,.74)";anRR(c,CX,CY,CW,CH,48);c.fill();c.restore();
@@ -476,7 +476,6 @@ async function anImageCanvas(V,cmdName,owner){const W=1080,H=1920,cv=document.cr
   if(nameStr){let fs=22;const sp=()=>fs*.2,wid=()=>[...nameStr].reduce((t,ch)=>t+c.measureText(ch).width+sp(),0)-sp();c.font="600 "+fs+"px "+FD;while(wid()>IW&&fs>13){fs--;c.font="600 "+fs+"px "+FD;}
     let cx=x;c.fillStyle=INK;[...nameStr].forEach(ch=>{c.fillText(ch,cx,y+22);cx+=c.measureText(ch).width+sp();});y+=40;}
   if(owner){c.font="400 24px "+FD;c.fillStyle=MUTED;c.fillText("by "+owner,x,y+22);y+=44;}
-  c.font="500 22px "+FM;c.fillStyle=MUTED;c.fillText("VERDICT",x,y+18);y+=22;
   c.font="700 72px "+FD;c.fillStyle=INK;c.fillText(V.title,x,y+62);y+=74;
   if(V.arch.length){let cx=x;c.font="500 24px "+FD;V.arch.forEach(a=>{const w=c.measureText(a.name).width+36;c.fillStyle="rgba(255,255,255,.12)";anRR(c,cx,y+4,w,44,22);c.fill();c.fillStyle=INK;c.fillText(a.name,cx+18,y+35);cx+=w+10;});y+=66;}else y+=12;
   c.font="400 "+pf+"px "+FD;c.fillStyle=INK;lines.forEach((l,i)=>c.fillText(l,x,y+pf+i*lh));y+=lines.length*lh+34;
