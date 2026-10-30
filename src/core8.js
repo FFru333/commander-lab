@@ -239,6 +239,12 @@ function anDepend(a){const cmd=(a.R||[]).filter(r=>r.cmd);if(!cmd.length)return 
   const dep=share==null?null:Math.round(clamp((engine?30:10)+Math.min(1,share/.7)*65));
   return {dep,engine:!!engine,share,protect:a.protect};}
 function anOwnership(){try{const o=deckStats(DECKS.current);const marked=o.have+o.proxy+o.buy;if(marked<o.total*.6)return null;const miss=o.proxy+o.buy;if(!miss)return null;return {have:o.have,total:marked,proxy:o.proxy,buy:o.buy,cost:o.buyCost||0,share:o.have/Math.max(1,marked)};}catch(e){return null;}}
+/* the line under the big percentage: any phrase that finishes "NN% ..." */
+const AN_CAP_ANY=["chance that someone says \"wait, what does that do?\"","chance your friends bring snacks and a grudge","chance that someone checks their phone instead of watching you play","chance that the game goes long enough to ruin dinner"];
+const AN_CAP={
+  lo:["chance that anyone even notices you played","chance that your friends forget which deck that was","chance that someone offers you a seat on the safe side of the table","chance of a polite nod, and nothing else","chance that someone calls this deck \"cute\"","chance that you are invited back, and ignored"],
+  mid:["chance that somebody groans","chance of a sigh followed by \"fine, whatever\"","chance that someone mutters \"of course you did\"","chance that a friend takes a very long sip of water","chance that someone says \"interesting\" and means the opposite","chance of a dramatic pause before a very small \"ok\"","chance that somebody slams a card down a little too hard"],
+  hi:["chance that your friends delete your phone number","chance that this is the last game you play with this pod","chance of a group chat that suddenly doesn't include you","chance that somebody \"needs to take a call\" and never comes back","chance that someone says \"it's just a game\" in a voice that says otherwise","chance that your pod starts planning a game around beating only you","chance of an awkward silence that lasts through the next shuffle","chance that someone asks to see your decklist before the next game","chance that someone remembers this at your wedding"]};
 const AN_CIN={"W":"mono-white","U":"mono-blue","B":"mono-black","R":"mono-red","G":"mono-green","WU":"Azorius","UB":"Dimir","BR":"Rakdos","RG":"Gruul","GW":"Selesnya","WB":"Orzhov","UR":"Izzet","BG":"Golgari","RW":"Boros","GU":"Simic",
   "WUB":"Esper","UBR":"Grixis","BRG":"Jund","RGW":"Naya","GWU":"Bant","WBR":"Mardu","URG":"Temur","BGW":"Abzan","RWU":"Jeskai","GUB":"Sultai"};
 function anCiName(ci){const set=COLORS.filter(c=>ci.includes(c)).sort().join("");
@@ -341,7 +347,8 @@ function verdictOf(a,Pw,N){const p=Math.round(N.P*100),ti=AN_TIERS.findIndex(t=>
   if(!issues.length)cand.push(fill(anPick(Pw.cons>=70&&Pw.eff>=70?AN_GOOD:AN_MEH,h("g"))));
   cand.slice(0,2).forEach(x=>L.push(x));
   L.push(anPick(AN_L3X[spice+perf]||AN_L3[ti],h("d")));
-  return {p,ti,title:AN_TIERS[ti][1],lines:L,posture,issues,ci:ciName,arch,dep,own,ev:idr.ev};}
+  const capPool=(p<25?AN_CAP.lo:p<55?AN_CAP.mid:AN_CAP.hi).concat(AN_CAP_ANY),cap=anPick(capPool,h("cap"));
+  return {p,ti,cap,title:AN_TIERS[ti][1],lines:L,posture,issues,ci:ciName,arch,dep,own,ev:idr.ev};}
 /* ---------- brief: what to look at first ---------- */
 function insightsOf(a,Pw,cv){const w=[],g=[];const nl=a.lands.reduce((t,r)=>t+r.qty,0),r=Pw.ramp;
   if(cv.avg>=3.5)w.push("Top-heavy: the average mana value is "+cv.avg.toFixed(2)+". Expect clunky turns before turn 5.");
@@ -367,7 +374,7 @@ function anColours(a){const ci=deckCI(),maxDem=Math.max(1,...COLORS.map(k=>a.dem
     '<div class="ancol"><span class="pip p'+k+'">'+k+'</span><div><div class="anrow"><span>Pips</span>'+bar(a.dem[k],maxDem)+'<b>'+a.dem[k]+'</b></div><div class="anrow"><span>Sources</span>'+bar(a.src[k],Math.max(1,...COLORS.map(x=>a.src[x])),"src")+'<b>'+a.src[k]+'</b></div></div><em class="'+(a.src[k]<12?"low":"")+'">'+(a.src[k]<12?"Thin":"OK")+'</em></div>').join("")+
     '</div><p class="note">Sources are lands, rocks and mana creatures that can make the colour. Around 12 or more per main colour is a common rule of thumb, not a hard limit.</p>';}
 function anVerdict(V){return '<section class="anverdict" data-tier="'+V.ti+'"><div class="anvtext"><div class="anvhead"><p class="ankick">The verdict</p><button type="button" class="ghostbtn anre" data-anre="1" aria-label="Write another version of the verdict">&#8635; Another take</button></div><h3>'+V.title+'</h3>'+(V.arch.length?'<p class="anchips">'+V.arch.map(x=>'<span class="chipk">'+esc(x.name)+'</span>').join("")+'</p>':'')+'<p>'+V.lines.join(" ")+'</p>'+'</div>'+
-  '<div class="anvgauge"><b>'+V.p+'%</b><small>chance per game that somebody at the table groans, by turn '+ANN_TURNS+'</small><div class="anscale"><i style="left:'+V.p+'%"></i></div><div class="anticks"><span>0</span><span>25</span><span>50</span><span>75</span><span>100</span></div><button type="button" class="ghostbtn animg" data-animg="1">Save</button></div></section>';}
+  '<div class="anvgauge"><b>'+V.p+'%</b><small>'+esc(V.cap)+'</small><div class="anscale"><i style="left:'+V.p+'%"></i></div><div class="anticks"><span>0</span><span>25</span><span>50</span><span>75</span><span>100</span></div><button type="button" class="ghostbtn animg" data-animg="1">Save</button></div></section>';}
 function anBrief(a,Pw){const emi=AN.emi&&HAS_EMI(),cv=curveData(emi),base=curveData(false),mx=Math.max(1,...cv.b,...base.b);
   const g=[["Consistency",Pw.cons],["Efficiency",Pw.eff],["Interaction",Pw.inter],["Win conditions",Pw.win]];
   const nlands=a.lands.reduce((t,r)=>t+r.qty,0),nb=a.basics.reduce((t,r)=>t+r.qty,0);
@@ -427,7 +434,7 @@ async function openAnalytics(){renderAnalytics();const ok=await loadCards();rend
   if(LAB.combos&&!LAB.match){LAB.match=matchCombos();}else if(!LAB.combos)loadCombos().then(()=>{if(LAB.combos){LAB.match=matchCombos();renderAnalytics();}});
   loadSalt();if(typeof loadEDH==='function')loadEDH().then(renderAnalytics).catch(()=>{});}
 /* the installed app can keep an old copy alive in the background: on open and on return, compare with the published build and reload if it is newer */
-const APP_BUILD=23;
+const APP_BUILD=24;
 function checkUpdate(){if(location.protocol!=="https:")return;fetch(location.href.split("#")[0],{cache:"no-store"}).then(r=>r.ok?r.text():"").then(t=>{const m=t.match(/const APP_BUILD=(\d+);/);
   if(m&&+m[1]>APP_BUILD){let last=0;try{last=+sessionStorage.getItem("cd-rl")||0;}catch(e){}if(Date.now()-last>30000){try{sessionStorage.setItem("cd-rl",String(Date.now()));}catch(e){}hardRefresh();}}}).catch(()=>{});}
 setTimeout(checkUpdate,2500);document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible")checkUpdate();});
@@ -465,7 +472,7 @@ async function anImageCanvas(V,cmdName,owner){const W=1080,H=1920,cv=document.cr
   else{const g=c.createLinearGradient(0,0,W,H);g.addColorStop(0,"#2d3b4f");g.addColorStop(.6,"#3a2522");g.addColorStop(1,accent);c.fillStyle=g;c.fillRect(0,0,W,H);}
   const ov=c.createLinearGradient(0,0,0,H);ov.addColorStop(0,"rgba(8,9,10,.15)");ov.addColorStop(.5,"rgba(8,9,10,.22)");ov.addColorStop(1,"rgba(8,9,10,.6)");c.fillStyle=ov;c.fillRect(0,0,W,H);
   /* a compact card in the lower part, so the commander stays visible above it */
-  const CW=860,PAD=46,IW=CW-PAD*2,text=V.lines.join(" "),cap="chance per game that somebody at the table groans, by turn "+ANN_TURNS;
+  const CW=860,PAD=46,IW=CW-PAD*2,text=V.lines.join(" "),cap=V.cap;
   c.font="400 24px "+FD;const capL=anWrap(c,cap,IW),capH=capL.length*30;let pf=32,lines,lh;
   const nameStr=(cmdName||"").toUpperCase(),hdr=(nameStr?40:0)+(owner?44:0),chipsH=V.arch.length?66:12,fixed=PAD+hdr+74+chipsH+34+100+capH+26+58+PAD;
   for(;pf>=22;pf-=1){c.font="400 "+pf+"px "+FD;lines=anWrap(c,text,IW);lh=Math.round(pf*1.42);if(fixed+lines.length*lh<=H*.62)break;}
