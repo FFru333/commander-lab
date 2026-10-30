@@ -416,7 +416,7 @@ function renderAnalytics(){const B=document.getElementById("anBody");if(!B||!CUR
   const Pw=pillars(a),N=annoyDeck(a),deep=AN.view==="deep";let V=verdictOf(a,Pw,N);
   if(AN.regen){for(let i=0;i<14&&V.lines.join(" ")===AN.prevText;i++){AN.seed=(AN.seed||0)+1;V=verdictOf(a,Pw,N);}AN.regen=false;}AN.prevText=V.lines.join(" ");AN.lastV=V;AN.lastCmd=a.cmds[0]||"";
   B.innerHTML=(AN.prog?'<p class="labprog" role="status">'+esc(AN.prog)+'</p>':'')+anVerdict(V)+
-   '<div class="anvsw"><div class="seg2" role="group" aria-label="Analytics detail"><button type="button" data-anv="brief" aria-pressed="'+!deep+'">Brief</button><button type="button" data-anv="deep" aria-pressed="'+deep+'">In-depth</button></div><p>'+(deep?"Every number, with the reasoning.":"The main things, in a nutshell.")+'</p></div>'+
+   '<div class="anvsw"><div class="seg2" role="group" aria-label="Analytics detail"><button type="button" data-anv="brief" aria-pressed="'+!deep+'">Brief</button><button type="button" data-anv="deep" aria-pressed="'+deep+'">In-depth</button></div><p>'+(deep?"Every number, with the reasoning.":"The main things, in a nutshell.")+'</p><span class="anbuild">Build '+APP_BUILD+'</span></div>'+
    (deep?anDeep(a,N):anBrief(a,Pw))+
    '<p class="note">Sources: card text from Scryfall, roles from Scryfall tags, combos from Commander Spellbook, salt votes from EDHREC. Power level, pillars and the annoyance chance are our own formulas; levels like "Dense" compare to a typical Commander deck. Build '+APP_BUILD+'.</p>';
   B.querySelectorAll("[data-anv]").forEach(b=>b.addEventListener("click",()=>{AN.view=b.dataset.anv;lsSet(NS+"-anview",AN.view);renderAnalytics();}));
@@ -427,7 +427,7 @@ async function openAnalytics(){renderAnalytics();const ok=await loadCards();rend
   if(LAB.combos&&!LAB.match){LAB.match=matchCombos();}else if(!LAB.combos)loadCombos().then(()=>{if(LAB.combos){LAB.match=matchCombos();renderAnalytics();}});
   loadSalt();if(typeof loadEDH==='function')loadEDH().then(renderAnalytics).catch(()=>{});}
 /* the installed app can keep an old copy alive in the background: on open and on return, compare with the published build and reload if it is newer */
-const APP_BUILD=21;
+const APP_BUILD=22;
 function checkUpdate(){if(location.protocol!=="https:")return;fetch(location.href.split("#")[0],{cache:"no-store"}).then(r=>r.ok?r.text():"").then(t=>{const m=t.match(/const APP_BUILD=(\d+);/);
   if(m&&+m[1]>APP_BUILD){let last=0;try{last=+sessionStorage.getItem("cd-rl")||0;}catch(e){}if(Date.now()-last>30000){try{sessionStorage.setItem("cd-rl",String(Date.now()));}catch(e){}hardRefresh();}}}).catch(()=>{});}
 setTimeout(checkUpdate,2500);document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible")checkUpdate();});
@@ -436,17 +436,19 @@ async function hardRefresh(){try{const regs=await navigator.serviceWorker.getReg
   try{const ks=await caches.keys();await Promise.all(ks.map(k=>caches.delete(k)));}catch(e){}
   try{await fetch(location.href.split("#")[0],{cache:"reload"});}catch(e){}
   location.reload();}
-(function(){const el=document.createElement("div");el.className="ptr";el.setAttribute("aria-hidden","true");el.innerHTML='<i></i>';document.body.appendChild(el);
-  let y0=null,x0=0,pull=0,busy=false;const TH=84;
-  const top=()=>(document.scrollingElement||document.documentElement).scrollTop<=0;
-  const scrolledInside=t=>{for(let n=t;n&&n!==document.body;n=n.parentElement){if(n.scrollTop>0)return true;if(/^(INPUT|TEXTAREA|SELECT)$/.test(n.tagName))return true;}return false;};
-  const paint=()=>{el.style.transform="translate(-50%,"+Math.min(pull,TH*1.4)*.7+"px)";el.style.opacity=Math.min(1,pull/TH);el.classList.toggle("ready",pull>=TH);el.firstChild.style.transform="rotate("+Math.min(360,pull/TH*270)+"deg)";};
-  document.addEventListener("touchstart",e=>{if(busy||e.touches.length!==1||!top()||scrolledInside(e.target)){y0=null;return;}y0=e.touches[0].clientY;x0=e.touches[0].clientX;pull=0;},{passive:true});
+(function(){const mk=c=>{const e=document.createElement("div");e.className="ptr "+c;e.setAttribute("aria-hidden","true");e.innerHTML="<i></i>";document.body.appendChild(e);return e;};
+  const up=mk("t"),dn=mk("b");let y0=null,x0=0,pull=0,dir=0,busy=false,atTop=false,atBot=false;const TH=84;
+  const sc=()=>document.scrollingElement||document.documentElement;
+  const top=()=>Math.max(sc().scrollTop,window.pageYOffset||0)<=0;
+  const bottom=()=>sc().scrollTop+window.innerHeight>=sc().scrollHeight-2;
+  const inside=t=>{for(let n=t;n&&n!==document.body&&n!==document.documentElement;n=n.parentElement){if(/^(INPUT|TEXTAREA|SELECT)$/.test(n.tagName))return true;if(n.scrollHeight>n.clientHeight+2&&/(auto|scroll)/.test(getComputedStyle(n).overflowY))return true;}return false;};
+  const paint=()=>{const el=dir<0?dn:up,o=dir<0?up:dn;o.style.opacity=0;const d=Math.min(pull,TH*1.4)*.7;el.style.transform="translate(-50%,"+(dir<0?-d:d)+"px)";el.style.opacity=Math.min(1,pull/TH);el.classList.toggle("ready",pull>=TH);el.firstChild.style.transform="rotate("+Math.min(360,pull/TH*270)+"deg)";};
+  document.addEventListener("touchstart",e=>{if(busy||e.touches.length!==1||inside(e.target)){y0=null;return;}y0=e.touches[0].clientY;x0=e.touches[0].clientX;pull=0;dir=0;atTop=top();atBot=bottom();},{passive:true});
   document.addEventListener("touchmove",e=>{if(y0==null||busy)return;const dy=e.touches[0].clientY-y0,dx=Math.abs(e.touches[0].clientX-x0);
-    if(dy<=0||dx>dy){pull=0;paint();return;}if(!top()){y0=null;pull=0;paint();return;}pull=dy;paint();},{passive:true});
+    if(Math.abs(dy)<dx){pull=0;dir=0;paint();return;}
+    if(dy>0&&atTop&&top()){dir=1;pull=dy;}else if(dy<0&&atBot&&bottom()){dir=-1;pull=-dy;}else{pull=0;dir=0;}paint();},{passive:true});
   const end=()=>{if(y0==null)return;const go=pull>=TH;y0=null;
-    if(go){busy=true;el.classList.add("spin");el.style.opacity=1;el.style.transform="translate(-50%,"+TH*.7+"px)";hardRefresh();}
-    else{pull=0;paint();}};
+    if(go){busy=true;const el=dir<0?dn:up;el.classList.add("spin");el.style.opacity=1;hardRefresh();}else{pull=0;paint();}};
   document.addEventListener("touchend",end,{passive:true});document.addEventListener("touchcancel",end,{passive:true});})();
 /* ---------- the verdict as a 9:16 picture: commander art full bleed, the card in the middle ---------- */
 async function anLoadArt(name){const u=artURL(name);
@@ -454,7 +456,7 @@ async function anLoadArt(name){const u=artURL(name);
   catch(e){try{return await new Promise((res,rej)=>{const i=new Image();i.crossOrigin="anonymous";i.onload=()=>res(i);i.onerror=rej;i.src=u;});}catch(e2){return null;}}}
 function anRR(c,x,y,w,h,r){c.beginPath();c.moveTo(x+r,y);c.arcTo(x+w,y,x+w,y+h,r);c.arcTo(x+w,y+h,x,y+h,r);c.arcTo(x,y+h,x,y,r);c.arcTo(x,y,x+w,y,r);c.closePath();}
 function anWrap(c,text,maxW){const words=text.split(/\s+/),lines=[];let cur="";words.forEach(w=>{const t=cur?cur+" "+w:w;if(c.measureText(t).width>maxW&&cur){lines.push(cur);cur=w;}else cur=t;});if(cur)lines.push(cur);return lines;}
-async function anImageCanvas(V,cmdName){const W=1080,H=1920,cv=document.createElement("canvas");cv.width=W;cv.height=H;const c=cv.getContext("2d");
+async function anImageCanvas(V,cmdName,owner){const W=1080,H=1920,cv=document.createElement("canvas");cv.width=W;cv.height=H;const c=cv.getContext("2d");
   const FD="Geist, system-ui, -apple-system, 'Segoe UI', sans-serif",FM="'Geist Mono', ui-monospace, Menlo, monospace";
   try{await Promise.all([document.fonts.load("700 80px Geist"),document.fonts.load("400 40px Geist"),document.fonts.load("500 24px 'Geist Mono'")]);}catch(e){}
   const accent=(getComputedStyle(document.documentElement).getPropertyValue("--accent")||"").trim()||"#e8745e",INK="#f4efe6",MUTED="#c4bcae";
@@ -465,13 +467,16 @@ async function anImageCanvas(V,cmdName){const W=1080,H=1920,cv=document.createEl
   /* a compact card in the lower part, so the commander stays visible above it */
   const CW=860,PAD=46,IW=CW-PAD*2,text=V.lines.join(" "),cap="chance per game that somebody at the table groans, by turn "+ANN_TURNS;
   c.font="400 24px "+FD;const capL=anWrap(c,cap,IW),capH=capL.length*30;let pf=32,lines,lh;
-  const chipsH=V.arch.length?66:12,fixed=PAD+22+74+chipsH+34+100+capH+26+58+PAD;
+  const nameStr=(cmdName||"").toUpperCase(),hdr=(nameStr?40:0)+(owner?44:0),chipsH=V.arch.length?66:12,fixed=PAD+hdr+22+74+chipsH+34+100+capH+26+58+PAD;
   for(;pf>=22;pf-=1){c.font="400 "+pf+"px "+FD;lines=anWrap(c,text,IW);lh=Math.round(pf*1.42);if(fixed+lines.length*lh<=H*.62)break;}
   const CH=fixed+lines.length*lh,CX=(W-CW)/2,CY=H-CH-150;
   c.save();c.shadowColor="rgba(0,0,0,.45)";c.shadowBlur=50;c.fillStyle="rgba(20,18,16,.74)";anRR(c,CX,CY,CW,CH,48);c.fill();c.restore();
   c.strokeStyle="rgba(255,255,255,.18)";c.lineWidth=2;anRR(c,CX,CY,CW,CH,48);c.stroke();
   let y=CY+PAD,x=CX+PAD;c.textBaseline="alphabetic";
-  c.font="500 22px "+FM;c.fillStyle=MUTED;c.fillText("THE VERDICT",x,y+18);y+=22;
+  if(nameStr){let fs=22;const sp=()=>fs*.2,wid=()=>[...nameStr].reduce((t,ch)=>t+c.measureText(ch).width+sp(),0)-sp();c.font="600 "+fs+"px "+FD;while(wid()>IW&&fs>13){fs--;c.font="600 "+fs+"px "+FD;}
+    let cx=x;c.fillStyle=INK;[...nameStr].forEach(ch=>{c.fillText(ch,cx,y+22);cx+=c.measureText(ch).width+sp();});y+=40;}
+  if(owner){c.font="400 24px "+FD;c.fillStyle=MUTED;c.fillText("by "+owner,x,y+22);y+=44;}
+  c.font="500 22px "+FM;c.fillStyle=MUTED;c.fillText("VERDICT",x,y+18);y+=22;
   c.font="700 72px "+FD;c.fillStyle=INK;c.fillText(V.title,x,y+62);y+=74;
   if(V.arch.length){let cx=x;c.font="500 24px "+FD;V.arch.forEach(a=>{const w=c.measureText(a.name).width+36;c.fillStyle="rgba(255,255,255,.12)";anRR(c,cx,y+4,w,44,22);c.fill();c.fillStyle=INK;c.fillText(a.name,cx+18,y+35);cx+=w+10;});y+=66;}else y+=12;
   c.font="400 "+pf+"px "+FD;c.fillStyle=INK;lines.forEach((l,i)=>c.fillText(l,x,y+pf+i*lh));y+=lines.length*lh+34;
@@ -488,11 +493,13 @@ function anSend(blob,nm){const file=new File([blob],nm,{type:"image/png"});
   if(navigator.canShare&&navigator.canShare({files:[file]}))return navigator.share({files:[file],title:"Commander verdict"}).catch(()=>{});
   const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=nm;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),4000);return Promise.resolve();}
 async function anShareImage(btn){const V=AN.lastV;if(!V)return;const old=btn.textContent;btn.textContent="…";btn.disabled=true;
-  try{const cv=await anImageCanvas(V,AN.lastCmd),blob=await new Promise(r=>cv.toBlob(r,"image/png"));if(!blob)throw new Error("no image");
-    const nm="verdict-"+((CUR&&CUR.name)||"deck").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"")+".png",url=URL.createObjectURL(blob);
-    anCloseModal();const m=document.createElement("div");m.id="anImgModal";m.className="animodal";m.dataset.url=url;m.setAttribute("role","dialog");m.setAttribute("aria-label","Image preview");
-    m.innerHTML='<div class="animbox"><img alt="Verdict image preview"><div class="animact"><button type="button" class="btn-acc" data-s="1">Save</button><button type="button" class="ghostbtn" data-c="1">Close</button></div></div>';
-    m.querySelector("img").src=url;document.body.appendChild(m);
+  const nm="verdict-"+((CUR&&CUR.name)||"deck").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"")+".png";let owner=String(lsGet(NS+"-owner")||""),blob=null,url=null;
+  const make=async()=>{const cv=await anImageCanvas(V,AN.lastCmd,owner.trim()),b=await new Promise(r=>cv.toBlob(r,"image/png"));if(!b)throw new Error("no image");blob=b;if(url)URL.revokeObjectURL(url);url=URL.createObjectURL(b);return url;};
+  try{await make();anCloseModal();const m=document.createElement("div");m.id="anImgModal";m.className="animodal";m.dataset.url=url;m.setAttribute("role","dialog");m.setAttribute("aria-label","Image preview");
+    m.innerHTML='<div class="animbox"><img alt="Verdict image preview"><input class="animname" type="text" maxlength="40" placeholder="By (your name, optional)" aria-label="Your name, shown as by"><div class="animact"><button type="button" class="btn-acc" data-s="1">Save</button><button type="button" class="ghostbtn" data-c="1">Close</button></div></div>';
+    const img=m.querySelector("img"),inp=m.querySelector("input");img.src=url;inp.value=owner;let t=null;
+    inp.addEventListener("input",()=>{owner=inp.value;lsSet(NS+"-owner",owner);clearTimeout(t);t=setTimeout(async()=>{try{img.src=await make();m.dataset.url=url;}catch(e){}},350);});
+    document.body.appendChild(m);
     m.addEventListener("click",e=>{if(e.target===m||e.target.closest("[data-c]"))anCloseModal();else if(e.target.closest("[data-s]"))anSend(blob,nm);});
     document.addEventListener("keydown",function k(e){if(e.key==="Escape"){anCloseModal();document.removeEventListener("keydown",k);}});}
   catch(e){btn.textContent="Could not make the image";setTimeout(()=>{btn.textContent=old;btn.disabled=false;},2200);return;}
