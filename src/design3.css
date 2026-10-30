@@ -338,3 +338,4 @@ details.anhow p{margin:8px 0 0;line-height:1.5}
 .ptr.ready i{border-color:var(--accent);border-top-color:var(--ink)}
 .ptr.spin i{animation:ptrspin .8s linear infinite;transform:none!important}
 @keyframes ptrspin{to{transform:rotate(360deg)}}
+.animg{margin-top:14px;height:34px;padding:0 14px;font-size:12.5px;border:1px solid var(--line2,var(--line))!important;color:var(--ink)}

@@ -367,7 +367,7 @@ function anColours(a){const ci=deckCI(),maxDem=Math.max(1,...COLORS.map(k=>a.dem
     '<div class="ancol"><span class="pip p'+k+'">'+k+'</span><div><div class="anrow"><span>Pips</span>'+bar(a.dem[k],maxDem)+'<b>'+a.dem[k]+'</b></div><div class="anrow"><span>Sources</span>'+bar(a.src[k],Math.max(1,...COLORS.map(x=>a.src[x])),"src")+'<b>'+a.src[k]+'</b></div></div><em class="'+(a.src[k]<12?"low":"")+'">'+(a.src[k]<12?"Thin":"OK")+'</em></div>').join("")+
     '</div><p class="note">Sources are lands, rocks and mana creatures that can make the colour. Around 12 or more per main colour is a common rule of thumb, not a hard limit.</p>';}
 function anVerdict(V){return '<section class="anverdict" data-tier="'+V.ti+'"><div class="anvtext"><div class="anvhead"><p class="ankick">The verdict</p><button type="button" class="ghostbtn anre" data-anre="1" aria-label="Write another version of the verdict">&#8635; Another take</button></div><h3>'+V.title+'</h3>'+(V.arch.length?'<p class="anchips">'+V.arch.map(x=>'<span class="chipk">'+esc(x.name)+'</span>').join("")+'</p>':'')+'<p>'+V.lines.join(" ")+'</p>'+'</div>'+
-  '<div class="anvgauge"><b>'+V.p+'%</b><small>chance per game that somebody at the table groans, by turn '+ANN_TURNS+'</small><div class="anscale"><i style="left:'+V.p+'%"></i></div><div class="anticks"><span>0</span><span>25</span><span>50</span><span>75</span><span>100</span></div></div></section>';}
+  '<div class="anvgauge"><b>'+V.p+'%</b><small>chance per game that somebody at the table groans, by turn '+ANN_TURNS+'</small><div class="anscale"><i style="left:'+V.p+'%"></i></div><div class="anticks"><span>0</span><span>25</span><span>50</span><span>75</span><span>100</span></div><button type="button" class="ghostbtn animg" data-animg="1">Save as image</button></div></section>';}
 function anBrief(a,Pw){const emi=AN.emi&&HAS_EMI(),cv=curveData(emi),base=curveData(false),mx=Math.max(1,...cv.b,...base.b);
   const g=[["Consistency",Pw.cons],["Efficiency",Pw.eff],["Interaction",Pw.inter],["Win conditions",Pw.win]];
   const nlands=a.lands.reduce((t,r)=>t+r.qty,0),nb=a.basics.reduce((t,r)=>t+r.qty,0);
@@ -414,19 +414,20 @@ function renderAnalytics(){const B=document.getElementById("anBody");if(!B||!CUR
   const a=analyzeDeck();
   if(a.known<a.total*0.8){B.innerHTML='<p class="w-empty">'+esc(AN.prog||"Loading card data…")+'</p>';return;}
   const Pw=pillars(a),N=annoyDeck(a),deep=AN.view==="deep";let V=verdictOf(a,Pw,N);
-  if(AN.regen){for(let i=0;i<14&&V.lines.join(" ")===AN.prevText;i++){AN.seed=(AN.seed||0)+1;V=verdictOf(a,Pw,N);}AN.regen=false;}AN.prevText=V.lines.join(" ");
+  if(AN.regen){for(let i=0;i<14&&V.lines.join(" ")===AN.prevText;i++){AN.seed=(AN.seed||0)+1;V=verdictOf(a,Pw,N);}AN.regen=false;}AN.prevText=V.lines.join(" ");AN.lastV=V;AN.lastCmd=a.cmds[0]||"";
   B.innerHTML=(AN.prog?'<p class="labprog" role="status">'+esc(AN.prog)+'</p>':'')+anVerdict(V)+
    '<div class="anvsw"><div class="seg2" role="group" aria-label="Analytics detail"><button type="button" data-anv="brief" aria-pressed="'+!deep+'">Brief</button><button type="button" data-anv="deep" aria-pressed="'+deep+'">In-depth</button></div><p>'+(deep?"Every number, with the reasoning.":"The main things, in a nutshell.")+'</p></div>'+
    (deep?anDeep(a,N):anBrief(a,Pw))+
    '<p class="note">Sources: card text from Scryfall, roles from Scryfall tags, combos from Commander Spellbook, salt votes from EDHREC. Power level, pillars and the annoyance chance are our own formulas; levels like "Dense" compare to a typical Commander deck. Build '+APP_BUILD+'.</p>';
   B.querySelectorAll("[data-anv]").forEach(b=>b.addEventListener("click",()=>{AN.view=b.dataset.anv;lsSet(NS+"-anview",AN.view);renderAnalytics();}));
+  const im=B.querySelector("[data-animg]");if(im)im.addEventListener("click",()=>anShareImage(im));
   const re=B.querySelector("[data-anre]");if(re)re.addEventListener("click",()=>{AN.regen=true;AN.seed=(AN.seed||0)+1;renderAnalytics();});
   const e=B.querySelector("[data-anemi]");if(e)e.addEventListener("click",()=>{AN.emi=!AN.emi;lsSet(NS+"-anemi",AN.emi);renderAnalytics();});}
 async function openAnalytics(){renderAnalytics();const ok=await loadCards();renderAnalytics();if(!ok){const B=document.getElementById("anBody");if(B&&!Object.keys(AN.cards).length)B.innerHTML='<p class="w-empty">Scryfall could not be reached. Try again in a moment.</p>';}
   if(LAB.combos&&!LAB.match){LAB.match=matchCombos();}else if(!LAB.combos)loadCombos().then(()=>{if(LAB.combos){LAB.match=matchCombos();renderAnalytics();}});
   loadSalt();if(typeof loadEDH==='function')loadEDH().then(renderAnalytics).catch(()=>{});}
 /* the installed app can keep an old copy alive in the background: on open and on return, compare with the published build and reload if it is newer */
-const APP_BUILD=19;
+const APP_BUILD=20;
 function checkUpdate(){if(location.protocol!=="https:")return;fetch(location.href.split("#")[0],{cache:"no-store"}).then(r=>r.ok?r.text():"").then(t=>{const m=t.match(/const APP_BUILD=(\d+);/);
   if(m&&+m[1]>APP_BUILD){let last=0;try{last=+sessionStorage.getItem("cd-rl")||0;}catch(e){}if(Date.now()-last>30000){try{sessionStorage.setItem("cd-rl",String(Date.now()));}catch(e){}hardRefresh();}}}).catch(()=>{});}
 setTimeout(checkUpdate,2500);document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible")checkUpdate();});
@@ -447,3 +448,43 @@ async function hardRefresh(){try{const regs=await navigator.serviceWorker.getReg
     if(go){busy=true;el.classList.add("spin");el.style.opacity=1;el.style.transform="translate(-50%,"+TH*.7+"px)";hardRefresh();}
     else{pull=0;paint();}};
   document.addEventListener("touchend",end,{passive:true});document.addEventListener("touchcancel",end,{passive:true});})();
+/* ---------- the verdict as a 9:16 picture: commander art full bleed, the card in the middle ---------- */
+async function anLoadArt(name){const u=artURL(name);
+  try{const r=await fetch(u,{mode:"cors"});if(!r.ok)throw 0;return await createImageBitmap(await r.blob());}
+  catch(e){try{return await new Promise((res,rej)=>{const i=new Image();i.crossOrigin="anonymous";i.onload=()=>res(i);i.onerror=rej;i.src=u;});}catch(e2){return null;}}}
+function anRR(c,x,y,w,h,r){c.beginPath();c.moveTo(x+r,y);c.arcTo(x+w,y,x+w,y+h,r);c.arcTo(x+w,y+h,x,y+h,r);c.arcTo(x,y+h,x,y,r);c.arcTo(x,y,x+w,y,r);c.closePath();}
+function anWrap(c,text,maxW){const words=text.split(/\s+/),lines=[];let cur="";words.forEach(w=>{const t=cur?cur+" "+w:w;if(c.measureText(t).width>maxW&&cur){lines.push(cur);cur=w;}else cur=t;});if(cur)lines.push(cur);return lines;}
+async function anImageCanvas(V,cmdName){const W=1080,H=1920,cv=document.createElement("canvas");cv.width=W;cv.height=H;const c=cv.getContext("2d");
+  const FD="Geist, system-ui, -apple-system, 'Segoe UI', sans-serif",FM="'Geist Mono', ui-monospace, Menlo, monospace";
+  try{await Promise.all([document.fonts.load("700 80px Geist"),document.fonts.load("400 40px Geist"),document.fonts.load("500 24px 'Geist Mono'")]);}catch(e){}
+  const accent=(getComputedStyle(document.documentElement).getPropertyValue("--accent")||"").trim()||"#e8745e",INK="#f4efe6",MUTED="#b9b1a4";
+  const art=cmdName?await anLoadArt(cmdName):null;
+  if(art){const iw=art.width,ih=art.height,k=Math.max(W/iw,H/ih),dw=iw*k,dh=ih*k;c.drawImage(art,(W-dw)/2,(H-dh)/2,dw,dh);}
+  else{const g=c.createLinearGradient(0,0,W,H);g.addColorStop(0,"#2d3b4f");g.addColorStop(.6,"#3a2522");g.addColorStop(1,accent);c.fillStyle=g;c.fillRect(0,0,W,H);}
+  const ov=c.createLinearGradient(0,0,0,H);ov.addColorStop(0,"rgba(8,9,10,.40)");ov.addColorStop(.5,"rgba(8,9,10,.55)");ov.addColorStop(1,"rgba(8,9,10,.85)");c.fillStyle=ov;c.fillRect(0,0,W,H);
+  const CW=900,PAD=60,IW=CW-PAD*2,text=V.lines.join(" "),cap="chance per game that somebody at the table groans, by turn "+ANN_TURNS;c.font="400 28px "+FD;const capL=anWrap(c,cap,IW),capH=capL.length*36;let pf=44,lines,lh;
+  for(;pf>=28;pf-=2){c.font="400 "+pf+"px "+FD;lines=anWrap(c,text,IW);lh=Math.round(pf*1.42);const h=PAD+30+110+(V.arch.length?84:20)+lines.length*lh+60+150+capH+34+70+PAD+10;if(h<=H-300)break;}
+  const chipsH=V.arch.length?84:20,CH=PAD+30+110+chipsH+lines.length*lh+60+150+capH+34+70+PAD+10,CX=(W-CW)/2,CY=Math.round((H-CH)/2);
+  c.save();c.shadowColor="rgba(0,0,0,.5)";c.shadowBlur=60;c.fillStyle="rgba(22,20,18,.82)";anRR(c,CX,CY,CW,CH,56);c.fill();c.restore();
+  c.strokeStyle="rgba(255,255,255,.16)";c.lineWidth=2;anRR(c,CX,CY,CW,CH,56);c.stroke();
+  let y=CY+PAD,x=CX+PAD;c.textBaseline="alphabetic";
+  c.font="500 26px "+FM;c.fillStyle=MUTED;c.fillText("THE VERDICT",x,y+22);y+=30;
+  c.font="700 100px "+FD;c.fillStyle=INK;c.fillText(V.title,x,y+88);y+=110;
+  if(V.arch.length){let cx=x;c.font="500 28px "+FD;V.arch.forEach(a=>{const w=c.measureText(a.name).width+44;c.fillStyle="rgba(255,255,255,.10)";anRR(c,cx,y+6,w,52,26);c.fill();c.fillStyle=INK;c.fillText(a.name,cx+22,y+43);cx+=w+12;});y+=84;}else y+=20;
+  c.font="400 "+pf+"px "+FD;c.fillStyle=INK;lines.forEach((l,i)=>c.fillText(l,x,y+pf+i*lh));y+=lines.length*lh+60;
+  c.font="700 150px "+FD;c.fillStyle=accent;c.fillText(V.p+"%",x,y+120);y+=150;
+  c.font="400 28px "+FD;c.fillStyle=MUTED;capL.forEach((l,i)=>c.fillText(l,x,y+28+i*36));y+=capH+34;
+  const g=c.createLinearGradient(x,0,x+IW,0);g.addColorStop(0,"#4caf6a");g.addColorStop(.45,"#ffbf65");g.addColorStop(.75,"#e8745e");g.addColorStop(1,"#c8452f");c.fillStyle=g;anRR(c,x,y,IW,22,11);c.fill();
+  const mx=x+IW*V.p/100;c.fillStyle="#1b1a18";c.beginPath();c.arc(mx,y+11,22,0,7);c.fill();c.lineWidth=7;c.strokeStyle=INK;c.stroke();
+  c.font="500 24px "+FM;c.fillStyle=MUTED;[0,25,50,75,100].forEach((t,i)=>{c.textAlign=i===0?"left":i===4?"right":"center";c.fillText(String(t),x+IW*t/100,y+66);});c.textAlign="left";
+  c.font="500 24px "+FM;c.fillStyle="rgba(244,239,230,.75)";c.textAlign="center";c.fillText("COMMANDER DESK",W/2,H-96);c.textAlign="left";
+  return cv;}
+async function anShareImage(btn){const V=AN.lastV;if(!V)return;const old=btn.textContent;btn.textContent="Making the image…";btn.disabled=true;
+  try{const cv=await anImageCanvas(V,AN.lastCmd);const blob=await new Promise(r=>cv.toBlob(r,"image/png"));
+    if(!blob)throw new Error("no image");const nm="verdict-"+((CUR&&CUR.name)||"deck").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"")+".png";
+    const file=new File([blob],nm,{type:"image/png"});
+    if(navigator.canShare&&navigator.canShare({files:[file]})){try{await navigator.share({files:[file],title:"Commander verdict"});}catch(e){}}
+    else{const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=nm;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),4000);}
+    btn.textContent="Done";}
+  catch(e){btn.textContent="Could not make the image";}
+  setTimeout(()=>{btn.textContent=old;btn.disabled=false;},2200);}
