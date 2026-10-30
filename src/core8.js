@@ -300,14 +300,31 @@ function anIdentity(a,Pw,N,ctx,h){const by=Object.fromEntries(N.classes.map(c=>[
   const arch=ctx.arch.slice().sort((x,y)=>y.score*(AN_NOUN_W[y.name]||1)-x.score*(AN_NOUN_W[x.name]||1));
   const top=(tribalOn&&arch.find(x=>x.name===a.tribe+"s"))||arch.find(x=>AN_NOUN[x.name])||arch.find(x=>a.tribe&&x.name===a.tribe+"s");
   const noun=top?(AN_NOUN[top.name]||(top.name.replace(/s$/,"")+" tribal deck")):null;
-  if(!traits.length&&!noun)return {text:null,ev};
+  if(!traits.length&&!noun)return {text:null,ev,traits:[],top:null};
   const phr=traits.map((k,i)=>anPick(AN_TRAIT[k][1],h("tr"+i)));
   const list=phr.length>1?phr.slice(0,-1).join(", ")+" and "+phr[phr.length-1]:phr[0]||"";
   const ci=ctx.ciName,Ci=ci?ci.charAt(0).toUpperCase()+ci.slice(1):"";
   const nn=noun||(ctx.posture==="aggro"?"aggro deck":ctx.posture==="big"?"battlecruiser":"midrange deck");
   const art=ci?(/^[aeiou]/i.test(ci)?"An":"A"):(/^[aeiou]/i.test(nn)?"An":"A");
   const who=(ci?art+" "+ci+" "+nn:art+" "+nn);
-  return {text:list?(anHash(ctx.key+"id")%2?who+" that "+list+".":Ci?Ci+" "+nn+": "+list+".":who+" that "+list+"."):who+".",ev};}
+  return {traits,top:top?top.name:null,text:list?(anHash(ctx.key+"id")%2?who+" that "+list+".":Ci?Ci+" "+nn+": "+list+".":who+" that "+list+"."):who+".",ev};}
+/* titles: built from what the deck is (archetype, creature type, colours, commander, strongest trait) and how it behaves, picked per deck and per take */
+const AN_TITLE_TIER=[
+  ["{A}, But Make It Polite","The {T} Support Group","{C} Hall Monitor","Participation Trophy, {A} Edition","{A} for People Who Say Sorry","Friendly Neighbourhood {A}","The Most Harmless {A} Alive"],
+  ["Politely {A}","{C} With Manners","A Little {A}, a Lot of Apology","{A} in Business Casual","{K}'s Gentle Menace","{T} Tourism"],
+  ["Spicy {A}","{K}'s Spicy Habit","{C} With a Temper","{A} With Opinions","Mild-Mannered {T} Menace","A Hot {A} Take"],
+  ["Salty {A}","The {C} Salt Mine","{K}'s Salt Shaker","The {T} Wrecking Crew","{A} Without Remorse","Pass the Salt, {K}"],
+  ["{T} Table Wrecker","{A} Demolition Crew","{K} Ruins Dinner","The {C} Wrecking Ball","{A} With a Body Count","Game Night Arsonist"],
+  ["{K}: Friendship Ender","{A} Divorce Lawyer","The {C} Group-Chat Killer","End of the Pod, {A} Edition","{T} Apocalypse, Table for Four","Restraining Order, {A} Edition"]];
+const AN_TITLE_WEAK=["{A}, Allegedly","{A} That Forgot to Win","Lots of {A}, Zero Plan","A {T} Pile With Ambitions","{C} and Confused","{K}, Please Read the Rules"];
+const AN_TITLE_GOOD=["{A} Done Right","Clean, Cold {A}","{A}, No Notes","{C} Efficiency Expert","The {T} Problem"];
+const AN_TITLE_TRAIT=["{X}, Served Cold","{X} and Zero Regrets","{C} {X}","The {X} Problem","{X} Enjoyer","Professional {X} Offender","{K}'s {X} Habit"];
+const AN_TRAIT_NOUN={edict:"Edicts",sacrifice:"Sacrifice",hand:"Discard",steal:"Theft",stax:"Stax",combo:"Combo",cheat:"Cheating",control:"Control",controlNoBlue:"Blueless Control",counters:"Counterspells",poison:"Poison",fastmana:"Fast Mana",wipe:"Wipes",aggro:"Aggro",big:"Big Things",tribal:"Tribal",ramp:"Ramp",nofast:"Patience"};
+function anTitle(ti,pl,p,ctx,h){const V={A:ctx.top||(ctx.tribe?ctx.tribe+"s":""),T:ctx.tribe||"",C:ctx.ci?ctx.ci.charAt(0).toUpperCase()+ctx.ci.slice(1):"",K:ctx.k||"",X:(ctx.traits||[]).map(k=>k==="tribal"?(ctx.tribe?ctx.tribe+"s":""):AN_TRAIT_NOUN[k]).filter(Boolean)[0]||""};
+  const ok=t=>(t.match(/\{(\w)\}/g)||[]).every(m=>V[m[1]]);
+  let pool=AN_TITLE_TIER[ti].concat(pl<4.5?AN_TITLE_WEAK:[],pl>=6.8&&p<35?AN_TITLE_GOOD:[],ti>=2?AN_TITLE_TRAIT:[]).filter(ok);
+  if(!pool.length)pool=AN_TITLE_TIER[ti].filter(t=>!/\{/.test(t)).concat(["Table wrecker"]);
+  return anPick(pool,h("title")).replace(/\{(\w)\}/g,(m,k)=>V[k]);}
 function verdictOf(a,Pw,N){const p=Math.round(N.P*100),ti=AN_TIERS.findIndex(t=>p<t[0]),pl=Pw.pl;
   const key=((CUR&&CUR.name)||"deck")+"|"+a.cmds.join("+")+"|"+a.total+"|"+(AN.seed||0),h=k=>anHash(key+k);
   const arch=anArchetypes(a,Pw,N),ci=deckCI(),ciName=anCiName(ci),cr=a.R||[],nonCmd=cr.filter(r=>!r.cmd&&!isType(r.c,"Land")),cmdRows=cr.filter(r=>r.cmd);
@@ -335,7 +352,7 @@ function verdictOf(a,Pw,N){const p=Math.round(N.P*100),ti=AN_TIERS.findIndex(t=>
   /* one paragraph: who it is, how rude/strong it is, what is wrong with the build (or how well it works), closing verdict */
   const fastStrict=(a.rocks||[]).filter(r=>r.c.cmc<=2).length+(a.dorks||[]).filter(r=>r.c.cmc<=2).length+(a.rituals||[]).length;
   const cmdEdict=cmdRows.some(r=>ANN_RX.edict.test(r.c.ot||"")),seriousCombos=(a.combos||[]).filter(v=>(CSB_BR[v.br]||0)>=3).length,cheatScore=cheatOthers+(cheatCmdStrong?6:cheatCmd?1:0);
-  const idr=anIdentity(a,Pw,N,{arch,cheat,cheatCmd,counterReal,hasU,crShare,fastStrict,seriousCombos,cheatScore,cmdEdict,ciName:ci.length?ciName:"",posture,key},h),idLine=idr.text;
+  const idr=anIdentity(a,Pw,N,{arch,cheat,cheatCmd,counterReal,hasU,crShare,fastStrict,seriousCombos,cheatScore,cmdEdict,ciName:ci.length?ciName:"",posture,key},h),idLine=idr.text;const kName=(a.cmds[0]||"").replace(/^The /i,"").split(",")[0].trim();
   const L=[idLine?idLine:fill(anPick(AN_POSTURE[posture],h("b"))),fill(anPick(AN_MOOD[spice+perf],h("a")))];
   /* at most two extra sentences, most telling first: a severe build problem, an incomplete collection, how much hangs on the commander, a lesser problem */
   const prot=a.protect<=1?", and there's almost nothing to protect it":"";const cand=[];
@@ -350,7 +367,8 @@ function verdictOf(a,Pw,N){const p=Math.round(N.P*100),ti=AN_TIERS.findIndex(t=>
   cand.slice(0,2).forEach(x=>L.push(x));
   L.push(anPick(AN_L3X[spice+perf]||AN_L3[ti],h("d")));
   const capPool=(p<25?AN_CAP.lo:p<55?AN_CAP.mid:AN_CAP.hi).concat(pl<4.5?AN_CAP.weak.concat(AN_CAP.weak):[],pl>=6.8&&p<25?AN_CAP.strong:[],AN_CAP_ANY),cap=anPick(capPool,h("cap"));
-  return {p,ti,cap,title:AN_TIERS[ti][1],lines:L,posture,issues,ci:ciName,arch,dep,own,ev:idr.ev};}
+  const title=anTitle(ti,pl,p,{top:idr.top,tribe:(a.tribe&&a.tribeN>=20)?a.tribe:"",ci:ci.length?ciName:"",k:kName,traits:idr.traits},h);
+  return {p,ti,cap,title,tierName:AN_TIERS[ti][1],lines:L,posture,issues,ci:ciName,arch,dep,own,ev:idr.ev};}
 /* ---------- brief: what to look at first ---------- */
 function insightsOf(a,Pw,cv){const w=[],g=[];const nl=a.lands.reduce((t,r)=>t+r.qty,0),r=Pw.ramp;
   if(cv.avg>=3.5)w.push("Top-heavy: the average mana value is "+cv.avg.toFixed(2)+". Expect clunky turns before turn 5.");
@@ -375,7 +393,7 @@ function anColours(a){const ci=deckCI(),maxDem=Math.max(1,...COLORS.map(k=>a.dem
   return '<h3 class="anh">Colour demand and sources</h3><div class="ancolors">'+COLORS.filter(k=>ci.includes(k)||a.dem[k]).map(k=>
     '<div class="ancol"><span class="pip p'+k+'">'+k+'</span><div><div class="anrow"><span>Pips</span>'+bar(a.dem[k],maxDem)+'<b>'+a.dem[k]+'</b></div><div class="anrow"><span>Sources</span>'+bar(a.src[k],Math.max(1,...COLORS.map(x=>a.src[x])),"src")+'<b>'+a.src[k]+'</b></div></div><em class="'+(a.src[k]<12?"low":"")+'">'+(a.src[k]<12?"Thin":"OK")+'</em></div>').join("")+
     '</div><p class="note">Sources are lands, rocks and mana creatures that can make the colour. Around 12 or more per main colour is a common rule of thumb, not a hard limit.</p>';}
-function anVerdict(V){return '<section class="anverdict" data-tier="'+V.ti+'"><div class="anvtext"><div class="anvhead"><p class="ankick">The verdict</p><button type="button" class="ghostbtn anre" data-anre="1" aria-label="Write another version of the verdict">&#8635; Another take</button></div><h3>'+V.title+'</h3>'+(V.arch.length?'<p class="anchips">'+V.arch.map(x=>'<span class="chipk">'+esc(x.name)+'</span>').join("")+'</p>':'')+'<p>'+V.lines.join(" ")+'</p>'+'</div>'+
+function anVerdict(V){return '<section class="anverdict" data-tier="'+V.ti+'"><div class="anvtext"><div class="anvhead"><p class="ankick">The verdict</p><button type="button" class="ghostbtn anre" data-anre="1" aria-label="Write another version of the verdict">&#8635; Another take</button></div><h3>'+esc(V.title)+'</h3>'+(V.arch.length?'<p class="anchips">'+V.arch.map(x=>'<span class="chipk">'+esc(x.name)+'</span>').join("")+'</p>':'')+'<p>'+V.lines.join(" ")+'</p>'+'</div>'+
   '<div class="anvgauge"><b>'+V.p+'%</b><small>'+esc(V.cap)+'</small><div class="anscale"><i style="left:'+V.p+'%"></i></div><div class="anticks"><span>0</span><span>25</span><span>50</span><span>75</span><span>100</span></div><button type="button" class="ghostbtn animg" data-animg="1">Save</button></div></section>';}
 function anBrief(a,Pw){const emi=AN.emi&&HAS_EMI(),cv=curveData(emi),base=curveData(false),mx=Math.max(1,...cv.b,...base.b);
   const g=[["Consistency",Pw.cons],["Efficiency",Pw.eff],["Interaction",Pw.inter],["Win conditions",Pw.win]];
@@ -423,7 +441,7 @@ function renderAnalytics(){const B=document.getElementById("anBody");if(!B||!CUR
   const a=analyzeDeck();
   if(a.known<a.total*0.8){B.innerHTML='<p class="w-empty">'+esc(AN.prog||"Loading card data…")+'</p>';return;}
   const Pw=pillars(a),N=annoyDeck(a),deep=AN.view==="deep";let V=verdictOf(a,Pw,N);
-  if(AN.regen){for(let i=0;i<14&&V.lines.join(" ")===AN.prevText;i++){AN.seed=(AN.seed||0)+1;V=verdictOf(a,Pw,N);}AN.regen=false;}AN.prevText=V.lines.join(" ");AN.lastV=V;AN.lastCmd=a.cmds[0]||"";
+  if(AN.regen){for(let i=0;i<14&&(V.lines.join(" ")===AN.prevText||V.title===AN.prevTitle);i++){AN.seed=(AN.seed||0)+1;V=verdictOf(a,Pw,N);}AN.regen=false;}AN.prevText=V.lines.join(" ");AN.prevTitle=V.title;AN.lastV=V;AN.lastCmd=a.cmds[0]||"";
   B.innerHTML=(AN.prog?'<p class="labprog" role="status">'+esc(AN.prog)+'</p>':'')+anVerdict(V)+
    '<div class="anvsw"><div class="seg2" role="group" aria-label="Analytics detail"><button type="button" data-anv="brief" aria-pressed="'+!deep+'">Brief</button><button type="button" data-anv="deep" aria-pressed="'+deep+'">In-depth</button></div><p>'+(deep?"Every number, with the reasoning.":"The main things, in a nutshell.")+'</p><span class="anbuild">Build '+APP_BUILD+'</span></div>'+
    (deep?anDeep(a,N):anBrief(a,Pw))+
@@ -436,7 +454,7 @@ async function openAnalytics(){renderAnalytics();const ok=await loadCards();rend
   if(LAB.combos&&!LAB.match){LAB.match=matchCombos();}else if(!LAB.combos)loadCombos().then(()=>{if(LAB.combos){LAB.match=matchCombos();renderAnalytics();}});
   loadSalt();if(typeof loadEDH==='function')loadEDH().then(renderAnalytics).catch(()=>{});}
 /* the installed app can keep an old copy alive in the background: on open and on return, compare with the published build and reload if it is newer */
-const APP_BUILD=26;
+const APP_BUILD=28;
 function checkUpdate(){if(location.protocol!=="https:")return;fetch(location.href.split("#")[0],{cache:"no-store"}).then(r=>r.ok?r.text():"").then(t=>{const m=t.match(/const APP_BUILD=(\d+);/);
   if(m&&+m[1]>APP_BUILD){let last=0;try{last=+sessionStorage.getItem("cd-rl")||0;}catch(e){}if(Date.now()-last>30000){try{sessionStorage.setItem("cd-rl",String(Date.now()));}catch(e){}hardRefresh();}}}).catch(()=>{});}
 setTimeout(checkUpdate,2500);document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible")checkUpdate();});
@@ -481,7 +499,7 @@ async function anImageCanvas(V,cmdName,owner){const W=1080,H=1920,cv=document.cr
   /* a compact card in the lower part, so the commander stays visible above it */
   const CW=860,PAD=46,IW=CW-PAD*2,text=V.lines.join(" "),cap=V.cap;
   c.font="400 24px "+FD;const capL=anWrap(c,cap,IW),capH=capL.length*30;let pf=32,lines,lh;
-  const nameStr=(cmdName||"").toUpperCase(),hdr=(nameStr?40:0)+(owner?44:0),chipsH=V.arch.length?66:12,fixed=PAD+hdr+74+chipsH+34+100+capH+26+58+PAD;
+  c.font="700 72px "+FD;let tfs=72;while(c.measureText(V.title).width>IW&&tfs>46)tfs-=2;c.font="700 "+tfs+"px "+FD;const tLines=anWrap(c,V.title,IW),tH=tLines.length*Math.round(tfs*1.08);const nameStr=(cmdName||"").toUpperCase(),hdr=(nameStr?40:0)+(owner?44:0),chipsH=V.arch.length?66:12,fixed=PAD+hdr+tH+12+chipsH+34+100+capH+26+58+PAD;
   for(;pf>=22;pf-=1){c.font="400 "+pf+"px "+FD;lines=anWrap(c,text,IW);lh=Math.round(pf*1.42);if(fixed+lines.length*lh<=H*.62)break;}
   const CH=fixed+lines.length*lh,CX=(W-CW)/2,CY=H-CH-150;
   c.save();c.shadowColor="rgba(0,0,0,.45)";c.shadowBlur=50;c.fillStyle="rgba(20,18,16,.74)";anRR(c,CX,CY,CW,CH,48);c.fill();c.restore();
@@ -490,7 +508,7 @@ async function anImageCanvas(V,cmdName,owner){const W=1080,H=1920,cv=document.cr
   if(nameStr){let fs=22;const sp=()=>fs*.2,wid=()=>[...nameStr].reduce((t,ch)=>t+c.measureText(ch).width+sp(),0)-sp();c.font="600 "+fs+"px "+FD;while(wid()>IW&&fs>13){fs--;c.font="600 "+fs+"px "+FD;}
     let cx=x;c.fillStyle=INK;[...nameStr].forEach(ch=>{c.fillText(ch,cx,y+22);cx+=c.measureText(ch).width+sp();});y+=40;}
   if(owner){c.font="400 24px "+FD;c.fillStyle=MUTED;c.fillText("by "+owner,x,y+22);y+=44;}
-  c.font="700 72px "+FD;c.fillStyle=INK;c.fillText(V.title,x,y+62);y+=74;
+  c.font="700 "+tfs+"px "+FD;c.fillStyle=INK;tLines.forEach((l,i)=>c.fillText(l,x,y+Math.round(tfs*.86)+i*Math.round(tfs*1.08)));y+=tH+12;
   if(V.arch.length){let cx=x;c.font="500 24px "+FD;V.arch.forEach(a=>{const w=c.measureText(a.name).width+36;c.fillStyle="rgba(255,255,255,.12)";anRR(c,cx,y+4,w,44,22);c.fill();c.fillStyle=INK;c.fillText(a.name,cx+18,y+35);cx+=w+10;});y+=66;}else y+=12;
   c.font="400 "+pf+"px "+FD;c.fillStyle=INK;lines.forEach((l,i)=>c.fillText(l,x,y+pf+i*lh));y+=lines.length*lh+34;
   c.font="700 100px "+FD;c.fillStyle=accent;c.fillText(V.p+"%",x,y+82);y+=100;
