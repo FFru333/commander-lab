@@ -135,51 +135,42 @@ const anHash=s=>{let h=2166136261;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i)
 const anPick=(arr,seed)=>arr[seed%arr.length];
 const AN_TIERS=[[10,"Hall monitor"],[25,"Polite"],[45,"Spicy"],[65,"Salty"],[85,"Table wrecker"],[101,"Friendship ender"]];
 const AN_L1=[
-  ["This deck is so fair it could run a customer-service desk. {p}% to upset anyone in a game: less than the odds of someone resenting how slowly you shuffle.",
-   "Are you playing to win or to please your friends? At {p}% the honest answer is the second one, and you're doing that timidly.",
-   "Nobody has ever left a table because of this deck. Nobody has ever remembered playing against it either."],
-  ["A little edge, no real offence: {p}% per game that someone sighs. You're the person who says sorry while doing it.",
-   "Mildly seasoned. Enough bite to be taken seriously, not enough to be uninvited. {p}% per game.",
-   "{p}% chance of a sigh per game. Your friends will describe this deck as 'fine', which is how people describe food they are not going to finish."],
-  ["{p}% per game that somebody puts their cards down harder than usual. Healthy: this is what the format is for.",
-   "Real spice. Your friends will call it 'fine' through their teeth, and {p}% of the time they won't even manage 'fine'.",
-   "You are the pepper at this table, {p}% per game. Not a villain yet, but you've clearly looked at the villain's decklist with interest."],
-  ["You built this to be disliked and it shows: {p}% per game that someone reaches for the rulebook, or the door.",
-   "{p}% per game. Somebody is already composing their speech about 'the spirit of the format', and you wrote the first line yourself.",
-   "Salty. {p}% that your playgroup groans in any given game. You're not misunderstood; you're understood perfectly."],
-  ["{p}%. Statistically, somebody leaves this game angry, and you're fine with that. Funny how the analysis makes it so obvious why you hate your friends.",
-   "This isn't a deck, it's a character flaw with a decklist. {p}% per game.",
-   "{p}% per game that someone is genuinely upset. Rule zero for this deck is a legal waiver."],
-  ["Do you actually hate your friends? {p}% per game says you do. Good. Own the chair and don't apologise.",
-   "{p}%. This is not a game plan, it's a restraining order waiting to happen. Commit to it.",
-   "{p}% per game. Friendship ender. Whoever sits across from this deck should get a hazard-pay clause and a hug."]];
-const AN_L2={
-  mld:"Land destruction is the main flavour. Bold: your playgroup is now a support group.",
-  stax:"It's mostly stax. You don't win, you just make sure nobody has a nice time.",
-  neutral:"Commander neutralizers do the heavy lifting. Turning someone's commander into a Forest isn't interaction, it's a personal statement.",
-  combo:"Mostly combos. Your friends will find out you won at the same time as you remember the rules.",
-  altwin:"There's an out-of-nowhere win in here. The cleanest kind of rude.",
-  steal:"Theft is the theme. It's your deck now; thanks for playing.",
-  xturn:"Extra turns: because one of yours isn't enough for your ego.",
-  hand:"Hand attack: taking cards before anyone gets to play them is a lifestyle.",
-  tax:"Tolls and taxes: you collect a coin from every sentence anyone says.",
-  reset:"Wipes and resets. You're the only adult at the table, and you're ruining everyone's evening.",
-  edict:"Edicts: you let them choose, then ruin the choice.",
-  poison:"Poison: the 'technically that counts' of Commander.",
-  counter:"Counterspells carry the load. 'No' is a complete sentence at your table.",
-  tutor:"A lot of tutors. The deck wants to be a different deck, and it's trying.",
-  salty:"The salt here is mostly reputation: the community voted, you just showed up with the cards."};
+  ["{p}%. You didn't build a deck, you built a participation trophy. Nobody at the table will remember what you played, and honestly, neither will you.",
+   "{p}% chance of upsetting anyone. Your pod could eat dinner off this deck. Are you playing to win or to be adopted by your friends' mothers?",
+   "A deck this nice has never ended a friendship, or started a conversation. {p}%. Grow a spine, or at least a grudge."],
+  ["{p}% per game. You say 'sorry, my bad' while taking the game from them. The apology is the most aggressive part of this deck.",
+   "{p}%: the sigh of someone whose tea went lukewarm. Spicy like hotel-breakfast salsa.",
+   "Mildly irritating, like the coworker who replies-all. {p}% per game. Nobody is leaving, and nobody is inviting you to their wedding either."],
+  ["{p}% per game that somebody slams their cards down. Enough to make dinner afterwards slightly awkward. This is what the format is for.",
+   "You're the friend who 'just plays Magic' and then wins with a smile. {p}% per game that the smile gets noticed.",
+   "{p}%. Your friends call this deck 'fine' through gritted teeth and tell the group chat the truth afterwards."],
+  ["{p}% per game. Somebody will say 'it's just a game' in the voice of a person for whom it very much isn't. You built this on purpose.",
+   "You built a machine for making adults sulk. {p}% per game, an excellent success rate and zero remorse.",
+   "{p}%. Your friends are already drafting the speech about 'the spirit of the format'. You've read it. You're not changing."],
+  ["{p}%. Statistically, somebody leaves this game angry, and that's not the deck's fault, it's yours. Funny how the analysis makes it so obvious why you hate your friends.",
+   "{p}% per game. This isn't a deck, it's a character flaw with a decklist. Your friends should get hazard pay.",
+   "{p}%. The kind of deck that ends game nights and starts group-chat silences. You didn't build it to win, you built it to be remembered, like a bad tattoo."],
+  ["{p}% per game. Do you actually hate your friends? Don't answer, the maths already did. Own the chair.",
+   "{p}%. Rule zero for this deck is a legal waiver and a bodyguard. Whoever sits down across from you is braver than you deserve.",
+   "{p}% per game. Friendship ender. Your playgroup should invoice you for the therapy."]];
+const AN_L3=[
+  "Pick a side: play to win, or keep pleasing your friends. Right now you're doing neither.",
+  "Add some teeth, or admit you're here for the snacks.",
+  "Keep it. This is the sweet spot between 'fun' and 'who invited them'.",
+  "Wear it like a badge. Just sit near the exit.",
+  "No regrets. Bring snacks as a peace offering; it won't work.",
+  "Commit. At this point apologising would be the only insulting thing left."];
 function verdictOf(a,Pw,N){const p=Math.round(N.P*100),ti=AN_TIERS.findIndex(t=>p<t[0]),seed=anHash((CUR&&CUR.name)||"deck");
   const top=N.top[0]?N.top[0].name:"nothing in particular";const fill=s=>s.replace(/\{p\}/g,p).replace(/\{top\}/g,esc(top));
   const L=[];
-  if(!N.all.length)L.push("Nothing here makes anybody sigh. This is a deck for people who say 'good game' and mean it. Are you playing to win, or to be invited back?");
+  if(!N.all.length)L.push("Zero annoyance. You built a deck that would hold the door open for its own executioner. Are you playing to win, or to be invited back?");
   else L.push(fill(anPick(AN_L1[ti],seed)));
   const pl=Pw.pl;
-  if(pl>=7.5&&p>=50)L.push("Fast, strong and rude. At least choose your pod carefully.");
-  else if(pl>=7.5&&p<25)L.push("Strong and unobjectionable: the most dangerous kind of deck, since nobody can complain about it with a straight face.");
-  else if(pl<=4.5&&p>=40)L.push("Low power, high annoyance: you won't win, you'll just make the game longer and sadder.");
-  else if(pl<5&&p<10)L.push("Fair and gentle. Nobody is losing sleep, including you.");
-  if(ti>=2&&N.cutNames.length>1){const q=Math.round(N.cut*100);L.push("Remove the two worst offenders and the odds fall from "+p+"% to "+q+"%. Your friends would love that, which is exactly why you won't.");}
+  if(pl>=7.5&&p>=50)L.push("Fast, strong and rude: the full set. Pick a pod that has already stopped speaking to you.");
+  else if(pl>=7.5&&p<25)L.push("Strong and spotless: nobody can complain about it with a straight face, which makes it the most infuriating deck at the table.");
+  else if(pl<=4.5&&p>=40)L.push("Low power, high annoyance: you won't win, you'll just make the game longer, sadder and worse for everyone. Quite the legacy.");
+  else if(pl<5&&p<10)L.push("Fair and gentle. Nobody is losing sleep, you least of all.");
+  L.push(anPick(AN_L3[ti]?[AN_L3[ti]]:[""],seed));
   return {p,ti,title:AN_TIERS[ti][1],lines:L};}
 /* ---------- brief: what to look at first ---------- */
 function insightsOf(a,Pw,cv){const w=[],g=[];const nl=a.lands.reduce((t,r)=>t+r.qty,0),r=Pw.ramp;
