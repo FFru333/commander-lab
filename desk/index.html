@@ -4217,31 +4217,53 @@ function anCallouts(a,N){const out=[],by=Object.fromEntries(N.classes.map(c=>[c.
 const anHash=s=>{let h=2166136261;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619);}return h>>>0;};
 const anPick=(arr,seed)=>arr[seed%arr.length];
 const AN_TIERS=[[10,"Hall monitor"],[25,"Polite"],[45,"Spicy"],[65,"Salty"],[85,"Table wrecker"],[101,"Friendship ender"]];
-const AN_L1=[
-  ["{p}%. You didn't build a deck, you built a participation trophy. Nobody at the table will remember what you played, and honestly, neither will you.",
-   "{p}% chance of upsetting anyone. Your pod could eat dinner off this deck. Are you playing to win or to be adopted by your friends' mothers?",
-   "A deck this nice has never ended a friendship, or started a conversation. {p}%. Grow a spine, or at least a grudge.",
-   "{p}%. This deck says 'after you' to someone fumbling a shuffle. Even your lands apologise."],
-  ["{p}% per game. You say 'sorry, my bad' while taking the game from them. The apology is the most aggressive part of this deck.",
-   "{p}%: the sigh of someone whose tea went lukewarm. Spicy like hotel-breakfast salsa.",
-   "Mildly irritating, like the coworker who replies-all. {p}% per game. Nobody is leaving, and nobody is inviting you to their wedding either.",
-   "{p}% per game. The kind of deck that brings a cheese board to a knife fight."],
-  ["{p}% per game that somebody slams their cards down. Enough to make dinner afterwards slightly awkward. This is what the format is for.",
-   "You're the friend who 'just plays Magic' and then wins with a smile. {p}% per game that the smile gets noticed.",
-   "{p}%. Your friends call this deck 'fine' through gritted teeth and tell the group chat the truth afterwards.",
-   "{p}% per game. Enough edge that people check where you're sitting before they pick their seat."],
-  ["{p}% per game. Somebody will say 'it's just a game' in the voice of a person for whom it very much isn't. You built this on purpose.",
-   "You built a machine for making adults sulk. {p}% per game, an excellent success rate and zero remorse.",
-   "{p}%. Your friends are already drafting the speech about 'the spirit of the format'. You've read it. You're not changing.",
-   "{p}% per game. Your friends now say 'oh, that deck' before you shuffle, the way you'd say 'oh, that cousin'."],
-  ["{p}%. Statistically, somebody leaves this game angry, and that's not the deck's fault, it's yours. Funny how the analysis makes it so obvious why you hate your friends.",
-   "{p}% per game. This isn't a deck, it's a character flaw with a decklist. Your friends should get hazard pay.",
-   "{p}%. The kind of deck that ends game nights and starts group-chat silences. You didn't build it to win, you built it to be remembered, like a bad tattoo.",
-   "{p}%. The group chat goes quiet when this deck is mentioned. You call that respect; it's fear with better PR."],
-  ["{p}% per game. Do you actually hate your friends? Don't answer, the maths already did. Own the chair.",
-   "{p}%. Rule zero for this deck is a legal waiver and a bodyguard. Whoever sits down across from you is braver than you deserve.",
-   "{p}% per game. Friendship ender. Your playgroup should invoice you for the therapy.",
-   "{p}%. Even you are disappointed in you, and you wrote the list."]];
+/* spice (how rude) x performance (how well it works): nine moods, three lines each */
+const AN_MOOD={
+  fw:["{p}% to upset anybody and a power level of {pl}: it's fair because it can't afford to be anything else.",
+      "Harmless in every direction. {p}% per game, and it still loses. That's not politeness, it's incompetence with good manners.",
+      "{p}%. You're not playing nice, you're just not playing well. Different problem, same table."],
+  fo:["{p}% annoyance, a respectable power level of {pl}. It wins sometimes and apologises always.",
+      "A fair deck that can still win. {p}% per game: your friends love you, and they know it's because you're no threat.",
+      "{p}%. Nice, solid, forgettable. The deck equivalent of 'I'm fine with whatever'."],
+  fg:["{p}% annoyance at power level {pl}: it wins and nobody even gets to complain. Insufferable in a completely legal way.",
+      "Strong and clean, {p}% per game. You won't be hated, you'll be quietly resented, which is worse.",
+      "{p}%. A deck that beats everyone and leaves no excuse. Your friends will have to go home and think about themselves."],
+  mw:["{p}% per game of making somebody sigh, at power level {pl}. All the malice, none of the competence: you annoy people and still lose.",
+      "You bother the table {p}% of games and the table still wins. Congratulations on being hated and irrelevant.",
+      "{p}%: spicy intentions, soggy execution. People get annoyed at you and then beat you anyway."],
+  mo:["{p}% per game. Enough edge to be noticed, enough power ({pl}) to matter. Exactly the friend who gets 'just one more game'.",
+      "A proper mix: {p}% annoyance, power {pl}. Your friends call it 'fine' through gritted teeth and tell the group chat the truth afterwards.",
+      "{p}%. You'll make somebody slam their cards down, you'll win your share, and you'll lie about both."],
+  mg:["{p}% annoyance with power level {pl}: it's strong and it's rude, and somebody will notice both before turn 6.",
+      "{p}% per game, power {pl}. You built a deck that wins and makes sure the losers know it.",
+      "Strong, spicy, {p}% per game. At some point your friends will ask if you're okay. You'll say 'it's just a game'."],
+  sw:["{p}%. You built a machine for ruining evenings and forgot to make it win. All the cruelty, none of the payoff. Power {pl}: pure spite.",
+      "{p}% per game and a power level of {pl}: you won't win, you'll just make the game longer, sadder and worse for everyone.",
+      "{p}%. The deck is a grudge with no plan. Your friends hate it, and your friends are winning."],
+  so:["{p}% per game that somebody leaves angry, at power level {pl}. Funny how the analysis makes it so obvious why you hate your friends.",
+      "{p}%. Statistically, somebody leaves this game angry, and that's not the deck's fault, it's yours.",
+      "{p}% per game, power {pl}. It's competent and it's cruel, and you know exactly which of those you enjoy more."],
+  sg:["{p}% per game with a power level of {pl}: fast, strong and rude, the full set. Pick a pod that has already stopped speaking to you.",
+      "{p}%. A weapon. Anyone sitting across from you is braver than you deserve.",
+      "{p}% per game, power {pl}. You don't hate your friends, you hate losing to them, and this deck is the cure."]};
+/* how it plays: lock, combo, control, aggro, big, mid */
+const AN_POSTURE={
+  lock:["The plan is simple: nobody gets to play, and you get to feel clever about it.","It doesn't want to win so much as to cancel everybody's evening."],
+  combo:["It's built to win out of nowhere, so your friends learn the plot at the same time as the ending.","Every turn is a countdown to a sentence that starts with 'wait, actually'."],
+  control:["It plays control: answers everything, wins eventually, and makes the waiting miserable for everyone.","You'll spend the game saying no like it's your job, and charging for it."],
+  aggro:["It's aggressive and impatient: the table doesn't get to sit down before it's already hurting.","Fast and creature-heavy: it treats the opening turns like a mugging."],
+  big:["It's all big, slow, expensive things: patient, until the moment it isn't, and then everyone pays for the wait.","A battlecruiser at heart: build up, wait, and sit on top of the table like a landlord."],
+  mid:["A middle-of-the-road midrange pile: a bit of everything, a commitment to nothing.","Not control, not aggro, not combo. The deck answers 'what do you play?' with a shrug."]};
+const AN_INTER={
+  none:["And there's almost nothing in it to stop what anyone else does. Your defence plan is hope.","Interaction {i}/100: when somebody does something, you watch, like a nature documentary."],
+  high:["Interaction {i}/100: you will use all of it, and you will enjoy that more than you should.","Interaction {i}/100: everyone's best moment of the game has your name written on it."]};
+const AN_COH={
+  messy:["Synergy is thin and the list reads like a bag of favourite cards. That's not a deck, that's a mood board.","The pieces don't talk to each other. It's less a deck than a group of strangers sharing an elevator."],
+  nowin:["Win conditions {win}/100: there's no clear way to actually finish the game. It's a hobby, not a deck.","With win conditions at {win}/100, it's not clear this deck wants to win, or even knows what that looks like."],
+  cons:["Consistency {cons}/100: the deck draws what it draws and prays. More engines, fewer ideas.","Consistency {cons}/100. Every game is a different deck, and most of them are bad."],
+  slow:["Efficiency {eff}/100: clunky. Half the hand is a paperweight until it's too late.","Efficiency {eff}/100: it does eventually work, as long as nobody is in a hurry, and somebody always is."],
+  good:["Consistency {cons}/100, efficiency {eff}/100: it works, it works often, and that's the real insult.","The numbers say it's coherent: {cons} consistency, {eff} efficiency. Any loss is yours to own."],
+  ok:["The pieces mostly fit: {cons} consistency, {eff} efficiency. It works until you're tempted to be clever.","{cons} consistency and {eff} efficiency: not broken, not sharp. Respectable, in the way beige is."]};
 const AN_L3=[
   ["Pick a side: play to win, or keep pleasing your friends. Right now you're doing neither.","Bring a stronger plan or a better excuse.","Next time, try wanting something."],
   ["Add some teeth, or admit you're here for the snacks.","Nobody is afraid of you. Fix that.","Be a little meaner. They'll thank you, eventually."],
@@ -4249,23 +4271,23 @@ const AN_L3=[
   ["Wear it like a badge. Just sit near the exit.","Don't explain yourself at the table. It only makes it worse.","Your friends will forgive you by Christmas. Probably."],
   ["No regrets. Bring snacks as a peace offering; it won't work.","Any apology you make will only make it worse.","You have never once said 'good game' and meant it."],
   ["Commit. At this point apologising would be the only insulting thing left.","Frame the percentage and hang it above the table.","At this point the deck isn't the problem, the seating plan is."]];
-function verdictOf(a,Pw,N){const p=Math.round(N.P*100),ti=AN_TIERS.findIndex(t=>p<t[0]);
-  const key=((CUR&&CUR.name)||"deck")+"|"+a.cmds.join("+")+"|"+a.total;const h=k=>anHash(key+k);
-  const fill=s=>s.replace(/\{p\}/g,p);const L=[];
-  if(!N.all.length)L.push(anPick(["Zero annoyance. You built a deck that would hold the door open for its own executioner. Are you playing to win, or to be invited back?",
-    "Not a single thing here upsets anybody. This deck has the energy of a dental waiting room.","Zero annoyance. Your friends will describe this deck as 'nice', and nobody has ever been proud of that word."],h("z")));
-  else L.push(fill(anPick(AN_L1[ti],h("a"))));
-  const pl=Pw.pl,mv=a.avg.toFixed(2);
-  if(pl>=7.5&&p>=50)L.push("Fast, strong and rude: the full set. Pick a pod that has already stopped speaking to you.");
-  else if(pl>=7.5&&p<25)L.push("Strong and spotless: nobody can complain about it with a straight face, which makes it the most infuriating deck at the table.");
-  else if(pl<=4.5&&p>=40)L.push("Low power, high annoyance: you won't win, you'll just make the game longer, sadder and worse for everyone. Quite the legacy.");
-  else if(pl<5&&p<10)L.push("Fair and gentle. Nobody is losing sleep, you least of all.");
-  else L.push(pl<4?"Power level "+pl.toFixed(1)+" out of 10: the deck's biggest threat is the shuffling.":pl<6.5?"Power level "+pl.toFixed(1)+" out of 10: enough to win sometimes, and enough to blame luck when it doesn't.":"Power level "+pl.toFixed(1)+" out of 10: enough to be taken seriously and resented properly.");
-  L.push(a.avg>=3.8?"An average mana value of "+mv+": slow enough that they can read a book between your turns, and you'll still be the villain."
-    :a.avg<=2.8?"An average mana value of "+mv+": it starts early, so nobody gets the time to learn to like you."
-    :"An average mana value of "+mv+": not fast, not slow, just reliably in the way.");
-  L.push(anPick(AN_L3[ti],h("c")));
-  return {p,ti,title:AN_TIERS[ti][1],lines:L};}
+const AN_L3X={
+  fg:["Keep winning politely. It's the cruellest thing you can do.","Nobody can accuse you of anything, and that's exactly what bothers them.","At least be rude about it. You've earned it."],
+  mw:["Be annoying or be good. Doing the first without the second gets you nowhere.","You're the table's most irritating loss. Work on that.","Pick a lane: win properly or stop annoying people for nothing."],
+  sw:["Fix the list first, then the attitude. Right now it's all attitude.","All that spite and nothing to show for it. Even your enemies are disappointed.","Cut the cruelty, add a plan. Or keep the cruelty and accept the losses."]};
+function verdictOf(a,Pw,N){const p=Math.round(N.P*100),ti=AN_TIERS.findIndex(t=>p<t[0]),pl=Pw.pl;
+  const key=((CUR&&CUR.name)||"deck")+"|"+a.cmds.join("+")+"|"+a.total,h=k=>anHash(key+k);
+  const fill=s=>s.replace(/\{p\}/g,p).replace(/\{pl\}/g,pl.toFixed(1)).replace(/\{i\}/g,Math.round(Pw.inter)).replace(/\{win\}/g,Math.round(Pw.win)).replace(/\{cons\}/g,Math.round(Pw.cons)).replace(/\{eff\}/g,Math.round(Pw.eff));
+  const spice=p<25?"f":p<55?"m":"s",perf=pl<4.5?"w":pl<6.8?"o":"g";
+  const crShare=a.creatures/Math.max(1,a.nl),dom=N.classes[0];
+  const posture=(dom&&p>=40&&dom.share>=.4&&["mld","stax","tax"].includes(dom.k))?"lock"
+    :(a.combos.length>=3||a.two>=1)&&Pw.win>=45?"combo":Pw.inter>=55&&crShare<.5?"control":crShare>=.55&&a.avg<=3.3?"aggro":a.avg>=3.6?"big":"mid";
+  const coh=(pl<4&&Pw.cons<40&&Pw.win<35)?"messy":Pw.win<25?"nowin":Pw.cons<35?"cons":Pw.eff<50?"slow":(pl>=7&&Pw.cons>=60)?"good":"ok";
+  const L=[fill(anPick(AN_MOOD[spice+perf],h("a")))];
+  let s2=anPick(AN_POSTURE[posture],h("b"));
+  if(Pw.inter<20)s2+=" "+fill(anPick(AN_INTER.none,h("i")));else if(Pw.inter>=60&&posture!=="control")s2+=" "+fill(anPick(AN_INTER.high,h("i")));
+  L.push(s2);L.push(fill(anPick(AN_COH[coh],h("c"))));L.push(anPick(AN_L3X[spice+perf]||AN_L3[ti],h("d")));
+  return {p,ti,title:AN_TIERS[ti][1],lines:L,posture,coh};}
 /* ---------- brief: what to look at first ---------- */
 function insightsOf(a,Pw,cv){const w=[],g=[];const nl=a.lands.reduce((t,r)=>t+r.qty,0),r=Pw.ramp;
   if(cv.avg>=3.5)w.push("Top-heavy: the average mana value is "+cv.avg.toFixed(2)+". Expect clunky turns before turn 5.");
