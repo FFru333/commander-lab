@@ -458,7 +458,7 @@ async function openAnalytics(){renderAnalytics();const ok=await loadCards();rend
   if(LAB.combos&&!LAB.match){LAB.match=matchCombos();}else if(!LAB.combos)loadCombos().then(()=>{if(LAB.combos){LAB.match=matchCombos();renderAnalytics();}});
   loadSalt();if(typeof loadEDH==='function')loadEDH().then(renderAnalytics).catch(()=>{});}
 /* the installed app can keep an old copy alive in the background: on open and on return, compare with the published build and reload if it is newer */
-const APP_BUILD=29;
+const APP_BUILD=30;
 function checkUpdate(){if(location.protocol!=="https:")return;fetch(location.href.split("#")[0],{cache:"no-store"}).then(r=>r.ok?r.text():"").then(t=>{const m=t.match(/const APP_BUILD=(\d+);/);
   if(m&&+m[1]>APP_BUILD){let last=0;try{last=+sessionStorage.getItem("cd-rl")||0;}catch(e){}if(Date.now()-last>30000){try{sessionStorage.setItem("cd-rl",String(Date.now()));}catch(e){}hardRefresh();}}}).catch(()=>{});}
 setTimeout(checkUpdate,2500);document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible")checkUpdate();});
@@ -494,10 +494,12 @@ async function anImageCanvas(V,cmdName,owner){const W=1080,H=1920,cv=document.cr
   const art=cmdName?await anLoadArt(cmdName):null;
   /* the art keeps its own proportions (no stretching to fill the tall frame), sits at the top, and a dark gradient rising from the bottom fades out over it */
   c.fillStyle="#0e0d0c";c.fillRect(0,0,W,H);
-  if(art){const iw=art.width,ih=art.height;let dw=W,dh=Math.round(ih*W/iw);if(dh>H*.62){dh=Math.round(H*.62);dw=Math.round(iw*dh/ih);}
+  if(art){const iw=art.width,ih=art.height;let dh=Math.round(H*.51),dw=Math.round(iw*dh/ih);if(dw<W){dw=W;dh=Math.round(ih*W/iw);}
     c.drawImage(art,Math.round((W-dw)/2),0,dw,dh);
-    const T=dh*.28,pos=(H-dh)/(H-T),ov=c.createLinearGradient(0,H,0,T),q=f=>Math.min(.99,pos+(1-pos)*f);
-    ov.addColorStop(0,"rgba(14,13,12,1)");ov.addColorStop(Math.min(.98,pos),"rgba(14,13,12,1)");ov.addColorStop(q(.3),"rgba(14,13,12,.74)");ov.addColorStop(q(.62),"rgba(14,13,12,.3)");ov.addColorStop(1,"rgba(14,13,12,0)");
+    /* many small steps eased with smoothstep, so the fade has no visible band: dark at the bottom edge of the art, clear a third of the way down */
+    const yS=dh*.3,yE=dh,ov=c.createLinearGradient(0,H,0,yS),pos=y=>(H-y)/(H-yS),N=28;
+    ov.addColorStop(0,"rgba(14,13,12,1)");ov.addColorStop(Math.min(.999,pos(yE)),"rgba(14,13,12,1)");
+    for(let k=N-1;k>=0;k--){const t=k/N,a=t*t*(3-2*t);ov.addColorStop(Math.min(.999,pos(yS+(yE-yS)*t)),"rgba(14,13,12,"+a.toFixed(3)+")");}
     c.fillStyle=ov;c.fillRect(0,0,W,H);}
   else{const g=c.createLinearGradient(0,0,W,H);g.addColorStop(0,"#2d3b4f");g.addColorStop(.6,"#3a2522");g.addColorStop(1,accent);c.fillStyle=g;c.fillRect(0,0,W,H);const ov=c.createLinearGradient(0,H,0,0);ov.addColorStop(0,"rgba(14,13,12,.9)");ov.addColorStop(1,"rgba(14,13,12,0)");c.fillStyle=ov;c.fillRect(0,0,W,H);}
   /* a compact card in the lower part, so the commander stays visible above it */
