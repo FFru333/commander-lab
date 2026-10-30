@@ -240,11 +240,13 @@ function anDepend(a){const cmd=(a.R||[]).filter(r=>r.cmd);if(!cmd.length)return 
   return {dep,engine:!!engine,share,protect:a.protect};}
 function anOwnership(){try{const o=deckStats(DECKS.current);const marked=o.have+o.proxy+o.buy;if(marked<o.total*.6)return null;const miss=o.proxy+o.buy;if(!miss)return null;return {have:o.have,total:marked,proxy:o.proxy,buy:o.buy,cost:o.buyCost||0,share:o.have/Math.max(1,marked)};}catch(e){return null;}}
 /* the line under the big percentage: any phrase that finishes "NN% ..." */
-const AN_CAP_ANY=["chance that someone says \"wait, what does that do?\"","chance your friends bring snacks and a grudge","chance that someone checks their phone instead of watching you play","chance that the game goes long enough to ruin dinner"];
+const AN_CAP_ANY=["chance that someone orders pizza and doesn't offer you a slice","chance that someone says \"we need to talk\" on the walk to the car","chance that your friends start calling you \"that guy\"","chance that the pod holds a vote on whether to keep you"];
 const AN_CAP={
-  lo:["chance that anyone even notices you played","chance that your friends forget which deck that was","chance that someone offers you a seat on the safe side of the table","chance of a polite nod, and nothing else","chance that someone calls this deck \"cute\"","chance that you are invited back, and ignored"],
-  mid:["chance that somebody groans","chance of a sigh followed by \"fine, whatever\"","chance that someone mutters \"of course you did\"","chance that a friend takes a very long sip of water","chance that someone says \"interesting\" and means the opposite","chance of a dramatic pause before a very small \"ok\"","chance that somebody slams a card down a little too hard"],
-  hi:["chance that your friends delete your phone number","chance that this is the last game you play with this pod","chance of a group chat that suddenly doesn't include you","chance that somebody \"needs to take a call\" and never comes back","chance that someone says \"it's just a game\" in a voice that says otherwise","chance that your pod starts planning a game around beating only you","chance of an awkward silence that lasts through the next shuffle","chance that someone asks to see your decklist before the next game","chance that someone remembers this at your wedding"]};
+  lo:["chance that your friends forget you were even at the table","chance that someone yawns mid-turn and doesn't apologise","chance that someone asks if you're still playing","chance that the table starts talking about something else while you play","chance that someone calls this \"a deck\" and means it as an insult","chance of being picked last when the pods are made"],
+  mid:["chance that somebody mutters \"of course you did\" loud enough for you to hear","chance that someone stops making eye contact until the game ends","chance that someone gets up for a \"drink\" and takes ten minutes","chance that a friend slams their cards down hard enough to scratch the table","chance that the group chat has opinions about you tonight","chance that someone calls you a name, lovingly, but only half"],
+  hi:["chance that your friends will never talk to you again","chance that you get slapped in the face before the end of the game","chance that this is the last game you ever play with this pod","chance that your friends delete your phone number","chance that someone throws their cards at you and calls it \"a misunderstanding\"","chance that your friends start a group chat without you","chance that someone flips the table, then helps you pick the cards up","chance that someone's mum hears about this tonight","chance that you are uninvited from the next three game nights and one wedding","chance that somebody cries, and it's not the one who lost","chance that your friends form a union against you"],
+  weak:["chance that your friends chip in and gift you a real deck","chance that the table asks if you'd rather play a different game","chance that somebody lets you win out of pity and you don't notice","chance that someone offers to help you build it, and it isn't a favour","chance that your friends start calling it \"your little deck\"","chance that the table pauses to explain to you how your own deck works","chance that someone slides you a better decklist under the table","chance that they take pity on you and let you take a turn back"],
+  strong:["chance that you're accused of netdecking by someone who also netdecks","chance that your friends say \"good game\" with their teeth shut","chance that someone starts \"just asking questions\" about your decklist"]};
 const AN_CIN={"W":"mono-white","U":"mono-blue","B":"mono-black","R":"mono-red","G":"mono-green","WU":"Azorius","UB":"Dimir","BR":"Rakdos","RG":"Gruul","GW":"Selesnya","WB":"Orzhov","UR":"Izzet","BG":"Golgari","RW":"Boros","GU":"Simic",
   "WUB":"Esper","UBR":"Grixis","BRG":"Jund","RGW":"Naya","GWU":"Bant","WBR":"Mardu","URG":"Temur","BGW":"Abzan","RWU":"Jeskai","GUB":"Sultai"};
 function anCiName(ci){const set=COLORS.filter(c=>ci.includes(c)).sort().join("");
@@ -347,7 +349,7 @@ function verdictOf(a,Pw,N){const p=Math.round(N.P*100),ti=AN_TIERS.findIndex(t=>
   if(!issues.length)cand.push(fill(anPick(Pw.cons>=70&&Pw.eff>=70?AN_GOOD:AN_MEH,h("g"))));
   cand.slice(0,2).forEach(x=>L.push(x));
   L.push(anPick(AN_L3X[spice+perf]||AN_L3[ti],h("d")));
-  const capPool=(p<25?AN_CAP.lo:p<55?AN_CAP.mid:AN_CAP.hi).concat(AN_CAP_ANY),cap=anPick(capPool,h("cap"));
+  const capPool=(p<25?AN_CAP.lo:p<55?AN_CAP.mid:AN_CAP.hi).concat(pl<4.5?AN_CAP.weak.concat(AN_CAP.weak):[],pl>=6.8&&p<25?AN_CAP.strong:[],AN_CAP_ANY),cap=anPick(capPool,h("cap"));
   return {p,ti,cap,title:AN_TIERS[ti][1],lines:L,posture,issues,ci:ciName,arch,dep,own,ev:idr.ev};}
 /* ---------- brief: what to look at first ---------- */
 function insightsOf(a,Pw,cv){const w=[],g=[];const nl=a.lands.reduce((t,r)=>t+r.qty,0),r=Pw.ramp;
@@ -434,7 +436,7 @@ async function openAnalytics(){renderAnalytics();const ok=await loadCards();rend
   if(LAB.combos&&!LAB.match){LAB.match=matchCombos();}else if(!LAB.combos)loadCombos().then(()=>{if(LAB.combos){LAB.match=matchCombos();renderAnalytics();}});
   loadSalt();if(typeof loadEDH==='function')loadEDH().then(renderAnalytics).catch(()=>{});}
 /* the installed app can keep an old copy alive in the background: on open and on return, compare with the published build and reload if it is newer */
-const APP_BUILD=24;
+const APP_BUILD=25;
 function checkUpdate(){if(location.protocol!=="https:")return;fetch(location.href.split("#")[0],{cache:"no-store"}).then(r=>r.ok?r.text():"").then(t=>{const m=t.match(/const APP_BUILD=(\d+);/);
   if(m&&+m[1]>APP_BUILD){let last=0;try{last=+sessionStorage.getItem("cd-rl")||0;}catch(e){}if(Date.now()-last>30000){try{sessionStorage.setItem("cd-rl",String(Date.now()));}catch(e){}hardRefresh();}}}).catch(()=>{});}
 setTimeout(checkUpdate,2500);document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible")checkUpdate();});
