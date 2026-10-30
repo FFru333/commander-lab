@@ -244,11 +244,58 @@ const AN_CIN={"W":"mono-white","U":"mono-blue","B":"mono-black","R":"mono-red","
 function anCiName(ci){const set=COLORS.filter(c=>ci.includes(c)).sort().join("");
   for(const k in AN_CIN)if(k.split("").sort().join("")===set)return AN_CIN[k];
   if(set.length===0)return "colourless";if(set.length===4)return "four-colour (no "+CNAME[COLORS.find(c=>!ci.includes(c))].toLowerCase()+")";return "five-colour";}
-const AN_CHEAT=/(from (your|their) hand|from (your|their) library|top (\w+ )?cards? of (your|their) library)[^.]*onto the battlefield|onto the battlefield[^.]*from (your|their) hand|without paying (its|their|that|the) mana cost/i;
+const AN_CHEAT=/(from (your|their) hand|from (your|their) library|(the )?top (\w+ )?(cards? )?of (your|their) library)[\s\S]{0,140}?onto the battlefield|onto the battlefield[^.]*from (your|their) hand|without paying (its|their|that|the) mana cost/i;
 const anCheat=r=>AN_CHEAT.test(r.c.ot||"")&&/\b(creature|permanent)\b/i.test(r.c.ot||"");
+/* identity: what the deck IS (noun from its archetype) and what it DOES (up to three traits), so two decks never read alike */
+const AN_NOUN={"Aristocrats":"aristocrats deck","Tokens":"tokens deck","+1/+1 Counters":"counters deck","Spellslinger":"spellslinger deck","Artifacts":"artifacts deck","Enchantress":"enchantress deck",
+  "Equipment":"equipment deck","Auras":"auras deck","Voltron":"voltron deck","Reanimator":"reanimator deck","Graveyard":"graveyard deck","Mill":"mill deck","Lifegain":"lifegain deck","Landfall":"landfall deck",
+  "Blink":"blink deck","Treasure":"treasure deck","Storm":"storm deck","Extra Turns":"extra-turns deck","Wheels":"wheels deck","Theft":"theft deck","Group Hug":"group-hug deck","Group Slug":"group-slug deck",
+  "Lifedrain":"drain deck","Pillow Fort":"pillow-fort deck","Burn":"burn deck","Clones":"clone deck","Infect":"infect deck","Vehicles":"vehicles deck","Planeswalkers":"superfriends deck",
+  "Stax":"stax deck","Combo":"combo deck","Big Mana":"big-mana deck"};
+const AN_NOUN_W={"Graveyard":.7,"Artifacts":.8,"Spellslinger":.9,"Lifegain":.9,"Treasure":.8,"Lifedrain":.6};
+const AN_TRAIT={
+  edict:[10,["makes everyone else sacrifice their things","hands your board a one-way ticket to the graveyard"]],
+  hand:[9,["empties your hand before you can play it","takes your cards away before they have a chance to be good"]],
+  steal:[8,["takes whatever you were proud of","borrows your best things and keeps them"]],
+  stax:[9,["makes sure nobody gets to play","keeps the whole table from doing anything"]],
+  combo:[8,["wins out of nowhere","has a way to end the game that nobody sees coming"]],
+  cheat:[8,["puts big things into play for free","cheats its best creatures in without paying for them"]],
+  control:[7,["grinds you down with control","plays control and doesn't care that you're bored"]],
+  controlNoBlue:[7,["grinds you down with control and not a drop of blue","plays control without a single counterspell, just attrition"]],
+  counters:[7,["says no to your spells","counters the thing you were counting on"]],
+  poison:[7,["wins through poison, the 'technically that counts' way","finishes with poison while you check your life total for nothing"]],
+  fastmana:[6,["runs on fast mana","is in a hurry and spends mana like it's free"]],
+  wipe:[6,["resets the board whenever it's losing","has a button that deletes everyone's work"]],
+  aggro:[6,["attacks before you've sat down","is impatient and fast, and gets in early"]],
+  nofast:[5,["does it without a pile of fast mana","gets there on its own legs, no fast mana needed"]],
+  big:[4,["ends games with huge things","finishes with creatures that need their own zip code"]]};
+function anIdentity(a,Pw,N,ctx,h){const by=Object.fromEntries(N.classes.map(c=>[c.k,c.n])),n=k=>by[k]||0;
+  const T={};const put=k=>T[k]=AN_TRAIT[k][0];
+  if(n("edict")>=2||(n("edict")>=1&&ctx.arch.some(x=>x.name==="Aristocrats")))put("edict");
+  if(n("hand")>=2)put("hand");if(n("steal")>=2)put("steal");if(n("stax")+n("mld")+n("tax")>=4)put("stax");
+  if(ctx.combo)put("combo");if(ctx.cheat>=2||ctx.cheatCmd)put("cheat");
+  const ctrlTools=ctx.counterReal+n("reset")*2+n("edict")*1.5+n("hand")+n("steal")*.5;
+  if(ctrlTools>=6&&Pw.inter>=35&&ctx.crShare<.55)put(ctx.counterReal>=3?"control":(ctx.hasU?"control":"controlNoBlue"));
+  if(ctx.counterReal>=4&&ctx.hasU)put("counters");
+  if(a.poison.length>=3)put("poison");if(ctx.fastStrict>=6)put("fastmana");
+  if(n("reset")>=2)put("wipe");if(ctx.crShare>=.55&&a.avg<=3.3)put("aggro");
+  if(ctx.fastStrict<=2&&(T.cheat||T.edict))put("nofast");if(a.fin>=6)put("big");
+  if(T.control&&T.controlNoBlue)delete T.control;if(T.control||T.controlNoBlue)delete T.wipe;
+  const traits=Object.keys(T).sort((x,y)=>T[y]-T[x]).slice(0,4);
+  const arch=ctx.arch.slice().sort((x,y)=>y.score*(AN_NOUN_W[y.name]||1)-x.score*(AN_NOUN_W[x.name]||1));
+  const top=arch.find(x=>AN_NOUN[x.name]||(a.tribe&&x.name===a.tribe+"s"));
+  const noun=top?(AN_NOUN[top.name]||(top.name.replace(/s$/,"")+" tribal deck")):null;
+  if(!traits.length&&!noun)return null;
+  const phr=traits.map((k,i)=>anPick(AN_TRAIT[k][1],h("tr"+i)));
+  const list=phr.length>1?phr.slice(0,-1).join(", ")+" and "+phr[phr.length-1]:phr[0]||"";
+  const ci=ctx.ciName,Ci=ci?ci.charAt(0).toUpperCase()+ci.slice(1):"";
+  const nn=noun||(ctx.posture==="aggro"?"aggro deck":ctx.posture==="big"?"battlecruiser":"midrange deck");
+  const art=ci?(/^[aeiou]/i.test(ci)?"An":"A"):(/^[aeiou]/i.test(nn)?"An":"A");
+  const who=(ci?art+" "+ci+" "+nn:art+" "+nn);
+  return list?(anHash(ctx.key+"id")%2?who+" that "+list+".":Ci?Ci+" "+nn+": "+list+".":who+" that "+list+"."):who+".";}
 function verdictOf(a,Pw,N){const p=Math.round(N.P*100),ti=AN_TIERS.findIndex(t=>p<t[0]),pl=Pw.pl;
   const key=((CUR&&CUR.name)||"deck")+"|"+a.cmds.join("+")+"|"+a.total,h=k=>anHash(key+k);
-  const ci=deckCI(),ciName=anCiName(ci),cr=a.R||[],nonCmd=cr.filter(r=>!r.cmd&&!isType(r.c,"Land")),cmdRows=cr.filter(r=>r.cmd);
+  const arch=anArchetypes(a,Pw,N),ci=deckCI(),ciName=anCiName(ci),cr=a.R||[],nonCmd=cr.filter(r=>!r.cmd&&!isType(r.c,"Land")),cmdRows=cr.filter(r=>r.cmd);
   const crShare=a.creatures/Math.max(1,a.nl),dom=N.classes[0];
   const cheatCmd=cmdRows.some(anCheat),cheatOthers=nonCmd.filter(anCheat).length,cheat=cheatOthers+(cheatCmd?1:0);
   const fast=(a.rocks||[]).filter(r=>r.c.cmc<=2).length+(a.dorks||[]).filter(r=>r.c.cmc<=2).length+(a.rituals||[]).length+(a.landRamp||[]).filter(r=>r.c.cmc<=2).length;
@@ -257,7 +304,7 @@ function verdictOf(a,Pw,N){const p=Math.round(N.P*100),ti=AN_TIERS.findIndex(t=>
   const thinC=COLORS.filter(k=>ci.includes(k)&&a.dem[k]>=6&&a.src[k]<12).sort((x,y)=>a.dem[y]-a.dem[x])[0];
   const off=ci.length?nonCmd.filter(r=>(r.c.ci||[]).some(c=>!ci.includes(c))).length:0;
   const dupes=cr.filter(r=>r.qty>1&&!/\bBasic\b/.test(r.c.tl||"")).length;
-  const arch=anArchetypes(a,Pw,N),dep=anDepend(a),own=anOwnership();
+  const dep=anDepend(a),own=anOwnership();
   const vars={t:arch.slice(0,2).map(x=>x.name).join(" with a side of "),p,pl:pl.toFixed(1),inter:Math.round(Pw.inter),win:Math.round(Pw.win),cons:Math.round(Pw.cons),eff:Math.round(Pw.eff),fast,n:off,lands:nlands,mv:a.avg.toFixed(2),ramp,draw:a.draw,tapped:(a.tapped||[]).length,
     col:thinC?CNAME[thinC]:"",src:thinC?a.src[thinC]:0,pips:thinC?a.dem[thinC]:0,ci:ci.length?ciName:"",Ci:ci.length?ciName.charAt(0).toUpperCase()+ciName.slice(1):""};
   const fill=s=>{const t=s.replace(/\{(\w+)\}/g,(m,k)=>k in vars?vars[k]:m).replace(/\s{2,}/g," ").trim();return t.charAt(0).toUpperCase()+t.slice(1);};
@@ -271,7 +318,9 @@ function verdictOf(a,Pw,N){const p=Math.round(N.P*100),ti=AN_TIERS.findIndex(t=>
   if((a.tapped||[]).length>=8)add("tapped");if(Pw.cons<35&&!issues.includes("messy"))add("cons");if(Pw.eff<50)add("slow");if(a.rolesReady&&Pw.inter<20)add("noint");
   issues.sort((x,y)=>AN_SLOP[y][0]-AN_SLOP[x][0]);
   /* one paragraph: who it is, how rude/strong it is, what is wrong with the build (or how well it works), closing verdict */
-  const L=[fill(anPick(AN_POSTURE[posture],h("b"))),fill(anPick(AN_MOOD[spice+perf],h("a")))];
+  const fastStrict=(a.rocks||[]).filter(r=>r.c.cmc<=2).length+(a.dorks||[]).filter(r=>r.c.cmc<=2).length+(a.rituals||[]).length;
+  const idLine=anIdentity(a,Pw,N,{arch,cheat,cheatCmd,counterReal,hasU,crShare,fastStrict,ciName:ci.length?ciName:"",combo:((a.two>=1&&a.combos.length>=2)||a.combos.length>=4)&&Pw.win>=45,posture,key},h);
+  const L=[idLine?idLine:fill(anPick(AN_POSTURE[posture],h("b"))),fill(anPick(AN_MOOD[spice+perf],h("a")))];
   /* at most two extra sentences, most telling first: a severe build problem, an incomplete collection, how much hangs on the commander, a lesser problem */
   const prot=a.protect<=1?", and there's almost nothing to protect it":"";const cand=[];
   if(issues[0]&&AN_SLOP[issues[0]][0]>=6)cand.push(fill(anPick(AN_SLOP[issues[0]][1],h("s0"))));
@@ -359,7 +408,7 @@ function renderAnalytics(){const B=document.getElementById("anBody");if(!B||!CUR
   B.innerHTML=(AN.prog?'<p class="labprog" role="status">'+esc(AN.prog)+'</p>':'')+anVerdict(V)+
    '<div class="anvsw"><div class="seg2" role="group" aria-label="Analytics detail"><button type="button" data-anv="brief" aria-pressed="'+!deep+'">Brief</button><button type="button" data-anv="deep" aria-pressed="'+deep+'">In-depth</button></div><p>'+(deep?"Every number, with the reasoning.":"The main things, in a nutshell.")+'</p></div>'+
    (deep?anDeep(a,N):anBrief(a,Pw))+
-   '<p class="note">Sources: card text from Scryfall, roles from Scryfall tags, combos from Commander Spellbook, salt votes from EDHREC. Power level, pillars and the annoyance chance are our own formulas; levels like "Dense" compare to a typical Commander deck. Build 11.</p>';
+   '<p class="note">Sources: card text from Scryfall, roles from Scryfall tags, combos from Commander Spellbook, salt votes from EDHREC. Power level, pillars and the annoyance chance are our own formulas; levels like "Dense" compare to a typical Commander deck. Build 13.</p>';
   B.querySelectorAll("[data-anv]").forEach(b=>b.addEventListener("click",()=>{AN.view=b.dataset.anv;lsSet(NS+"-anview",AN.view);renderAnalytics();}));
   const e=B.querySelector("[data-anemi]");if(e)e.addEventListener("click",()=>{AN.emi=!AN.emi;lsSet(NS+"-anemi",AN.emi);renderAnalytics();});}
 async function openAnalytics(){renderAnalytics();const ok=await loadCards();renderAnalytics();if(!ok){const B=document.getElementById("anBody");if(B&&!Object.keys(AN.cards).length)B.innerHTML='<p class="w-empty">Scryfall could not be reached. Try again in a moment.</p>';}
