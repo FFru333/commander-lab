@@ -4220,66 +4220,48 @@ const anPick=(arr,seed)=>arr[seed%arr.length];
 const AN_TIERS=[[10,"Hall monitor"],[25,"Polite"],[45,"Spicy"],[65,"Salty"],[85,"Table wrecker"],[101,"Friendship ender"]];
 /* spice (how rude) x performance (how well it works): nine moods, three lines each */
 const AN_MOOD={
-  fw:["{p}% to upset anybody and a power level of {pl}: it's fair because it can't afford to be anything else.",
-      "Harmless in every direction. {p}% per game, and it still loses. That's not politeness, it's incompetence with good manners.",
-      "{p}%. You're not playing nice, you're just not playing well. Different problem, same table."],
-  fo:["{p}% annoyance, a respectable power level of {pl}. It wins sometimes and apologises always.",
-      "A fair deck that can still win. {p}% per game: your friends love you, and they know it's because you're no threat.",
-      "{p}%. Nice, solid, forgettable. The deck equivalent of 'I'm fine with whatever'."],
-  fg:["{p}% annoyance at power level {pl}: it wins and nobody even gets to complain. Insufferable in a completely legal way.",
-      "Strong and clean, {p}% per game. You won't be hated, you'll be quietly resented, which is worse.",
-      "{p}%. A deck that beats everyone and leaves no excuse. Your friends will have to go home and think about themselves."],
-  mw:["{p}% per game of making somebody sigh, at power level {pl}. All the malice, none of the competence: you annoy people and still lose.",
-      "You bother the table {p}% of games and the table still wins. Congratulations on being hated and irrelevant.",
-      "{p}%: spicy intentions, soggy execution. People get annoyed at you and then beat you anyway."],
-  mo:["{p}% per game. Enough edge to be noticed, enough power ({pl}) to matter. Exactly the friend who gets 'just one more game'.",
-      "A proper mix: {p}% annoyance, power {pl}. Your friends call it 'fine' through gritted teeth and tell the group chat the truth afterwards.",
-      "{p}%. You'll make somebody slam their cards down, you'll win your share, and you'll lie about both."],
-  mg:["{p}% annoyance with power level {pl}: it's strong and it's rude, and somebody will notice both before turn 6.",
-      "{p}% per game, power {pl}. You built a deck that wins and makes sure the losers know it.",
-      "Strong, spicy, {p}% per game. At some point your friends will ask if you're okay. You'll say 'it's just a game'."],
-  sw:["{p}%. You built a machine for ruining evenings and forgot to make it win. All the cruelty, none of the payoff. Power {pl}: pure spite.",
-      "{p}% per game and a power level of {pl}: you won't win, you'll just make the game longer, sadder and worse for everyone.",
-      "{p}%. The deck is a grudge with no plan. Your friends hate it, and your friends are winning."],
-  so:["{p}% per game that somebody leaves angry, at power level {pl}. Funny how the analysis makes it so obvious why you hate your friends.",
-      "{p}%. Statistically, somebody leaves this game angry, and that's not the deck's fault, it's yours.",
-      "{p}% per game, power {pl}. It's competent and it's cruel, and you know exactly which of those you enjoy more."],
-  sg:["{p}% per game with a power level of {pl}: fast, strong and rude, the full set. Pick a pod that has already stopped speaking to you.",
-      "{p}%. A weapon. Anyone sitting across from you is braver than you deserve.",
-      "{p}% per game, power {pl}. You don't hate your friends, you hate losing to them, and this deck is the cure."]};
+  fw:["Nobody gets upset and nothing gets won. It's fair because it can't afford to be anything else.","Harmless in every direction, and it still loses. That's not politeness, it's incompetence with good manners.","You're not playing nice, you're just not playing well. Different problem, same table."],
+  fo:["It annoys nobody and still wins sometimes. It wins quietly and apologises always.","A fair deck that can still win. Your friends love you, and they know it's because you're no threat.","Nice, solid, forgettable. The deck equivalent of 'I'm fine with whatever'."],
+  fg:["It wins and nobody even gets to complain. Insufferable in a completely legal way.","Strong and clean. You won't be hated, you'll be quietly resented, which is worse.","A deck that beats everyone and leaves no excuse. Your friends will have to go home and think about themselves."],
+  mw:["Plenty of malice, no competence: you annoy people and still lose.","You bother the table and the table still wins. Congratulations on being hated and irrelevant.","Spicy intentions, soggy execution. People get annoyed at you and then beat you anyway."],
+  mo:["Enough edge to be noticed, enough power to matter. Exactly the friend who gets 'just one more game'.","A proper mix of rude and effective. Your friends call it 'fine' through gritted teeth and tell the group chat the truth afterwards.","You'll make somebody slam their cards down, you'll win your share, and you'll lie about both."],
+  mg:["Strong and rude, and somebody will notice both before the game is half over.","You built a deck that wins and makes sure the losers know it.","Strong, spicy and a little too pleased with itself. At some point your friends will ask if you're okay. You'll say 'it's just a game'."],
+  sw:["You built a machine for ruining evenings and forgot to make it win. All the cruelty, none of the payoff.","You won't win, you'll just make the game longer, sadder and worse for everyone.","The deck is a grudge with no plan. Your friends hate it, and your friends are winning."],
+  so:["Somebody leaves angry, and that's not the deck's fault, it's yours. Funny how the analysis makes it so obvious why you hate your friends.","Competent and cruel, and you know exactly which of those you enjoy more.","It's strong, it's brutal, and it leaves a trail of ruined game nights."],
+  sg:["Fast, strong and rude: the full set. Pick a pod that has already stopped speaking to you.","A weapon. Anyone sitting across from you is braver than you deserve.","You don't hate your friends, you hate losing to them, and this deck is the cure."]};
 /* how it plays: {ci} is the colour identity name, e.g. "Gruul" or "mono-red" */
 const AN_POSTURE={
   lock:["{Ci} stax: nobody gets to play, and you get to feel clever about it.","A {ci} deck that doesn't want to win so much as to cancel everybody's evening."],
   combo:["A {ci} deck built to win out of nowhere, so your friends learn the plot at the same time as the ending.","A {ci} countdown to a sentence that starts with 'wait, actually'."],
   control:["{Ci} control: answers everything, wins eventually and makes the waiting miserable for everyone.","A {ci} deck that says no like it's a job, and charges for it."],
   aggro:["A {ci} deck that is impatient: the table doesn't get to sit down before it's already hurting.","A {ci} deck that treats the opening turns like a mugging."],
-  bomb:["A {ci} time bomb: {fast} pieces of fast mana, free creatures, and a game that's over before anybody finishes their drink.","A {ci} deck that cheats the big thing in early and lets the table work out how far behind it is."],
+  bomb:["A {ci} time bomb: a pile of fast mana, free creatures, and a game that's over before anybody finishes their drink.","A {ci} deck that cheats the big thing in early and lets the table work out how far behind it is."],
   inter:["{Ci} midrange with a toolbox: it kills whatever you play and beats you with whatever is left.","A {ci} bully with answers: it removes your best thing, then reminds you what it was."],
   big:["A {ci} deck of big, slow, expensive things: patient, until the moment it isn't, and then everyone pays for the wait.","A {ci} battlecruiser: build up, wait, and sit on top of the table like a landlord."],
   mid:["A {ci} midrange pile: a bit of everything, a commitment to nothing.","A {ci} deck that is not control, not aggro, not combo, and answers 'what do you play?' with a shrug."]};
 /* things that make the list look badly built, each with a severity (higher is picked first) */
 const AN_SLOP={
-  off:[9,["Cards outside the commander's colours: {n}. Did you build this in the dark, or do you just not read?","{n} off-colour cards in the list. Assembled blindfolded, or just optimistic?"]],
+  off:[9,["Some cards sit outside the commander's colours. Did you build this in the dark, or do you just not read?","Off-colour cards in the list. Assembled blindfolded, or just optimistic?"]],
   dupes:[8,["Some non-basic cards appear more than once. This is singleton Commander, not a hobby.","You've got repeats in a format that bans them. Counting is not your strong suit."]],
   messy:[8,["Synergy is thin and the list reads like a bag of favourite cards. That's not a deck, that's a mood board.","The pieces don't talk to each other. Less a deck, more a group of strangers sharing an elevator."]],
-  nowin:[7,["Win conditions {win}/100: it's not clear this deck knows what winning looks like.","With win conditions at {win}/100, this is a hobby, not a deck."]],
-  thin:[6,["{col} is thin: {src} sources for {pips} pips. Pray to the shuffler, because nothing else will help.","You want {col} and you brought {src} sources for {pips} pips. Ambition is free; mana isn't."]],
-  curve:[6,["Average mana value {mv} with only {ramp} ramp pieces: you built a feast for a table with no cutlery.","Average mana value {mv} and just {ramp} ramp pieces. Bold of you to assume you'll live that long."]],
-  lands:[5,["{lands} lands for a deck this hungry. Either trust the maths or stop pretending.","{lands} lands in a deck that wants more. The mana base was an afterthought, and it shows."]],
-  nodraw:[5,["{draw} sources of card draw. When the hand runs dry you'll be playing top-deck roulette.","Card draw: {draw}. Your hand will empty and so will your plan."]],
-  tapped:[4,["{tapped} lands enter tapped. Slow on purpose, or by accident?","{tapped} tapped lands. The deck begins every game by apologising for its own speed."]],
-  cons:[4,["Consistency {cons}/100: the deck draws what it draws and prays. More engines, fewer ideas.","Consistency {cons}/100. Every game is a different deck, and most of them are bad."]],
-  slow:[3,["Efficiency {eff}/100: clunky. Half the hand is a paperweight until it's too late.","Efficiency {eff}/100: it works eventually, as long as nobody is in a hurry, and somebody always is."]],
-  noint:[3,["There's almost nothing in it to stop what anyone else does. Your defence plan is hope.","Interaction {inter}/100: when somebody does something, you watch, like a nature documentary."]]};
-const AN_THEME=["EDHREC would file it under {t}.","Strip away the jokes and it reads as {t}.","The crowd on EDHREC would call it {t} and move on."];
+  nowin:[7,["It's not clear this deck knows what winning looks like.","There's no real way to finish a game here. This is a hobby, not a deck."]],
+  thin:[6,["{col} is the problem: you want it badly and brought almost nothing to make it. Pray to the shuffler.","You want {col} and you brought barely any way to cast it. Ambition is free; mana isn't."]],
+  curve:[6,["Top-heavy and short on ramp: you built a feast for a table with no cutlery.","Everything costs a fortune and there's no ramp. Bold of you to assume you'll live that long."]],
+  lands:[5,["Not enough lands for a deck this hungry. Either trust the maths or stop pretending.","The mana base was an afterthought, and it shows."]],
+  nodraw:[5,["Barely any card draw. When the hand runs dry you'll be playing top-deck roulette.","No way to refill the hand. Your hand will empty and so will your plan."]],
+  tapped:[4,["A lot of lands enter tapped. Slow on purpose, or by accident?","So many tapped lands. The deck begins every game by apologising for its own speed."]],
+  cons:[4,["The deck draws what it draws and prays. More engines, fewer ideas.","Every game is a different deck, and most of them are bad."]],
+  slow:[3,["Clunky. Half the hand is a paperweight until it's too late.","It works eventually, as long as nobody is in a hurry, and somebody always is."]],
+  noint:[3,["There's almost nothing in it to stop what anyone else does. Your defence plan is hope.","When somebody does something, you watch, like a nature documentary."]]};
 const AN_DEP_HI=["Everything leans on the commander: neutralise it and the plan goes with it{prot}.","This deck is a hostage situation, and the commander is the hostage{prot}.","Take the commander away and the rest is a list of cards looking at each other{prot}."];
 const AN_DEP_LO=["The commander is decoration: take it away and the deck hardly notices.","Remove the commander and nothing changes. It could have been any legend with the right colours."];
 const AN_OWN=[
-  [.9,["Almost all of it is really yours: {have} of {total}. The other {miss} are wishful thinking{cost}.","{have} of {total} owned. The last {miss} are the difference between a deck and a plan{cost}."]],
-  [.5,["Only {have} of {total} cards are actually yours: {proxy} are printer ink and {buy} are a shopping list{cost}.","{have}/{total} owned, {proxy} to proxy, {buy} to buy{cost}. A deck in cosplay."]],
-  [0,["You own {have} of {total} cards. This isn't a deck, it's a wishlist with a commander{cost}.","{have} real cards out of {total}. The rest exists mostly in your head{cost}."]]];
-const AN_GOOD=["Consistency {cons}/100, efficiency {eff}/100: it works, it works often, and that's the real insult.","The numbers say it's coherent: {cons} consistency, {eff} efficiency. Any loss is yours to own."];
-const AN_MEH=["{cons} consistency and {eff} efficiency: not broken, not sharp. Respectable, in the way beige is.","{cons} consistency, {eff} efficiency. It works until you're tempted to be clever."];
+  [.9,["Almost all of it is really yours. The rest is wishful thinking.","Nearly there: the last few cards are the difference between a deck and a plan."]],
+  [.7,["Most of it is yours, the rest is printer ink and a shopping list.","Part of this deck is real. The rest is cosplay."]],
+  [.4,["A lot of it is printer ink and a shopping list. A deck in costume.","You're building this one on credit and good intentions."]],
+  [0,["Most of it isn't yours. This isn't a deck, it's a wishlist with a commander.","Most of these cards exist mostly in your head."]]];
+const AN_GOOD=["It works, it works often, and that's the real insult.","Everything fits and the list is clean. Any loss is yours to own."];
+const AN_MEH=["Not broken, not sharp. Respectable, in the way beige is.","It works until you're tempted to be clever."];
 const AN_L3=[
   ["Pick a side: play to win, or keep pleasing your friends. Right now you're doing neither.","Bring a stronger plan or a better excuse.","Next time, try wanting something."],
   ["Add some teeth, or admit you're here for the snacks.","Nobody is afraid of you. Fix that.","Be a little meaner. They'll thank you, eventually."],
@@ -4377,8 +4359,8 @@ function verdictOf(a,Pw,N){const p=Math.round(N.P*100),ti=AN_TIERS.findIndex(t=>
   /* at most two extra sentences, most telling first: a severe build problem, an incomplete collection, how much hangs on the commander, a lesser problem */
   const prot=a.protect<=1?", and there's almost nothing to protect it":"";const cand=[];
   if(issues[0]&&AN_SLOP[issues[0]][0]>=6)cand.push(fill(anPick(AN_SLOP[issues[0]][1],h("s0"))));
-  if(own){const tier=AN_OWN.find(x=>own.share>=x[0]),miss=own.proxy+own.buy;
-    cand.push(fill(anPick(tier[1],h("o")).replace("{miss}",miss).replace("{have}",own.have).replace("{total}",own.total).replace("{proxy}",own.proxy).replace("{buy}",own.buy).replace("{cost}",own.cost>0?" and "+fmtE0(own.cost)+" still to spend":"")));}
+  if(own){const tier=AN_OWN.find(x=>own.share>=x[0]);
+    cand.push(anPick(tier[1],h("o")));}
   if(dep&&dep.dep!=null&&dep.dep>=65)cand.push(fill(anPick(AN_DEP_HI,h("dh")).replace("{prot}",prot)));
   else if(dep&&dep.dep!=null&&dep.dep<=30)cand.push(anPick(AN_DEP_LO,h("dl")));
   else if(dep&&dep.dep==null&&cheatCmd&&cheatOthers<=3)cand.push("Everything hangs on the commander: neutralise it and what's left is a pile of expensive creatures"+(a.protect<=1?" with almost nothing to protect them.":"."));
@@ -4461,7 +4443,7 @@ function renderAnalytics(){const B=document.getElementById("anBody");if(!B||!CUR
   B.innerHTML=(AN.prog?'<p class="labprog" role="status">'+esc(AN.prog)+'</p>':'')+anVerdict(V)+
    '<div class="anvsw"><div class="seg2" role="group" aria-label="Analytics detail"><button type="button" data-anv="brief" aria-pressed="'+!deep+'">Brief</button><button type="button" data-anv="deep" aria-pressed="'+deep+'">In-depth</button></div><p>'+(deep?"Every number, with the reasoning.":"The main things, in a nutshell.")+'</p></div>'+
    (deep?anDeep(a,N):anBrief(a,Pw))+
-   '<p class="note">Sources: card text from Scryfall, roles from Scryfall tags, combos from Commander Spellbook, salt votes from EDHREC. Power level, pillars and the annoyance chance are our own formulas; levels like "Dense" compare to a typical Commander deck. Build 10.</p>';
+   '<p class="note">Sources: card text from Scryfall, roles from Scryfall tags, combos from Commander Spellbook, salt votes from EDHREC. Power level, pillars and the annoyance chance are our own formulas; levels like "Dense" compare to a typical Commander deck. Build 11.</p>';
   B.querySelectorAll("[data-anv]").forEach(b=>b.addEventListener("click",()=>{AN.view=b.dataset.anv;lsSet(NS+"-anview",AN.view);renderAnalytics();}));
   const e=B.querySelector("[data-anemi]");if(e)e.addEventListener("click",()=>{AN.emi=!AN.emi;lsSet(NS+"-anemi",AN.emi);renderAnalytics();});}
 async function openAnalytics(){renderAnalytics();const ok=await loadCards();renderAnalytics();if(!ok){const B=document.getElementById("anBody");if(B&&!Object.keys(AN.cards).length)B.innerHTML='<p class="w-empty">Scryfall could not be reached. Try again in a moment.</p>';}
