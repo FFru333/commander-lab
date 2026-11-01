@@ -10,8 +10,8 @@ def rep(a,b,count=1):
 
 rep('<html lang="it">','<html lang="en">')
 rep("<title>Commander checklist</title>","<title>Commander Desk</title>")
-rep("</style>",rd("extra.css")+rd("design.css")+rd("design2.css")+rd("design3.css")+"\n</style>")
-rep('<link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet">','<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300..800&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">')
+rep("</style>",rd("extra.css")+rd("design.css")+rd("design2.css")+rd("design3.css")+rd("design4.css")+"\n</style>")
+rep('<link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet">','<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@300..700&display=swap" rel="stylesheet">')
 # body markup
 i=h.index("<body>");j=h.index("<script>")
 h=h[:i]+rd("body.html")+h[j:]

@@ -500,7 +500,7 @@ function toolCard(T,mini){const el=document.createElement("article");el.classNam
   return el;}
 function greet(){const h=new Date().getHours();return h<5?"Good night":h<12?"Good morning":h<18?"Good afternoon":"Good evening";}
 function renderHome(){const ids=Object.keys(DECKS.list);const R=collRecords();const stats=ids.map(deckStats).sort((a,b)=>(b.id===DECKS.current)-(a.id===DECKS.current)||a.name.localeCompare(b.name));
-  document.getElementById("homeTitle").textContent=greet();
+  document.getElementById("homeTitle").textContent=greet();try{document.querySelector("#vHome .vtitle").dataset.eyebrow=new Date().toLocaleDateString("en-GB",{weekday:"long",day:"numeric",month:"long"});}catch(e){}
   const own=R.filter(r=>r.status==="have"),val=own.reduce((a,r)=>a+(r.price!=null?r.price*r.qty:0),0),buy=R.filter(r=>r.status==="buy").reduce((a,r)=>a+(r.price!=null?r.price*r.qty:0),0);
   const avg=stats.length?Math.round(stats.reduce((a,s)=>a+s.pct,0)/stats.length):0;
   document.getElementById("homeSub").innerHTML=ids.length?(ids.length+(ids.length===1?" deck":" decks")+" · "+own.length+(own.length===1?" card":" cards")+" in your collection · <span class=\"money\">"+fmtE0(val)+"</span> in value."):"Import your first deck to start. Your collection builds itself from the cards you mark as Owned.";

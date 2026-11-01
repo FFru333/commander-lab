@@ -14,7 +14,7 @@
 <title>Commander Desk</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300..800&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@300..700&display=swap" rel="stylesheet">
 <style>
 :root{
   --bg:#e7eaee; --paper:#f7f8fa; --ink:#1c2230; --muted:#5b6475; --line:#cfd5dd;
@@ -1388,6 +1388,204 @@ details.anhow p{margin:8px 0 0;line-height:1.5}
 .wgrid:not(.editing) .w{-webkit-touch-callout:none;-webkit-user-select:none;user-select:none}
 .wgrid:not(.editing) .w textarea{-webkit-user-select:text;user-select:text}
 .w.lp{transition:transform .45s ease;transform:scale(.975)}
+
+/* ===== phase 4: editorial ===== */
+/* one grotesk, sentence-case labels, flat colour blocks, tight mosaic, big light numerals, ↗ on anything that opens */
+:root{
+  --bg:#ebebe8; --paper:#f4f4f1; --card:#ffffff; --head:#f0f0ed; --ink:#111111; --muted:#85857f; --line:#e3e3df; --line2:#d2d2cc;
+  --accent:#ea6a45; --accent-ink:#111111; --accent-soft:#fbe3da; --a2:#f2cf6a; --a3:#c2caf0;
+  --have:#111111; --proxy:#f2cf6a; --buy:#ea6a45; --alt:#ea6a45; --focus:#111111; --warn:#c8452f;
+  --top:#111111; --top-ink:#f4f4f1; --nav:#111111; --nav-ink:#f4f4f1;
+  --have-ink:#ffffff; --proxy-ink:#111111; --buy-ink:#111111; --alt-ink:#111111;
+  --tile-1:#ea6a45; --tile-1-ink:#111111; --tile-2:#111111; --tile-2-ink:#f4f4f1; --tile-3:#f2cf6a; --tile-3-ink:#111111; --tile-4:#c2caf0; --tile-4-ink:#111111;
+  --fd:"Inter Tight",system-ui,-apple-system,"Helvetica Neue",sans-serif;
+  --fb:"Inter Tight",system-ui,-apple-system,"Helvetica Neue",sans-serif;
+  --fm:"Inter Tight",system-ui,-apple-system,"Helvetica Neue",sans-serif;
+  --r:30px; --r-sm:20px; --r-xs:14px; --gap:6px;
+  --shadow:none;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#0c0c0c; --paper:#151515; --card:#1b1b1b; --head:#232323; --ink:#f2f2ef; --muted:#8e8e88; --line:#262626; --line2:#363636;
+    --accent:#f07652; --accent-ink:#111111; --accent-soft:#3a2219; --a2:#f2cf6a; --a3:#aab4e6;
+    --have:#f2f2ef; --proxy:#f2cf6a; --buy:#f07652; --alt:#f07652; --focus:#f2f2ef; --warn:#f08a6a;
+    --top:#000000; --top-ink:#f2f2ef; --nav:#000000; --nav-ink:#f2f2ef;
+    --have-ink:#111111; --proxy-ink:#111111; --buy-ink:#111111; --alt-ink:#111111;
+    --tile-1:#f07652; --tile-1-ink:#111111; --tile-2:#f2f2ef; --tile-2-ink:#111111; --tile-3:#f2cf6a; --tile-3-ink:#111111; --tile-4:#aab4e6; --tile-4-ink:#111111;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0c0c0c; --paper:#151515; --card:#1b1b1b; --head:#232323; --ink:#f2f2ef; --muted:#8e8e88; --line:#262626; --line2:#363636;
+  --accent:#f07652; --accent-ink:#111111; --accent-soft:#3a2219; --a2:#f2cf6a; --a3:#aab4e6;
+  --have:#f2f2ef; --proxy:#f2cf6a; --buy:#f07652; --alt:#f07652; --focus:#f2f2ef; --warn:#f08a6a;
+  --top:#000000; --top-ink:#f2f2ef; --nav:#000000; --nav-ink:#f2f2ef;
+  --have-ink:#111111; --proxy-ink:#111111; --buy-ink:#111111; --alt-ink:#111111;
+  --tile-1:#f07652; --tile-1-ink:#111111; --tile-2:#f2f2ef; --tile-2-ink:#111111; --tile-3:#f2cf6a; --tile-3-ink:#111111; --tile-4:#aab4e6; --tile-4-ink:#111111;
+}
+body{font-family:var(--fb);letter-spacing:-.011em;font-feature-settings:"ss01","cv11";-webkit-font-smoothing:antialiased}
+h1,h2,h3,.ttl{font-family:var(--fd)}
+b,strong{font-weight:600}
+
+/* --- labels: no more mono, no more caps; small sentence-case captions in grey --- */
+.filters label,.wcfg label,.wcfgform label,.pxctl label,.imgrid label,.artctl label,.vslider,.thsec,.cfgsep,.wt,.thead,.ctbl th,.tcount,.grp small,.pleg,.stat .ss,
+.btile .bl,.btile .bs,.tcard .tsel,.labart .bkt small,.labcap small,.gauge small,.labroles .lbl,.maybe .lbl,.imlink,.scanlist .lbl,.lslbl,.lsfield,.ankick,.anpl small,
+.anp,.antile h4,.ankv em,.ancol em,.anstat small,.anbuild,.labpower .lpl small,.lpr,.dmeta,.vc .labs,.vc .col span,.hb .v,.tl .n,.bulkbar .blab,.role small,.tag{
+  font-family:var(--fb)!important;text-transform:none!important;letter-spacing:-.005em!important;font-variant-numeric:tabular-nums}
+.filters label,.wcfg label,.wcfgform label,.pxctl label,.imgrid label,.vslider,.thsec,.wt,.thead,.ctbl th,.tcount,.lslbl,.lsfield,.ankick,.anstat small,.labroles .lbl,.maybe .lbl,.scanlist .lbl,.imlink{
+  font-size:13px!important;font-weight:400!important;color:var(--muted)}
+.cfgsep,.antile h4{font-size:13px!important;font-weight:500!important}
+.vtitle::before{content:attr(data-eyebrow);text-transform:none;letter-spacing:-.005em;font-size:14px;font-weight:400;color:var(--muted);opacity:1}
+
+/* --- page heads: no gradient card, type on the page --- */
+.vhead{background:none!important;padding:12px 4px 4px!important;min-height:0!important;border-radius:0;overflow:visible}
+.vhead::after{display:none}
+.hhead{padding-top:18px!important;padding-bottom:6px!important}
+.ttl{font-size:clamp(44px,7vw,76px)!important;font-weight:500!important;letter-spacing:-.05em!important;line-height:.94!important}
+.vtitle{display:flex;flex-direction:column;gap:12px}
+.vtitle .sub{font-size:15px;line-height:1.4;color:var(--muted);max-width:52ch}
+#homeSub{font-size:clamp(20px,3vw,28px);line-height:1.18;letter-spacing:-.03em;color:var(--ink);max-width:22ch}
+#homeSub b{font-weight:500}
+.vtools{gap:6px}
+.vtools button,.vtools .mwrap>button{background:var(--card)!important;border:0!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;height:40px;padding:0 18px;font-weight:500}
+.vtools .btn-acc{background:var(--ink)!important;color:var(--card)!important}
+.vtools .morebtn{width:40px;padding:0!important}
+.hsec{margin:34px 4px 10px!important}
+.hsec h2{font-size:32px!important;font-weight:500!important;letter-spacing:-.04em!important}
+.ghostbtn{font-weight:500}
+
+/* --- top bar: plain wordmark, round grey buttons --- */
+.brand{font-weight:600;letter-spacing:-.03em;font-size:17px}
+.brand .mark{width:12px;height:12px;border-radius:50%;background:var(--accent)!important}
+.navr button:not(.btn-acc),.navr .morebtn{background:color-mix(in srgb,var(--ink) 8%,transparent)!important;border:0!important}
+.navr .btn-acc{font-weight:500}
+
+/* --- buttons: flat pills, no hairlines --- */
+button{font-weight:500}
+.btn-acc{background:var(--ink)!important;color:var(--card)!important;border-color:var(--ink)!important}
+
+/* --- surfaces: flat, big radius, tight mosaic --- */
+.card,.w,.btile,.dcard,.tcard{box-shadow:none!important;border:0!important}
+.card{border-radius:var(--r)}
+.wgrid{gap:var(--gap)!important}
+.bento,.deckcards,.toolcards{gap:var(--gap)!important}
+.w{border-radius:var(--r)!important}
+.w.on{box-shadow:0 0 0 2px var(--ink)!important}
+.dcard.cur{box-shadow:none!important}
+
+/* --- number tiles: caption top-left, ↗ top-right, huge light numeral bottom --- */
+.btile{min-height:172px;padding:18px 20px 20px;border-radius:var(--r)}
+.btile:hover{transform:none}
+.btile .bl{font-size:14px;font-weight:400;opacity:.62;max-width:9em;line-height:1.15}
+.btile .bv{font-size:clamp(54px,8vw,78px)!important;font-weight:300!important;letter-spacing:-.065em!important;line-height:.9!important;margin-top:auto}
+.btile .bv .u{font-size:.4em;font-weight:400;vertical-align:1.1em;letter-spacing:-.02em;opacity:.8}
+.btile .bs{font-size:13px;opacity:.62;margin-top:8px}
+button.btile::after{content:"↗";position:absolute;top:14px;right:14px;width:34px;height:34px;border-radius:50%;display:grid;place-items:center;font-size:16px;line-height:1;
+  background:color-mix(in srgb,currentColor 9%,transparent)}
+.btile[data-tone="2"]{--tbg:var(--tile-2);--tink:var(--tile-2-ink)}
+
+.w[data-type="stat"] .stat .sv{font-size:clamp(50px,6vw,72px)!important;font-weight:300!important;letter-spacing:-.065em!important;line-height:.9!important}
+.w[data-type="stat"] .stat .ss{font-size:13px!important;letter-spacing:0!important;opacity:.62}
+
+/* --- widgets: caption header, no caps --- */
+.wh{padding:16px 18px 4px!important;border:0!important;background:transparent!important}
+.wt{font-size:14px!important;color:var(--muted)!important}
+.w[data-tone] .wt,.w[data-type="stat"] .wt{color:inherit!important;opacity:.62}
+.wb{padding:6px 18px 18px}
+.editing .w{outline:1.5px solid color-mix(in srgb,var(--ink) 20%,transparent)!important;outline-offset:-1.5px}
+.wctl button{border:0!important;background:var(--head)!important;border-radius:50%!important;width:32px!important;height:32px!important}
+.grip{opacity:.4}
+
+/* lists inside widgets */
+.tl li{border-top:1px solid var(--line)}
+.tl .e{font-weight:500;letter-spacing:-.02em}
+.tl .n{color:var(--muted);font-weight:400}
+
+/* bars: solid ink, no gradients */
+.hb .t{height:8px!important;background:var(--head)!important}
+.hb .t span{background:var(--ink)!important}
+.hb li:first-child .t span{background:var(--accent)!important}
+.vc .col i{background:color-mix(in srgb,var(--ink) 14%,var(--card))!important;border-radius:14px!important}
+.vc .col.max i{background:var(--ink)!important}
+.vc .foot b{font-weight:400!important;letter-spacing:-.04em}
+.pbar{height:10px!important;gap:4px!important}
+.pbar span{border-radius:2px!important}
+.anbar.hot i,.anbar.salt i{background:var(--ink)!important}
+.anscale{background:linear-gradient(90deg,var(--head),var(--ink))!important}
+
+/* --- deck cards: art as image block, big name --- */
+.dcard{border-radius:var(--r)!important}
+.dcard:hover{transform:none}
+.dart{height:150px;background-color:var(--accent)!important;margin:6px 6px 0;border-radius:calc(var(--r) - 6px)}
+.dbody{padding:16px 18px 20px;gap:14px}
+.dname b{font-size:26px!important;font-weight:500!important;letter-spacing:-.04em!important;line-height:1.02!important}
+.dname small{font-size:14px;margin-top:6px}
+.dmeta{font-size:13px!important;gap:4px 16px}
+.dmeta b{font-weight:600}
+.dring .ring .rh{stroke:var(--ink)}
+.dring .ring .rp{stroke:var(--a2)}
+.dcard.add{outline:0!important;background:color-mix(in srgb,var(--ink) 5%,transparent)!important;min-height:150px}
+.dcard.add b{font-size:26px;font-weight:500;letter-spacing:-.04em}
+.dcard.add .plus{width:44px;height:44px}
+
+/* --- print house chips --- */
+.hchip{border:0!important;background:var(--card)!important;height:48px;padding:0 20px;font-weight:500;letter-spacing:-.015em}
+.hchip span{display:none}
+.hchip::after{content:"↗";margin-left:4px;opacity:.5}
+.tcard{border-radius:var(--r)}
+.tcard h3{font-size:30px!important;font-weight:500!important;letter-spacing:-.045em!important;line-height:1}
+.tcard .tico{display:none}
+
+/* --- deck section tabs as pills --- */
+.dtabs{border:0!important;gap:6px!important;padding:4px 0!important;overflow-x:auto;scrollbar-width:none}
+.dtabs::-webkit-scrollbar{display:none}
+.dtabs button{flex:0 0 auto!important;height:42px!important;padding:0 18px!important;border-radius:999px!important;border:0!important;background:var(--card)!important;color:var(--ink)!important;font-weight:500!important;margin:0!important}
+.dtabs button[aria-selected="true"]{background:var(--ink)!important;color:var(--card)!important}
+
+/* --- checklist table --- */
+.grp{font-size:32px!important;font-weight:500!important;letter-spacing:-.045em!important}
+.grp small{background:transparent!important;padding:0!important;font-size:14px!important}
+.tr{border-bottom-color:var(--line)}
+.tr:hover{background:var(--head)!important}
+.pill{font-size:12px!important;font-weight:500!important;letter-spacing:0!important;padding:5px 11px!important}
+.opt{border:0!important;background:var(--head)!important}
+.opt[aria-pressed="true"]{background:var(--c)!important;color:var(--ci)!important}
+
+/* --- deck header insights: flat blocks --- */
+.labart{background-color:#111!important;color:#f4f4f1;border-radius:calc(var(--r) - 8px)!important}
+.labart:not([style]){background-image:none!important}
+.labart .bkt{background:var(--card)!important;color:var(--ink)!important;border:0!important;border-radius:18px!important;padding:10px 16px!important;align-items:flex-start!important;min-width:0!important}
+.labart .bkt b{color:var(--ink)!important;font-family:var(--fd)!important;font-size:36px!important;font-weight:300!important;letter-spacing:-.05em;line-height:1!important}
+.labart .bkt small{font-size:12px!important;color:var(--muted)}
+.labpower .lpl b{font-weight:300!important;letter-spacing:-.06em!important}
+.ttl + .sub{margin-top:0}
+
+/* --- inputs --- */
+select,input[type=text],input[type=search],input[type=number],input:not([type]){border:0!important;background:var(--head)!important;border-radius:999px!important;padding-left:16px!important}
+textarea{border-radius:var(--r-sm)}
+
+/* --- notes / banners --- */
+.combo{background:var(--card)!important;border-radius:var(--r-sm)!important;color:var(--ink)}
+
+/* --- modals --- */
+.box{border-radius:32px!important;box-shadow:none!important}
+.modal{background:rgba(10,10,10,.5)!important}
+.cmenu,.mmenu{box-shadow:0 18px 50px rgba(0,0,0,.18)!important;border:0!important;border-radius:22px!important}
+
+/* --- bottom navigation: black bar, white active pill, scan inline --- */
+@media (max-width:820px){
+  .tabs{box-shadow:none!important;padding:7px!important;border-radius:999px!important;bottom:calc(12px + env(safe-area-inset-bottom,0px))!important}
+  .tab{border-radius:999px!important;height:54px!important;font-weight:500!important;font-size:10.5px!important}
+  .tab[aria-current="page"]{background:var(--nav-ink)!important;color:var(--nav)!important}
+  .scantab{width:54px!important;height:54px!important;margin:0 auto!important;box-shadow:none!important;background:var(--accent)!important}
+  .ttl{font-size:clamp(44px,13vw,60px)!important}
+  .btile{min-height:160px;padding:16px 16px 18px}
+  .btile .bv{font-size:clamp(50px,15vw,64px)!important}
+  .hsec h2{font-size:28px!important}
+}
+@media (max-width:520px){.dart{height:132px}}
+.stchip{font-family:var(--fb)!important;text-transform:none!important;letter-spacing:0!important;font-size:12px!important}
+.cmdtag{border:0!important;background:var(--accent)!important;color:var(--accent-ink)!important;text-transform:none!important;letter-spacing:0!important;font-size:11px!important;border-radius:999px!important;padding:2px 8px!important}
+.vc .cols{justify-content:center}.vc .col{max-width:72px}
 
 </style>
 </head>
@@ -3169,7 +3367,7 @@ function toolCard(T,mini){const el=document.createElement("article");el.classNam
   return el;}
 function greet(){const h=new Date().getHours();return h<5?"Good night":h<12?"Good morning":h<18?"Good afternoon":"Good evening";}
 function renderHome(){const ids=Object.keys(DECKS.list);const R=collRecords();const stats=ids.map(deckStats).sort((a,b)=>(b.id===DECKS.current)-(a.id===DECKS.current)||a.name.localeCompare(b.name));
-  document.getElementById("homeTitle").textContent=greet();
+  document.getElementById("homeTitle").textContent=greet();try{document.querySelector("#vHome .vtitle").dataset.eyebrow=new Date().toLocaleDateString("en-GB",{weekday:"long",day:"numeric",month:"long"});}catch(e){}
   const own=R.filter(r=>r.status==="have"),val=own.reduce((a,r)=>a+(r.price!=null?r.price*r.qty:0),0),buy=R.filter(r=>r.status==="buy").reduce((a,r)=>a+(r.price!=null?r.price*r.qty:0),0);
   const avg=stats.length?Math.round(stats.reduce((a,s)=>a+s.pct,0)/stats.length):0;
   document.getElementById("homeSub").innerHTML=ids.length?(ids.length+(ids.length===1?" deck":" decks")+" · "+own.length+(own.length===1?" card":" cards")+" in your collection · <span class=\"money\">"+fmtE0(val)+"</span> in value."):"Import your first deck to start. Your collection builds itself from the cards you mark as Owned.";
@@ -4635,7 +4833,7 @@ async function openAnalytics(){renderAnalytics();const ok=await loadCards();rend
   if(LAB.combos&&!LAB.match){LAB.match=matchCombos();}else if(!LAB.combos)loadCombos().then(()=>{if(LAB.combos){LAB.match=matchCombos();renderAnalytics();}});
   loadSalt();if(typeof loadEDH==='function')loadEDH().then(renderAnalytics).catch(()=>{});}
 /* the installed app can keep an old copy alive in the background: on open and on return, compare with the published build and reload if it is newer */
-const APP_BUILD=35;
+const APP_BUILD=36;
 function checkUpdate(){if(location.protocol!=="https:")return;fetch(location.href.split("#")[0],{cache:"no-store"}).then(r=>r.ok?r.text():"").then(t=>{const m=t.match(/const APP_BUILD=(\d+);/);
   if(m&&+m[1]>APP_BUILD){let last=0;try{last=+sessionStorage.getItem("cd-rl")||0;}catch(e){}if(Date.now()-last>30000){try{sessionStorage.setItem("cd-rl",String(Date.now()));}catch(e){}hardRefresh();}}}).catch(()=>{});}
 setTimeout(checkUpdate,2500);document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible")checkUpdate();});
