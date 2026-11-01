@@ -204,3 +204,13 @@ textarea{border-radius:var(--r-sm)}
 .dcard .eyebtn{background:color-mix(in srgb,var(--card) 80%,transparent)!important;color:var(--ink)}
 .stat .ss:empty{display:none}
 .lpr{font-size:var(--t1)!important}
+/* --- verdict image preview: opaque sheet above everything, controls always visible --- */
+.animodal{background:var(--bg)!important;z-index:10000!important;place-items:start center!important;padding:calc(14px + env(safe-area-inset-top,0px)) 16px calc(16px + env(safe-area-inset-bottom,0px))!important}
+.animbox{gap:10px!important;max-width:min(100%,400px)!important}
+.animbox img{max-height:calc(100dvh - 230px)!important;width:auto!important;max-width:100%;border-radius:22px!important;box-shadow:none!important}
+.animstyle{display:flex;gap:6px;justify-content:center}
+.animstyle button{height:36px;padding:0 16px;border:0;border-radius:999px;background:var(--card);color:var(--ink);font-size:var(--t3)}
+.animstyle button[aria-checked="true"]{background:var(--ink);color:var(--card)}
+.animname{height:40px!important;border:0!important;border-radius:999px!important;background:var(--card)!important;font-size:var(--t3)!important}
+.animact{width:100%;gap:6px!important}.animact button{flex:1;height:44px!important;border-radius:999px}
+.animact .ghostbtn{background:var(--card);border:0;color:var(--ink)}

@@ -453,7 +453,7 @@ async function openAnalytics(){renderAnalytics();const ok=await loadCards();rend
   if(LAB.combos&&!LAB.match){LAB.match=matchCombos();}else if(!LAB.combos)loadCombos().then(()=>{if(LAB.combos){LAB.match=matchCombos();renderAnalytics();}});
   loadSalt();if(typeof loadEDH==='function')loadEDH().then(renderAnalytics).catch(()=>{});}
 /* the installed app can keep an old copy alive in the background: on open and on return, compare with the published build and reload if it is newer */
-const APP_BUILD=37;
+const APP_BUILD=38;
 function checkUpdate(){if(location.protocol!=="https:")return;fetch(location.href.split("#")[0],{cache:"no-store"}).then(r=>r.ok?r.text():"").then(t=>{const m=t.match(/const APP_BUILD=(\d+);/);
   if(m&&+m[1]>APP_BUILD){let last=0;try{last=+sessionStorage.getItem("cd-rl")||0;}catch(e){}if(Date.now()-last>30000){try{sessionStorage.setItem("cd-rl",String(Date.now()));}catch(e){}hardRefresh();}}}).catch(()=>{});}
 setTimeout(checkUpdate,2500);document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible")checkUpdate();});
@@ -482,42 +482,60 @@ async function anLoadArt(name){const u=artURL(name);
   catch(e){try{return await new Promise((res,rej)=>{const i=new Image();i.crossOrigin="anonymous";i.onload=()=>res(i);i.onerror=rej;i.src=u;});}catch(e2){return null;}}}
 function anRR(c,x,y,w,h,r){c.beginPath();c.moveTo(x+r,y);c.arcTo(x+w,y,x+w,y+h,r);c.arcTo(x+w,y+h,x,y+h,r);c.arcTo(x,y+h,x,y,r);c.arcTo(x,y,x+w,y,r);c.closePath();}
 function anWrap(c,text,maxW){const words=text.split(/\s+/),lines=[];let cur="";words.forEach(w=>{const t=cur?cur+" "+w:w;if(c.measureText(t).width>maxW&&cur){lines.push(cur);cur=w;}else cur=t;});if(cur)lines.push(cur);return lines;}
-async function anImageCanvas(V,cmdName,owner){const W=1080,H=1920,cv=document.createElement("canvas");cv.width=W;cv.height=H;const c=cv.getContext("2d");
-  const FD="Geist, system-ui, -apple-system, 'Segoe UI', sans-serif",FM="'Geist Mono', ui-monospace, Menlo, monospace";
-  try{await Promise.all([document.fonts.load("700 80px Geist"),document.fonts.load("400 40px Geist"),document.fonts.load("500 24px 'Geist Mono'")]);}catch(e){}
-  const accent=(getComputedStyle(document.documentElement).getPropertyValue("--accent")||"").trim()||"#e8745e",INK="#f4efe6",MUTED="#c4bcae";
-  const art=cmdName?await anLoadArt(cmdName):null;
-  /* the art keeps its own proportions (no stretching to fill the tall frame), sits at the top, and a dark gradient rising from the bottom fades out over it */
-  c.fillStyle="#0e0d0c";c.fillRect(0,0,W,H);
-  if(art){const iw=art.width,ih=art.height;let dh=Math.round(H*.51),dw=Math.round(iw*dh/ih);if(dw<W){dw=W;dh=Math.round(ih*W/iw);}
-    c.drawImage(art,Math.round((W-dw)/2),0,dw,dh);
-    /* many small steps eased with smoothstep, so the fade has no visible band: dark at the bottom edge of the art, clear a third of the way down */
-    const yS=dh*.3,yE=dh,ov=c.createLinearGradient(0,H,0,yS),pos=y=>(H-y)/(H-yS),N=28;
-    ov.addColorStop(0,"rgba(14,13,12,1)");ov.addColorStop(Math.min(.999,pos(yE)),"rgba(14,13,12,1)");
-    for(let k=N-1;k>=0;k--){const t=k/N,a=t*t*(3-2*t);ov.addColorStop(Math.min(.999,pos(yS+(yE-yS)*t)),"rgba(14,13,12,"+a.toFixed(3)+")");}
-    c.fillStyle=ov;c.fillRect(0,0,W,H);}
-  else{const g=c.createLinearGradient(0,0,W,H);g.addColorStop(0,"#2d3b4f");g.addColorStop(.6,"#3a2522");g.addColorStop(1,accent);c.fillStyle=g;c.fillRect(0,0,W,H);const ov=c.createLinearGradient(0,H,0,0);ov.addColorStop(0,"rgba(14,13,12,.9)");ov.addColorStop(1,"rgba(14,13,12,0)");c.fillStyle=ov;c.fillRect(0,0,W,H);}
-  /* a compact card in the lower part, so the commander stays visible above it */
-  const CW=860,PAD=46,IW=CW-PAD*2,text=V.lines.join(" "),cap=V.cap;
-  c.font="400 24px "+FD;const capL=anWrap(c,cap,IW),capH=capL.length*30;let pf=32,lines,lh;
-  c.font="700 72px "+FD;let tfs=72;while(c.measureText(V.title).width>IW&&tfs>46)tfs-=2;c.font="700 "+tfs+"px "+FD;const tLines=anWrap(c,V.title,IW),tH=tLines.length*Math.round(tfs*1.08);const nameStr=(cmdName||"").toUpperCase(),hdr=(nameStr?40:0)+(owner?44:0),chipsH=V.arch.length?66:12,fixed=PAD+hdr+tH+12+chipsH+34+100+capH+26+58+PAD;
-  for(;pf>=22;pf-=1){c.font="400 "+pf+"px "+FD;lines=anWrap(c,text,IW);lh=Math.round(pf*1.42);if(fixed+lines.length*lh<=H*.62)break;}
-  const CH=fixed+lines.length*lh,CX=(W-CW)/2,CY=H-CH-150;
-  c.save();c.shadowColor="rgba(0,0,0,.45)";c.shadowBlur=50;c.fillStyle="rgba(20,18,16,.74)";anRR(c,CX,CY,CW,CH,48);c.fill();c.restore();
-  c.strokeStyle="rgba(255,255,255,.18)";c.lineWidth=2;anRR(c,CX,CY,CW,CH,48);c.stroke();
-  let y=CY+PAD,x=CX+PAD;c.textBaseline="alphabetic";
-  if(nameStr){let fs=22;const sp=()=>fs*.2,wid=()=>[...nameStr].reduce((t,ch)=>t+c.measureText(ch).width+sp(),0)-sp();c.font="600 "+fs+"px "+FD;while(wid()>IW&&fs>13){fs--;c.font="600 "+fs+"px "+FD;}
-    let cx=x;c.fillStyle=INK;[...nameStr].forEach(ch=>{c.fillText(ch,cx,y+22);cx+=c.measureText(ch).width+sp();});y+=40;}
-  if(owner){c.font="400 24px "+FD;c.fillStyle=MUTED;c.fillText("by "+owner,x,y+22);y+=44;}
-  c.font="700 "+tfs+"px "+FD;c.fillStyle=INK;tLines.forEach((l,i)=>c.fillText(l,x,y+Math.round(tfs*.86)+i*Math.round(tfs*1.08)));y+=tH+12;
-  if(V.arch.length){let cx=x;c.font="500 24px "+FD;V.arch.forEach(a=>{const w=c.measureText(a.name).width+36;c.fillStyle="rgba(255,255,255,.12)";anRR(c,cx,y+4,w,44,22);c.fill();c.fillStyle=INK;c.fillText(a.name,cx+18,y+35);cx+=w+10;});y+=66;}else y+=12;
-  c.font="400 "+pf+"px "+FD;c.fillStyle=INK;lines.forEach((l,i)=>c.fillText(l,x,y+pf+i*lh));y+=lines.length*lh+34;
-  c.font="700 100px "+FD;c.fillStyle=accent;c.fillText(V.p+"%",x,y+82);y+=100;
-  c.font="400 24px "+FD;c.fillStyle=MUTED;capL.forEach((l,i)=>c.fillText(l,x,y+22+i*30));y+=capH+26;
-  const g=c.createLinearGradient(x,0,x+IW,0);g.addColorStop(0,"#4caf6a");g.addColorStop(.45,"#ffbf65");g.addColorStop(.75,"#e8745e");g.addColorStop(1,"#c8452f");c.fillStyle=g;anRR(c,x,y,IW,18,9);c.fill();
-  const mx=x+IW*V.p/100;c.fillStyle="#1b1a18";c.beginPath();c.arc(mx,y+9,18,0,7);c.fill();c.lineWidth=6;c.strokeStyle=INK;c.stroke();
-  c.font="500 20px "+FM;c.fillStyle=MUTED;[0,25,50,75,100].forEach((t,i)=>{c.textAlign=i===0?"left":i===4?"right":"center";c.fillText(String(t),x+IW*t/100,y+54);});c.textAlign="left";
-  c.font="500 22px "+FM;c.fillStyle="rgba(244,239,230,.8)";c.textAlign="center";c.fillText("COMMANDER DESK",W/2,H-80);c.textAlign="left";
+/* three styles from the same data, drawn at 360 x 640 and scaled 3x: A dark poster, B colour block, C mosaic. The art takes whatever height the text leaves. */
+const AN_STYLES=[["poster","Poster"],["colour","Colour"],["mosaic","Mosaic"]];
+async function anImageCanvas(V,cmdName,owner,style){const S=3,W=360,H=640,cv=document.createElement("canvas");cv.width=W*S;cv.height=H*S;const c=cv.getContext("2d");c.scale(S,S);
+  const FD="'Inter Tight', system-ui, -apple-system, 'Helvetica Neue', sans-serif";
+  try{await Promise.all([document.fonts.load("300 40px 'Inter Tight'"),document.fonts.load("400 12px 'Inter Tight'"),document.fonts.load("500 12px 'Inter Tight'"),document.fonts.load("600 22px 'Inter Tight'")]);}catch(e){}
+  const cs=getComputedStyle(document.documentElement),tok=(k,d)=>{const v=(cs.getPropertyValue(k)||"").trim();return /^#[0-9a-f]{6}$/i.test(v)?v:d;};
+  const ACC=tok("--tile-1","#ea6a45"),INK="#111111",PAPER="#f2f2ef",GREY="#ebebe8";
+  const art=cmdName?await anLoadArt(cmdName):null,text=V.lines.join(" "),arch=(V.arch||[]).map(a=>a.name),p=Math.max(0,Math.min(100,Math.round(V.p)));
+  const head=[cmdName,owner?"by "+owner:""].filter(Boolean);
+  let D=false;
+  const F=(w,s)=>{c.font=w+" "+s+"px "+FD;if("letterSpacing" in c)c.letterSpacing=(s>=20?-s*.03:-s*.008).toFixed(2)+"px";};
+  const T=(s,x,y,w,size,col,al)=>{F(w,size);if(D){c.fillStyle=col;c.textAlign=al||"left";c.textBaseline="alphabetic";c.fillText(s,x,y+size*.8);c.textAlign="left";}};
+  const P=(s,x,y,maxW,w,size,lh,col)=>{F(w,size);const L=anWrap(c,s,maxW);L.forEach((l,i)=>T(l,x,y+i*size*lh,w,size,col));return L.length*size*lh;};
+  const R=(x,y,w,h,r,col)=>{if(D){c.fillStyle=col;anRR(c,x,y,w,h,r);c.fill();}};
+  const ART=(x,y,w,h,r)=>{if(!D)return;c.save();anRR(c,x,y,w,h,r);c.clip();
+    if(art){const iw=art.width,ih=art.height,k=Math.max(w/iw,h/ih),dw=iw*k,dh=ih*k;c.drawImage(art,x+(w-dw)/2,y+(h-dh)*.3,dw,dh);}
+    else{const g=c.createLinearGradient(x,y,x+w,y+h);g.addColorStop(0,"#6e6a72");g.addColorStop(1,"#2a2522");c.fillStyle=g;c.fillRect(x,y,w,h);}c.restore();};
+  const CHIPS=(x,y,maxW,bg,fg)=>{if(!arch.length)return 0;F(500,10);let cx=x,cy=y;arch.forEach(a=>{const w=c.measureText(a).width+18;if(cx+w>x+maxW&&cx>x){cx=x;cy+=24;}R(cx,cy,w,20,10,bg);T(a,cx+9,cy+5,500,10,fg);cx+=w+4;});return cy-y+20;};
+  const FOOT=(dot,col,right)=>{if(!D)return;c.fillStyle=dot;c.beginPath();c.arc(25.5,H-19.5,3.5,0,7);c.fill();T("Commander Desk",34,H-24,400,10,col);if(right)T(right,W-22,H-24,400,10,col,"right");};
+  const fit=(build,minArt)=>{let fs=11.5;for(;fs>8.5;fs-=.25){if(H-build(fs,0)>=minArt)break;}return fs;};
+  const st=AN_STYLES.some(s=>s[0]===style)?style:"poster";
+  if(st==="poster"){
+    const body=(fs,top)=>{const x=22,w=W-44;let y=top+20;
+      if(head.length){T(head.join(" · "),x,y,400,11,"#8e8e88");y+=17;}
+      y+=P(V.title,x,y,w,600,22,1.15,PAPER)+10;
+      const ch=CHIPS(x,y,w,"#262626",PAPER);y+=ch?ch+12:0;
+      y+=P(text,x,y,w,400,fs,1.45,"#cfcfca")+18;
+      F(300,44);const nw=c.measureText(p+"%").width;T(p+"%",x,y,300,44,ACC);P(V.cap,x+nw+10,y+18,w-nw-10,400,11,1.3,"#8e8e88");y+=52;
+      if(D)for(let k=0;k<20;k++){const sw=(w-19*2)/20;R(x+k*(sw+2),y,sw,10,2,k<Math.round(p/5)?ACC:"#2a2a2a");}
+      y+=10+46;return y-top;};
+    c.fillStyle="#111111";c.fillRect(0,0,W,H);const fs=fit(body,180),top=H-body(fs,0);D=true;ART(0,0,W,top,0);body(fs,top);FOOT(ACC,"#8e8e88");}
+  else if(st==="colour"){
+    const MUT="rgba(17,17,17,.68)";
+    const body=(fs,top)=>{const x=22,w=W-44;let y=top+16;
+      if(cmdName)T(cmdName,x,y,400,11,MUT);if(owner)T("by "+owner,W-22,y,400,11,MUT,"right");if(head.length)y+=18;
+      T(p+"%",x-4,y,300,96,INK);y+=94;
+      y+=P(V.cap,x,y,w,400,11,1.3,MUT)+12;
+      y+=P(V.title,x,y,w,600,22,1.15,INK)+8;
+      y+=P(text,x,y,w,400,fs,1.45,INK)+12;
+      const ch=CHIPS(x,y,w,INK,PAPER);y+=ch+46;return y-top;};
+    c.fillStyle=ACC;c.fillRect(0,0,W,H);const fs=fit(body,160),top=H-body(fs,12);D=true;ART(12,12,W-24,top-12,24);body(fs,top);FOOT(INK,MUT);}
+  else{
+    const G=5,X=10,IW=W-20,half=(IW-G)/2,MUT="#85857f";
+    const body=(fs,top)=>{let y=top+G;
+      F(600,22);const tl=anWrap(c,V.title,IW-28),th=14+(head.length?15:0)+tl.length*22*1.15+14;
+      R(X,y,IW,th,22,"#ffffff");let ty=y+14;if(head.length){T(head.join(" · "),X+14,ty,400,11,MUT);ty+=15;}P(V.title,X+14,ty,IW-28,600,22,1.15,INK);y+=th+G;
+      const capW=(arch.length?half:IW)-28;F(400,11);const capH=anWrap(c,V.cap,capW).length*11*1.3,archH=arch.length*15*1.35;
+      const rh=Math.max(132,14+capH+16+52+14,14+15+archH+14);
+      const lw=arch.length?half:IW;R(X,y,lw,rh,22,ACC);P(V.cap,X+14,y+14,capW,400,11,1.3,"rgba(17,17,17,.68)");T(p+"%",X+14,y+rh-14-52,300,52,INK);
+      if(arch.length){R(X+half+G,y,half,rh,22,INK);T("Archetype",X+half+G+14,y+14,400,11,"rgba(242,242,239,.6)");arch.forEach((a,i)=>T(a,X+half+G+14,y+rh-14-archH+i*15*1.35,500,15,PAPER));}
+      y+=rh+G;
+      F(400,fs);const bl=anWrap(c,text,IW-28),bh=14+bl.length*fs*1.45+14;R(X,y,IW,bh,22,"#ffffff");P(text,X+14,y+14,IW-28,400,fs,1.45,INK);y+=bh;
+      y+=36;return y-top;};
+    c.fillStyle=GREY;c.fillRect(0,0,W,H);const fs=fit(body,140),top=H-body(fs,0);D=true;ART(X,10,IW,top-10,22);body(fs,top);FOOT(ACC,MUT,"Verdict");}
   return cv;}
 /* Save opens a preview; the Save inside the preview hands the picture to the share sheet (or downloads it) */
 function anCloseModal(){const m=document.getElementById("anImgModal");if(m){if(m.dataset.url)URL.revokeObjectURL(m.dataset.url);m.remove();}}
@@ -526,13 +544,15 @@ function anSend(blob,nm){const file=new File([blob],nm,{type:"image/png"});
   const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=nm;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),4000);return Promise.resolve();}
 async function anShareImage(btn){const V=AN.lastV;if(!V)return;const old=btn.textContent;btn.textContent="…";btn.disabled=true;
   const nm="verdict-"+((CUR&&CUR.name)||"deck").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"")+".png";let owner=String(lsGet(NS+"-owner")||""),blob=null,url=null;
-  const make=async()=>{const cv=await anImageCanvas(V,AN.lastCmd,owner.trim()),b=await new Promise(r=>cv.toBlob(r,"image/png"));if(!b)throw new Error("no image");blob=b;if(url)URL.revokeObjectURL(url);url=URL.createObjectURL(b);return url;};
+  let style=String(lsGet(NS+"-shotstyle")||"poster");
+  const make=async()=>{const cv=await anImageCanvas(V,AN.lastCmd,owner.trim(),style),b=await new Promise(r=>cv.toBlob(r,"image/png"));if(!b)throw new Error("no image");blob=b;if(url)URL.revokeObjectURL(url);url=URL.createObjectURL(b);return url;};
   try{await make();anCloseModal();const m=document.createElement("div");m.id="anImgModal";m.className="animodal";m.dataset.url=url;m.setAttribute("role","dialog");m.setAttribute("aria-label","Image preview");
-    m.innerHTML='<div class="animbox"><img alt="Verdict image preview"><input class="animname" type="text" maxlength="40" placeholder="By (your name, optional)" aria-label="Your name, shown as by"><div class="animact"><button type="button" class="btn-acc" data-s="1">Save</button><button type="button" class="ghostbtn" data-c="1">Close</button></div></div>';
+    m.innerHTML='<div class="animbox"><img alt="Verdict image preview"><div class="animstyle" role="radiogroup" aria-label="Style">'+AN_STYLES.map(([k,l])=>'<button type="button" role="radio" data-st="'+k+'" aria-checked="'+(k===style)+'">'+l+'</button>').join("")+'</div><input class="animname" type="text" maxlength="40" placeholder="By (your name, optional)" aria-label="Your name, shown as by"><div class="animact"><button type="button" class="btn-acc" data-s="1">Save</button><button type="button" class="ghostbtn" data-c="1">Close</button></div></div>';
     const img=m.querySelector("img"),inp=m.querySelector("input");img.src=url;inp.value=owner;let t=null;
     inp.addEventListener("input",()=>{owner=inp.value;lsSet(NS+"-owner",owner);clearTimeout(t);t=setTimeout(async()=>{try{img.src=await make();m.dataset.url=url;}catch(e){}},350);});
     document.body.appendChild(m);
-    m.addEventListener("click",e=>{if(e.target===m||e.target.closest("[data-c]"))anCloseModal();else if(e.target.closest("[data-s]"))anSend(blob,nm);});
+    m.addEventListener("click",async e=>{const sb=e.target.closest("[data-st]");if(sb){style=sb.dataset.st;lsSet(NS+"-shotstyle",style);m.querySelectorAll("[data-st]").forEach(b=>b.setAttribute("aria-checked",String(b===sb)));try{img.src=await make();m.dataset.url=url;}catch(x){}return;}
+      if(e.target===m||e.target.closest("[data-c]"))anCloseModal();else if(e.target.closest("[data-s]"))anSend(blob,nm);});
     document.addEventListener("keydown",function k(e){if(e.key==="Escape"){anCloseModal();document.removeEventListener("keydown",k);}});}
   catch(e){btn.textContent="Could not make the image";setTimeout(()=>{btn.textContent=old;btn.disabled=false;},2200);return;}
   btn.textContent=old;btn.disabled=false;}
