@@ -48,18 +48,20 @@ document.addEventListener("click",e=>{const t=e.target.closest("[data-more]");co
     if(!was){m.hidden=false;t.setAttribute("aria-expanded","true");}return;}
   open.forEach(x=>{if(!x.contains(e.target)||e.target.closest("button")){x.hidden=true;x.parentElement.querySelector("[data-more]").setAttribute("aria-expanded","false");}});});
 /* hide prices: an eye on every widget that shows money; one tap blurs every price in the app, another shows them */
-(function(){const R=document.documentElement;let hide=false;try{hide=localStorage.getItem(NS+"-hidevals")==="1";}catch(e){}R.classList.toggle("hidevals",hide);
+(function(){let H={};try{const v=JSON.parse(localStorage.getItem(NS+"-hidevals")||"{}");if(v&&typeof v==="object"&&!Array.isArray(v))H=v;}catch(e){}
   const MONEY=/€\s?\d|\d\s?€/;
   const EYE_OPEN='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>';
   const EYE_SHUT='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 10c2.2 3 5.4 5 9 5s6.8-2 9-5"/><path d="M5.5 13.5 4 16M9 15l-.7 2.8M15 15l.7 2.8M18.5 13.5 20 16"/></svg>';
-  const paintEyes=()=>document.querySelectorAll(".eyebtn").forEach(b=>{b.innerHTML=hide?EYE_SHUT:EYE_OPEN;b.setAttribute("aria-pressed",String(hide));b.setAttribute("aria-label",hide?"Show prices":"Hide prices");});
+  const keyOf=box=>box.classList.contains("w")?"w:"+(box.dataset.id||""):box.classList.contains("dcard")?"d:"+(box.dataset.deck||""):"t:"+((box.querySelector(".bl")||{}).textContent||"");
+  function paint(box){const hid=!!H[keyOf(box)];box.classList.toggle("hidvals",hid);const b=box.querySelector(":scope > .eyebtn");if(!b)return;
+    const want=hid?"shut":"open";if(b.dataset.s!==want){b.dataset.s=want;b.innerHTML=hid?EYE_SHUT:EYE_OPEN;b.setAttribute("aria-pressed",String(hid));b.setAttribute("aria-label",hid?"Show price":"Hide price");}}
   function mark(root){if(!root||root.nodeType!==1)return;
     root.querySelectorAll("*").forEach(el=>{if(el.classList.contains("money")||el.closest(".money,.eyebtn,script,style,textarea,select,option,input"))return;const t=el.textContent;
       if(t.length>80||!MONEY.test(t))return;if([...el.children].some(c=>MONEY.test(c.textContent)))return;el.classList.add("money");});
-    root.querySelectorAll(".btile,.w,.dcard").forEach(box=>{if(!box.querySelector(".money")||box.querySelector(":scope > .eyebtn"))return;
-      const b=document.createElement("button");b.type="button";b.className="eyebtn";box.appendChild(b);});
-    paintEyes();}
+    root.querySelectorAll(".btile,.w,.dcard").forEach(box=>{if(!box.querySelector(".money"))return;
+      if(!box.querySelector(":scope > .eyebtn")){const b=document.createElement("button");b.type="button";b.className="eyebtn";box.appendChild(b);}paint(box);});}
   let q=false;const run=()=>{q=false;mark(document.querySelector("main")||document.body);};
   new MutationObserver(()=>{if(!q){q=true;requestAnimationFrame(run);}}).observe(document.body,{childList:true,subtree:true,characterData:true});
-  document.addEventListener("click",e=>{const b=e.target.closest(".eyebtn");if(!b)return;e.preventDefault();e.stopPropagation();hide=!hide;R.classList.toggle("hidevals",hide);try{localStorage.setItem(NS+"-hidevals",hide?"1":"0");}catch(x){}paintEyes();},true);
+  document.addEventListener("click",e=>{const b=e.target.closest(".eyebtn");if(!b)return;e.preventDefault();e.stopPropagation();const box=b.parentElement,k=keyOf(box);
+    if(H[k])delete H[k];else H[k]=1;try{localStorage.setItem(NS+"-hidevals",JSON.stringify(H));}catch(x){}paint(box);},true);
   run();})();

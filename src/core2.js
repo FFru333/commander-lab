@@ -458,7 +458,7 @@ const artURL=n=>"https://api.scryfall.com/cards/named?exact="+encodeURIComponent
 function openDeck(id,intent){if(id===DECKS.current){setView("deck");if(intent)runIntent(intent);return;}
   DECKS.current=id;saveDecks();lsSet(NS+"-view","deck");if(intent)try{sessionStorage.setItem(NS+"-intent",intent)}catch(e){}history.replaceState(null,"","#deck");location.reload();}
 function runIntent(k){const b={proxy:"openProxy",tokens:"openTokens",export:"openExport"}[k];if(b)setTimeout(()=>document.getElementById(b).click(),60);}
-function deckCard(st,big){const el=document.createElement("article");el.className="dcard";el.tabIndex=0;el.setAttribute("aria-label","Open "+st.name);
+function deckCard(st,big){const el=document.createElement("article");el.className="dcard";el.dataset.deck=st.id;el.tabIndex=0;el.setAttribute("aria-label","Open "+st.name);
   const ring='<svg class="ring" viewBox="0 0 36 36" aria-hidden="true"><circle cx="18" cy="18" r="15.5" class="rb"/><circle cx="18" cy="18" r="15.5" class="rp" stroke-dasharray="'+(st.ready*0.974).toFixed(1)+' 100"/><circle cx="18" cy="18" r="15.5" class="rh" stroke-dasharray="'+(st.pct*0.974).toFixed(1)+' 100"/></svg>';
   el.innerHTML='<div class="dart"'+(st.cmd?' style="background-image:url(\''+esc(artURL(st.cmd))+'\'),linear-gradient(135deg,var(--a3),var(--a2) 60%,var(--accent))"':'')+'></div>'+
     '<div class="dbody"><div class="dtop"><div class="dname"><b></b><small></small></div><div class="dring">'+ring+'<span>'+st.pct+'<i>%</i></span></div></div>'+

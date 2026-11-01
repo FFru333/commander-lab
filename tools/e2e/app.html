@@ -1378,7 +1378,7 @@ details.anhow p{margin:8px 0 0;line-height:1.5}
 .hhead{min-height:0}#vHome .hhead{padding-top:28px;padding-bottom:28px}
 /* ===== hide prices ===== */
 .money{transition:filter .2s}
-html.hidevals .money{filter:blur(7px);-webkit-user-select:none;user-select:none}
+.hidvals .money{filter:blur(7px);-webkit-user-select:none;user-select:none}
 .btile,.w,.dcard{position:relative}
 .eyebtn{position:absolute;top:10px;right:10px;z-index:3;width:30px;height:30px;min-height:0;padding:0;display:grid;place-items:center;border:0;border-radius:50%;background:color-mix(in srgb,var(--card) 70%,transparent);color:inherit;opacity:.75}
 .eyebtn:hover{opacity:1}
@@ -3127,7 +3127,7 @@ const artURL=n=>"https://api.scryfall.com/cards/named?exact="+encodeURIComponent
 function openDeck(id,intent){if(id===DECKS.current){setView("deck");if(intent)runIntent(intent);return;}
   DECKS.current=id;saveDecks();lsSet(NS+"-view","deck");if(intent)try{sessionStorage.setItem(NS+"-intent",intent)}catch(e){}history.replaceState(null,"","#deck");location.reload();}
 function runIntent(k){const b={proxy:"openProxy",tokens:"openTokens",export:"openExport"}[k];if(b)setTimeout(()=>document.getElementById(b).click(),60);}
-function deckCard(st,big){const el=document.createElement("article");el.className="dcard";el.tabIndex=0;el.setAttribute("aria-label","Open "+st.name);
+function deckCard(st,big){const el=document.createElement("article");el.className="dcard";el.dataset.deck=st.id;el.tabIndex=0;el.setAttribute("aria-label","Open "+st.name);
   const ring='<svg class="ring" viewBox="0 0 36 36" aria-hidden="true"><circle cx="18" cy="18" r="15.5" class="rb"/><circle cx="18" cy="18" r="15.5" class="rp" stroke-dasharray="'+(st.ready*0.974).toFixed(1)+' 100"/><circle cx="18" cy="18" r="15.5" class="rh" stroke-dasharray="'+(st.pct*0.974).toFixed(1)+' 100"/></svg>';
   el.innerHTML='<div class="dart"'+(st.cmd?' style="background-image:url(\''+esc(artURL(st.cmd))+'\'),linear-gradient(135deg,var(--a3),var(--a2) 60%,var(--accent))"':'')+'></div>'+
     '<div class="dbody"><div class="dtop"><div class="dname"><b></b><small></small></div><div class="dring">'+ring+'<span>'+st.pct+'<i>%</i></span></div></div>'+
@@ -4152,20 +4152,22 @@ document.addEventListener("click",e=>{const t=e.target.closest("[data-more]");co
     if(!was){m.hidden=false;t.setAttribute("aria-expanded","true");}return;}
   open.forEach(x=>{if(!x.contains(e.target)||e.target.closest("button")){x.hidden=true;x.parentElement.querySelector("[data-more]").setAttribute("aria-expanded","false");}});});
 /* hide prices: an eye on every widget that shows money; one tap blurs every price in the app, another shows them */
-(function(){const R=document.documentElement;let hide=false;try{hide=localStorage.getItem(NS+"-hidevals")==="1";}catch(e){}R.classList.toggle("hidevals",hide);
+(function(){let H={};try{const v=JSON.parse(localStorage.getItem(NS+"-hidevals")||"{}");if(v&&typeof v==="object"&&!Array.isArray(v))H=v;}catch(e){}
   const MONEY=/€\s?\d|\d\s?€/;
   const EYE_OPEN='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>';
   const EYE_SHUT='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 10c2.2 3 5.4 5 9 5s6.8-2 9-5"/><path d="M5.5 13.5 4 16M9 15l-.7 2.8M15 15l.7 2.8M18.5 13.5 20 16"/></svg>';
-  const paintEyes=()=>document.querySelectorAll(".eyebtn").forEach(b=>{b.innerHTML=hide?EYE_SHUT:EYE_OPEN;b.setAttribute("aria-pressed",String(hide));b.setAttribute("aria-label",hide?"Show prices":"Hide prices");});
+  const keyOf=box=>box.classList.contains("w")?"w:"+(box.dataset.id||""):box.classList.contains("dcard")?"d:"+(box.dataset.deck||""):"t:"+((box.querySelector(".bl")||{}).textContent||"");
+  function paint(box){const hid=!!H[keyOf(box)];box.classList.toggle("hidvals",hid);const b=box.querySelector(":scope > .eyebtn");if(!b)return;
+    const want=hid?"shut":"open";if(b.dataset.s!==want){b.dataset.s=want;b.innerHTML=hid?EYE_SHUT:EYE_OPEN;b.setAttribute("aria-pressed",String(hid));b.setAttribute("aria-label",hid?"Show price":"Hide price");}}
   function mark(root){if(!root||root.nodeType!==1)return;
     root.querySelectorAll("*").forEach(el=>{if(el.classList.contains("money")||el.closest(".money,.eyebtn,script,style,textarea,select,option,input"))return;const t=el.textContent;
       if(t.length>80||!MONEY.test(t))return;if([...el.children].some(c=>MONEY.test(c.textContent)))return;el.classList.add("money");});
-    root.querySelectorAll(".btile,.w,.dcard").forEach(box=>{if(!box.querySelector(".money")||box.querySelector(":scope > .eyebtn"))return;
-      const b=document.createElement("button");b.type="button";b.className="eyebtn";box.appendChild(b);});
-    paintEyes();}
+    root.querySelectorAll(".btile,.w,.dcard").forEach(box=>{if(!box.querySelector(".money"))return;
+      if(!box.querySelector(":scope > .eyebtn")){const b=document.createElement("button");b.type="button";b.className="eyebtn";box.appendChild(b);}paint(box);});}
   let q=false;const run=()=>{q=false;mark(document.querySelector("main")||document.body);};
   new MutationObserver(()=>{if(!q){q=true;requestAnimationFrame(run);}}).observe(document.body,{childList:true,subtree:true,characterData:true});
-  document.addEventListener("click",e=>{const b=e.target.closest(".eyebtn");if(!b)return;e.preventDefault();e.stopPropagation();hide=!hide;R.classList.toggle("hidevals",hide);try{localStorage.setItem(NS+"-hidevals",hide?"1":"0");}catch(x){}paintEyes();},true);
+  document.addEventListener("click",e=>{const b=e.target.closest(".eyebtn");if(!b)return;e.preventDefault();e.stopPropagation();const box=b.parentElement,k=keyOf(box);
+    if(H[k])delete H[k];else H[k]=1;try{localStorage.setItem(NS+"-hidevals",JSON.stringify(H));}catch(x){}paint(box);},true);
   run();})();
 
 /* ---------- deck analytics: power estimate, fingerprint, manabase, salt ---------- */
@@ -4623,7 +4625,7 @@ async function openAnalytics(){renderAnalytics();const ok=await loadCards();rend
   if(LAB.combos&&!LAB.match){LAB.match=matchCombos();}else if(!LAB.combos)loadCombos().then(()=>{if(LAB.combos){LAB.match=matchCombos();renderAnalytics();}});
   loadSalt();if(typeof loadEDH==='function')loadEDH().then(renderAnalytics).catch(()=>{});}
 /* the installed app can keep an old copy alive in the background: on open and on return, compare with the published build and reload if it is newer */
-const APP_BUILD=33;
+const APP_BUILD=34;
 function checkUpdate(){if(location.protocol!=="https:")return;fetch(location.href.split("#")[0],{cache:"no-store"}).then(r=>r.ok?r.text():"").then(t=>{const m=t.match(/const APP_BUILD=(\d+);/);
   if(m&&+m[1]>APP_BUILD){let last=0;try{last=+sessionStorage.getItem("cd-rl")||0;}catch(e){}if(Date.now()-last>30000){try{sessionStorage.setItem("cd-rl",String(Date.now()));}catch(e){}hardRefresh();}}}).catch(()=>{});}
 setTimeout(checkUpdate,2500);document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible")checkUpdate();});
