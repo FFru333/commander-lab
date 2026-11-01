@@ -135,8 +135,8 @@ document.addEventListener("click",e=>{const H=e.target.closest("#labHead");if(!H
     document.getElementById("tbl").scrollIntoView({block:"start",behavior:"smooth"});}});
 
 /* ---------- deck sub-tabs ---------- */
-let DTAB=lsGet(NS+"-dtab")||"cards";if(!["cards","sug","combo","stats"].includes(DTAB))DTAB="cards";
-function setDTab(t){DTAB=t;lsSet(NS+"-dtab",t);document.getElementById("vDeck").dataset.tab=t;
+let DTAB=(()=>{try{const t=sessionStorage.getItem(NS+"-dtab");sessionStorage.removeItem(NS+"-dtab");return t||"cards";}catch(e){return "cards";}})();try{localStorage.removeItem(NS+"-dtab");}catch(e){}if(!["cards","sug","combo","stats"].includes(DTAB))DTAB="cards";
+function setDTab(t){DTAB=t;document.getElementById("vDeck").dataset.tab=t;
   document.querySelectorAll("#vDeck [data-dtab]").forEach(el=>el.hidden=el.dataset.dtab!==t);
   document.querySelectorAll("#dtabs [data-t]").forEach(b=>b.setAttribute("aria-selected",b.dataset.t===t));
   if(t==="sug")openSug();if(t==="combo")openCombos();if(t==="stats")openAnalytics();}
@@ -149,7 +149,7 @@ function addToDeck(n,roleK){const T=ROLE_TAGS.find(t=>t.k===roleK);let cat=T&&DE
   if(!cat){const m=cardMeta(n);cat=(m&&m.type&&typeof typeCat==="function")?typeCat(m.type):"Added";}
   if(deckIndex.has(norm(n))){flash(n+" is already in the deck.");return;}
   addToCat(n,cat);CUR.maybe=maybe().filter(x=>x!==n);CUR.src=null;saveDecks();
-  try{sessionStorage.setItem(NS+"-msg",n+" added to "+cat+". Mark its status in the Cards tab.");sessionStorage.setItem(NS+"-focus",JSON.stringify({y:window.scrollY}))}catch(e){}
+  try{sessionStorage.setItem(NS+"-msg",n+" added to "+cat+". Mark its status in the Cards tab.");sessionStorage.setItem(NS+"-dtab","sug");sessionStorage.setItem(NS+"-focus",JSON.stringify({y:window.scrollY}))}catch(e){}
   lsSet(NS+"-view","deck");history.replaceState(null,"","#deck");location.reload();}
 function renderMaybe(){const M=document.getElementById("maybeBox");if(!M)return;const L=maybe();M.hidden=!L.length;
   M.innerHTML='<span class="lbl">Maybeboard <b>'+L.length+'</b></span>'+L.map(n=>'<span class="mchip"><button type="button" class="mv" data-view="'+esc(n)+'">'+esc(n)+'</button><button type="button" data-madd="'+esc(n)+'" aria-label="Add '+esc(n)+' to the deck">Add</button><button type="button" data-mdel="'+esc(n)+'" aria-label="Remove '+esc(n)+' from the maybeboard">×</button></span>').join("");}

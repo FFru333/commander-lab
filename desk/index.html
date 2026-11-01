@@ -3169,9 +3169,13 @@ function renderPrint(){const P=document.getElementById("printTools");P.innerHTML
 
 /* ---------- views and navigation ---------- */
 const VIEWS={home:"vHome",decks:"vDecks",deck:"vDeck",coll:"vColl",print:"vPrint"};
-let view=(location.hash||"").slice(1);if(view==="collection")view="coll";if(!VIEWS[view])view=lsGet(NS+"-view")||"home";if(!VIEWS[view])view="home";
+try{history.scrollRestoration="manual";}catch(e){}
+let view=(location.hash||"").slice(1);if(view==="collection")view="coll";if(!VIEWS[view])view="home";
 function setView(v){if(!VIEWS[v])v="home";const has=!!CUR,any=Object.keys(DECKS.list).length>0;
   if(v==="deck"&&!has)v=any?"decks":"home";if(v==="coll"&&!any)v="home";
+  /* every screen opens from its top: no remembered scroll, sub-tab or layout editing */
+  const changed=v!==view;Object.keys(GRIDS).forEach(g=>{if(GRIDS[g].editing)setEditing(g,false);});
+  if(changed){window.scrollTo(0,0);if(v==="deck")try{if(DTAB!=="cards")setDTab("cards");}catch(e){}}
   view=v;lsSet(NS+"-view",v);
   Object.entries(VIEWS).forEach(([k,id])=>document.getElementById(id).hidden=k!==v);
   document.getElementById("emptyState").hidden=true;
@@ -3603,8 +3607,8 @@ document.addEventListener("click",e=>{const H=e.target.closest("#labHead");if(!H
     document.getElementById("tbl").scrollIntoView({block:"start",behavior:"smooth"});}});
 
 /* ---------- deck sub-tabs ---------- */
-let DTAB=lsGet(NS+"-dtab")||"cards";if(!["cards","sug","combo","stats"].includes(DTAB))DTAB="cards";
-function setDTab(t){DTAB=t;lsSet(NS+"-dtab",t);document.getElementById("vDeck").dataset.tab=t;
+let DTAB=(()=>{try{const t=sessionStorage.getItem(NS+"-dtab");sessionStorage.removeItem(NS+"-dtab");return t||"cards";}catch(e){return "cards";}})();try{localStorage.removeItem(NS+"-dtab");}catch(e){}if(!["cards","sug","combo","stats"].includes(DTAB))DTAB="cards";
+function setDTab(t){DTAB=t;document.getElementById("vDeck").dataset.tab=t;
   document.querySelectorAll("#vDeck [data-dtab]").forEach(el=>el.hidden=el.dataset.dtab!==t);
   document.querySelectorAll("#dtabs [data-t]").forEach(b=>b.setAttribute("aria-selected",b.dataset.t===t));
   if(t==="sug")openSug();if(t==="combo")openCombos();if(t==="stats")openAnalytics();}
@@ -3617,7 +3621,7 @@ function addToDeck(n,roleK){const T=ROLE_TAGS.find(t=>t.k===roleK);let cat=T&&DE
   if(!cat){const m=cardMeta(n);cat=(m&&m.type&&typeof typeCat==="function")?typeCat(m.type):"Added";}
   if(deckIndex.has(norm(n))){flash(n+" is already in the deck.");return;}
   addToCat(n,cat);CUR.maybe=maybe().filter(x=>x!==n);CUR.src=null;saveDecks();
-  try{sessionStorage.setItem(NS+"-msg",n+" added to "+cat+". Mark its status in the Cards tab.");sessionStorage.setItem(NS+"-focus",JSON.stringify({y:window.scrollY}))}catch(e){}
+  try{sessionStorage.setItem(NS+"-msg",n+" added to "+cat+". Mark its status in the Cards tab.");sessionStorage.setItem(NS+"-dtab","sug");sessionStorage.setItem(NS+"-focus",JSON.stringify({y:window.scrollY}))}catch(e){}
   lsSet(NS+"-view","deck");history.replaceState(null,"","#deck");location.reload();}
 function renderMaybe(){const M=document.getElementById("maybeBox");if(!M)return;const L=maybe();M.hidden=!L.length;
   M.innerHTML='<span class="lbl">Maybeboard <b>'+L.length+'</b></span>'+L.map(n=>'<span class="mchip"><button type="button" class="mv" data-view="'+esc(n)+'">'+esc(n)+'</button><button type="button" data-madd="'+esc(n)+'" aria-label="Add '+esc(n)+' to the deck">Add</button><button type="button" data-mdel="'+esc(n)+'" aria-label="Remove '+esc(n)+' from the maybeboard">×</button></span>').join("");}
@@ -4213,7 +4217,7 @@ const plName=p=>p<3?"Casual":p<5?"Focused casual":p<7?"Upgraded":p<8.5?"Optimize
    Not a sum of community scores. Each card gets an annoyance value from what it DOES (text patterns),
    lifted by the EDHREC salt vote when that vote is high. Mana, lands and plain staples count as power, not salt.
    Per game: chance = 1 - product(1 - chance the card shows up by turn 7 x its annoyance). */
-AN.view=lsGet(NS+"-anview")==="deep"?"deep":"brief";AN.emi=!!lsGet(NS+"-anemi");
+AN.view="brief";try{localStorage.removeItem(NS+"-anview");}catch(e){}AN.emi=!!lsGet(NS+"-anemi");
 const ANN_TURNS=8,ANN_PLAYED=.8;   // 80%: an annoying card you see is not always cast, and does not always land on someone
 const ANN_CLASSES={
   mld:{label:"Land destruction",w:.9},stax:{label:"Stax and locks",w:.85},neutral:{label:"Commander neutralizers",w:.7},combo:{label:"Combos",w:.7},
@@ -4585,7 +4589,7 @@ function renderAnalytics(){const B=document.getElementById("anBody");if(!B||!CUR
    '<div class="anvsw"><div class="seg2" role="group" aria-label="Analytics detail"><button type="button" data-anv="brief" aria-pressed="'+!deep+'">Brief</button><button type="button" data-anv="deep" aria-pressed="'+deep+'">In-depth</button></div><p>'+(deep?"Every number, with the reasoning.":"The main things, in a nutshell.")+'</p><span class="anbuild">Build '+APP_BUILD+'</span></div>'+
    (deep?anDeep(a,N):anBrief(a,Pw))+
    '<p class="note">Sources: card text from Scryfall, roles from Scryfall tags, combos from Commander Spellbook, salt votes from EDHREC. Power level, pillars and the annoyance chance are our own formulas; levels like "Dense" compare to a typical Commander deck. Build '+APP_BUILD+'.</p>';
-  B.querySelectorAll("[data-anv]").forEach(b=>b.addEventListener("click",()=>{AN.view=b.dataset.anv;lsSet(NS+"-anview",AN.view);renderAnalytics();}));
+  B.querySelectorAll("[data-anv]").forEach(b=>b.addEventListener("click",()=>{AN.view=b.dataset.anv;renderAnalytics();}));
   const im=B.querySelector("[data-animg]");if(im)im.addEventListener("click",()=>anShareImage(im));
   const re=B.querySelector("[data-anre]");if(re)re.addEventListener("click",()=>{AN.regen=true;AN.seed=(AN.seed||0)+1;renderAnalytics();});
   const e=B.querySelector("[data-anemi]");if(e)e.addEventListener("click",()=>{AN.emi=!AN.emi;lsSet(NS+"-anemi",AN.emi);renderAnalytics();});}
@@ -4593,7 +4597,7 @@ async function openAnalytics(){renderAnalytics();const ok=await loadCards();rend
   if(LAB.combos&&!LAB.match){LAB.match=matchCombos();}else if(!LAB.combos)loadCombos().then(()=>{if(LAB.combos){LAB.match=matchCombos();renderAnalytics();}});
   loadSalt();if(typeof loadEDH==='function')loadEDH().then(renderAnalytics).catch(()=>{});}
 /* the installed app can keep an old copy alive in the background: on open and on return, compare with the published build and reload if it is newer */
-const APP_BUILD=31;
+const APP_BUILD=32;
 function checkUpdate(){if(location.protocol!=="https:")return;fetch(location.href.split("#")[0],{cache:"no-store"}).then(r=>r.ok?r.text():"").then(t=>{const m=t.match(/const APP_BUILD=(\d+);/);
   if(m&&+m[1]>APP_BUILD){let last=0;try{last=+sessionStorage.getItem("cd-rl")||0;}catch(e){}if(Date.now()-last>30000){try{sessionStorage.setItem("cd-rl",String(Date.now()));}catch(e){}hardRefresh();}}}).catch(()=>{});}
 setTimeout(checkUpdate,2500);document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible")checkUpdate();});

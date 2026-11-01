@@ -73,7 +73,7 @@ const plName=p=>p<3?"Casual":p<5?"Focused casual":p<7?"Upgraded":p<8.5?"Optimize
    Not a sum of community scores. Each card gets an annoyance value from what it DOES (text patterns),
    lifted by the EDHREC salt vote when that vote is high. Mana, lands and plain staples count as power, not salt.
    Per game: chance = 1 - product(1 - chance the card shows up by turn 7 x its annoyance). */
-AN.view=lsGet(NS+"-anview")==="deep"?"deep":"brief";AN.emi=!!lsGet(NS+"-anemi");
+AN.view="brief";try{localStorage.removeItem(NS+"-anview");}catch(e){}AN.emi=!!lsGet(NS+"-anemi");
 const ANN_TURNS=8,ANN_PLAYED=.8;   // 80%: an annoying card you see is not always cast, and does not always land on someone
 const ANN_CLASSES={
   mld:{label:"Land destruction",w:.9},stax:{label:"Stax and locks",w:.85},neutral:{label:"Commander neutralizers",w:.7},combo:{label:"Combos",w:.7},
@@ -445,7 +445,7 @@ function renderAnalytics(){const B=document.getElementById("anBody");if(!B||!CUR
    '<div class="anvsw"><div class="seg2" role="group" aria-label="Analytics detail"><button type="button" data-anv="brief" aria-pressed="'+!deep+'">Brief</button><button type="button" data-anv="deep" aria-pressed="'+deep+'">In-depth</button></div><p>'+(deep?"Every number, with the reasoning.":"The main things, in a nutshell.")+'</p><span class="anbuild">Build '+APP_BUILD+'</span></div>'+
    (deep?anDeep(a,N):anBrief(a,Pw))+
    '<p class="note">Sources: card text from Scryfall, roles from Scryfall tags, combos from Commander Spellbook, salt votes from EDHREC. Power level, pillars and the annoyance chance are our own formulas; levels like "Dense" compare to a typical Commander deck. Build '+APP_BUILD+'.</p>';
-  B.querySelectorAll("[data-anv]").forEach(b=>b.addEventListener("click",()=>{AN.view=b.dataset.anv;lsSet(NS+"-anview",AN.view);renderAnalytics();}));
+  B.querySelectorAll("[data-anv]").forEach(b=>b.addEventListener("click",()=>{AN.view=b.dataset.anv;renderAnalytics();}));
   const im=B.querySelector("[data-animg]");if(im)im.addEventListener("click",()=>anShareImage(im));
   const re=B.querySelector("[data-anre]");if(re)re.addEventListener("click",()=>{AN.regen=true;AN.seed=(AN.seed||0)+1;renderAnalytics();});
   const e=B.querySelector("[data-anemi]");if(e)e.addEventListener("click",()=>{AN.emi=!AN.emi;lsSet(NS+"-anemi",AN.emi);renderAnalytics();});}
@@ -453,7 +453,7 @@ async function openAnalytics(){renderAnalytics();const ok=await loadCards();rend
   if(LAB.combos&&!LAB.match){LAB.match=matchCombos();}else if(!LAB.combos)loadCombos().then(()=>{if(LAB.combos){LAB.match=matchCombos();renderAnalytics();}});
   loadSalt();if(typeof loadEDH==='function')loadEDH().then(renderAnalytics).catch(()=>{});}
 /* the installed app can keep an old copy alive in the background: on open and on return, compare with the published build and reload if it is newer */
-const APP_BUILD=31;
+const APP_BUILD=32;
 function checkUpdate(){if(location.protocol!=="https:")return;fetch(location.href.split("#")[0],{cache:"no-store"}).then(r=>r.ok?r.text():"").then(t=>{const m=t.match(/const APP_BUILD=(\d+);/);
   if(m&&+m[1]>APP_BUILD){let last=0;try{last=+sessionStorage.getItem("cd-rl")||0;}catch(e){}if(Date.now()-last>30000){try{sessionStorage.setItem("cd-rl",String(Date.now()));}catch(e){}hardRefresh();}}}).catch(()=>{});}
 setTimeout(checkUpdate,2500);document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible")checkUpdate();});

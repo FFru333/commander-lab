@@ -510,9 +510,13 @@ function renderPrint(){const P=document.getElementById("printTools");P.innerHTML
 
 /* ---------- views and navigation ---------- */
 const VIEWS={home:"vHome",decks:"vDecks",deck:"vDeck",coll:"vColl",print:"vPrint"};
-let view=(location.hash||"").slice(1);if(view==="collection")view="coll";if(!VIEWS[view])view=lsGet(NS+"-view")||"home";if(!VIEWS[view])view="home";
+try{history.scrollRestoration="manual";}catch(e){}
+let view=(location.hash||"").slice(1);if(view==="collection")view="coll";if(!VIEWS[view])view="home";
 function setView(v){if(!VIEWS[v])v="home";const has=!!CUR,any=Object.keys(DECKS.list).length>0;
   if(v==="deck"&&!has)v=any?"decks":"home";if(v==="coll"&&!any)v="home";
+  /* every screen opens from its top: no remembered scroll, sub-tab or layout editing */
+  const changed=v!==view;Object.keys(GRIDS).forEach(g=>{if(GRIDS[g].editing)setEditing(g,false);});
+  if(changed){window.scrollTo(0,0);if(v==="deck")try{if(DTAB!=="cards")setDTab("cards");}catch(e){}}
   view=v;lsSet(NS+"-view",v);
   Object.entries(VIEWS).forEach(([k,id])=>document.getElementById(id).hidden=k!==v);
   document.getElementById("emptyState").hidden=true;
