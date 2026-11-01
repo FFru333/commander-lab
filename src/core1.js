@@ -415,7 +415,7 @@ function update(){
   document.getElementById("tcount").textContent=shown+(shown===1?" card shown":" cards shown")+(shown<rows.length?" of "+rows.length:"");
   dupCheck();syncSel();
   const fin=new Set(rows.map(r=>norm(finalName(r.name))));
-  document.getElementById("combo").textContent=(fin.has(norm("Ganax, Astral Hunter"))&&fin.has(norm("Draconic Visitor")))?"Combo in the list: Ganax + Draconic Visitor. Cast the second piece only when Terror of the Peaks, Scourge of Valkas or Dragon Tempest is already out: with one of them it is infinite damage, without them the mandatory loop ends in a draw.":"";
+
 }
 document.getElementById("reset").addEventListener("click",async()=>{if(!await ask("Clear every mark and alternative in this deck? Printings go back to the ones in the imported list.","Clear marks"))return;state=seed();save();rows.forEach(r=>r.inp.value=st(r.name).altName||"");update();});
 document.getElementById("restore").addEventListener("click",async()=>{if(!SEED||DECKS.current!==SEED.id)return;if(!await ask("Restore the marks you filled in earlier? Changes made since then are lost.","Restore"))return;state=seed();save();rows.forEach(r=>r.inp.value=st(r.name).altName||"");update();});

@@ -1353,6 +1353,29 @@ details.anhow p{margin:8px 0 0;line-height:1.5}
 .ptr.b{top:auto;bottom:calc(env(safe-area-inset-bottom,0px) + 96px)}
 .anbuild{margin-left:auto;font:500 10.5px/1 var(--fm);letter-spacing:.1em;text-transform:uppercase;color:var(--muted);opacity:.7}
 .animname{width:100%;height:40px;padding:0 14px;border-radius:12px;border:1px solid var(--line2,var(--line));background:var(--card);color:var(--ink);font:inherit;font-size:14px;text-align:center}
+/* ===== polish: more menus, home shortcuts ===== */
+.mwrap{position:relative;display:inline-flex}
+.morebtn{min-width:40px;width:40px;padding:0;justify-content:center;font-size:18px;letter-spacing:.05em;line-height:1}
+.mmenu{position:absolute;right:0;top:calc(100% + 6px);z-index:40;display:flex;flex-direction:column;gap:2px;min-width:200px;padding:6px;border-radius:16px;background:var(--card);border:1px solid var(--line);box-shadow:0 14px 40px rgba(13,17,23,.18)}
+.mmenu[hidden]{display:none}
+.mmenu button{justify-content:flex-start;width:100%;height:40px;min-height:0;border:0;border-radius:10px;background:transparent;color:var(--ink);padding:0 12px;text-align:left;backdrop-filter:none}
+.mmenu button:hover{background:var(--head)}
+.mmenu .danger{color:var(--warn)}
+.mmenu .themeBtn{display:flex;gap:8px;align-items:center}
+.vtools .mmenu{right:auto;left:0}
+.hchips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:8px}
+.hchip{display:inline-flex;align-items:center;gap:8px;height:44px;padding:0 16px;border-radius:999px;background:var(--card);border:1px solid var(--line2);font-weight:600}
+.hchip span{font-size:16px}
+.labpower{grid-column:auto;display:grid;grid-template-columns:auto 1fr;gap:16px;align-items:center;height:auto;min-height:0;padding:12px 14px;border-radius:var(--r-sm);background:var(--head);border:0;text-align:left;color:var(--ink);cursor:pointer;align-self:center}
+.labpower .lpl{display:flex;flex-direction:column;gap:2px;min-width:92px}
+.labpower .lpl small{font:500 10px/1 var(--fm);letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.labpower .lpl b{font:700 34px/1 var(--fd);color:var(--accent)}
+.labpower .lpl em{font-style:normal;font-size:12.5px;font-weight:600}
+.lpills{display:grid;gap:7px;min-width:0}
+.lpr{display:grid;grid-template-columns:minmax(0,104px) 1fr 26px;gap:8px;align-items:center;font:500 10px/1 var(--fm);letter-spacing:.1em;text-transform:uppercase}
+.lpr b{text-align:right;font:600 13px/1 var(--fd);letter-spacing:0}
+@media (max-width:820px){.lpr{grid-template-columns:minmax(0,86px) 1fr 24px;font-size:9px}.labpower .lpl b{font-size:28px}}
+.hhead{min-height:0}#vHome .hhead{padding-top:28px;padding-bottom:28px}
 
 </style>
 </head>
@@ -1369,7 +1392,11 @@ details.anhow p{margin:8px 0 0;line-height:1.5}
   <div class="navr">
     <select id="deckSel" aria-label="Current deck"></select>
     <button id="playOpen" type="button" class="playBtn" aria-label="Life counter"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/></svg><span>Play</span></button>
-    <button id="themeOpen" type="button" class="themeBtn"><i aria-hidden="true"></i>Theme</button>
+    <span class="mwrap"><button type="button" class="morebtn" data-more aria-haspopup="true" aria-expanded="false" aria-label="More">⋯</button><span class="mmenu" role="menu" hidden>
+      <button id="themeOpen" type="button" role="menuitem" class="themeBtn"><i aria-hidden="true"></i>Theme</button>
+      <button type="button" role="menuitem" data-act="backup">Back up data</button>
+      <button type="button" role="menuitem" data-act="restore">Restore data</button>
+    </span></span>
     <button id="deckNew" type="button" class="btn-acc">New deck</button>
   </div>
 </div></nav>
@@ -1398,14 +1425,14 @@ details.anhow p{margin:8px 0 0;line-height:1.5}
       <h1 class="ttl" id="homeTitle">Good evening</h1>
       <p class="sub" id="homeSub"></p>
     </div>
-    <div class="vtools"><button type="button" class="btn-acc" data-act="new">New deck</button><button type="button" data-act="play">Life counter</button><button type="button" data-go="coll">My collection</button></div>
+    
   </div>
   <div class="installtip" id="installTip" hidden></div>
   <div class="bento" id="homeStats"></div>
   <div class="hsec"><h2>My decks</h2><button type="button" class="ghostbtn" data-go="decks">See all</button></div>
   <div class="deckcards" id="homeDecks"></div>
-  <div class="hsec"><h2>Print House</h2><button type="button" class="ghostbtn" data-go="print">Open</button></div>
-  <div class="toolcards mini" id="homeTools"></div>
+  <div class="hsec"><h2>Print House</h2></div>
+  <div class="hchips" id="homeTools"></div>
 </section>
 
 <section id="vDecks" class="view" aria-labelledby="decksTitle" hidden>
@@ -1414,7 +1441,7 @@ details.anhow p{margin:8px 0 0;line-height:1.5}
       <h1 class="ttl" id="decksTitle">My decks</h1>
       <p class="sub" id="decksSub">Every deck you imported. Open one to mark cards, print proxies or find its tokens.</p>
     </div>
-    <div class="vtools"><button type="button" class="btn-acc" data-act="new">New deck</button><button type="button" data-act="backup">Back up data</button><button type="button" data-act="restore">Restore</button></div>
+    <div class="vtools"><button type="button" class="btn-acc" data-act="new">New deck</button></div>
   </div>
   <div class="deckcards big" id="allDecks"></div>
 </section>
@@ -1433,22 +1460,23 @@ details.anhow p{margin:8px 0 0;line-height:1.5}
   <div class="vhead">
     <div class="vtitle" data-eyebrow="Deck checklist">
       <h1 class="ttl" id="deckTitle">Deck</h1>
-      <p class="sub">Mark each card as Owned, Proxy, Missing or Alternative. Proxy plus Missing means you own one copy but need a proxy for this deck. Hover a name to see the card.</p>
+      <p class="sub">Tap a card's status to mark it: Owned, Proxy, Missing or Alternative.</p>
     </div>
     <div class="vtools">
       <button id="openProxy" type="button">Proxy sheet</button>
       <button id="openTokens" type="button">Tokens</button>
       <button id="openExport" type="button">Export</button>
-      <button id="editLDeck" type="button" class="editL" data-grid="deck" aria-pressed="false">Edit layout</button>
       <button id="deckEdit" type="button">Edit list</button>
-      <button id="restore" type="button">Restore my data</button>
-      <button id="reset" type="button">Clear marks</button>
-      <button id="deckDel" type="button" class="danger">Delete deck</button>
+      <span class="mwrap"><button type="button" class="morebtn" data-more aria-haspopup="true" aria-expanded="false" aria-label="More deck actions">⋯</button><span class="mmenu" role="menu" hidden>
+        <button id="editLDeck" type="button" role="menuitem" class="editL" data-grid="deck" aria-pressed="false">Edit layout</button>
+        <button id="restore" type="button" role="menuitem">Restore my data</button>
+        <button id="reset" type="button" role="menuitem">Clear marks</button>
+        <button id="deckDel" type="button" role="menuitem" class="danger">Delete deck</button>
+      </span></span>
     </div>
   </div>
   <div class="card lab" id="labHead" aria-label="Deck insights"></div>
   <div class="dtabs" id="dtabs" role="tablist" aria-label="Deck sections"><button type="button" role="tab" data-t="cards" aria-selected="true">Cards</button><button type="button" role="tab" data-t="sug" aria-selected="false">Suggestions</button><button type="button" role="tab" data-t="combo" aria-selected="false">Combos</button><button type="button" role="tab" data-t="stats" aria-selected="false">Analytics</button></div>
-  <p id="combo" class="combo" role="status"></p>
   <p id="imMsg" class="combo" role="status"></p>
   <div class="wbar" data-grid="deck" hidden>
     <button type="button" class="addW btn-acc">Add widget</button>
@@ -2122,7 +2150,7 @@ function update(){
   document.getElementById("tcount").textContent=shown+(shown===1?" card shown":" cards shown")+(shown<rows.length?" of "+rows.length:"");
   dupCheck();syncSel();
   const fin=new Set(rows.map(r=>norm(finalName(r.name))));
-  document.getElementById("combo").textContent=(fin.has(norm("Ganax, Astral Hunter"))&&fin.has(norm("Draconic Visitor")))?"Combo in the list: Ganax + Draconic Visitor. Cast the second piece only when Terror of the Peaks, Scourge of Valkas or Dragon Tempest is already out: with one of them it is infinite damage, without them the mandatory loop ends in a draw.":"";
+
 }
 document.getElementById("reset").addEventListener("click",async()=>{if(!await ask("Clear every mark and alternative in this deck? Printings go back to the ones in the imported list.","Clear marks"))return;state=seed();save();rows.forEach(r=>r.inp.value=st(r.name).altName||"");update();});
 document.getElementById("restore").addEventListener("click",async()=>{if(!SEED||DECKS.current!==SEED.id)return;if(!await ask("Restore the marks you filled in earlier? Changes made since then are lost.","Restore"))return;state=seed();save();rows.forEach(r=>r.inp.value=st(r.name).altName||"");update();});
@@ -2661,11 +2689,11 @@ async function loadMeta(){
     for(let i=0;i<need.length;i+=75){
       const r=await fetch("https://api.scryfall.com/cards/collection",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({identifiers:need.slice(i,i+75).map(n=>({name:n}))})});
       if(!r.ok)break;const j=await r.json();
-      (j.data||[]).forEach(c=>{const rec=metaRec(c);META[norm(c.name)]=rec;META[norm(front(c.name))]=rec;});
+      (j.data||[]).forEach(c=>{const rec=metaRec(c);META[norm(c.name)]=rec;META[norm(front(c.name))]=rec;const A=window.__AN;if(A&&typeof slimCard==="function"){const sc=slimCard(c);A.cards[nk(c.name)]=sc;A.cards[nk(front(c.name))]=sc;}});
       (j.not_found||[]).forEach(x=>{if(x.name&&!META[norm(x.name)])META[norm(x.name)]={eur:null,cmc:0,land:false,dragon:false,type:"",ci:[],rarity:null,set:null,setName:null,missing:true};});
       await new Promise(r=>setTimeout(r,120));
     }
-    lsSet(NS+"-meta",META);
+    lsSet(NS+"-meta",META);if(window.__AN)try{lsSet(NS+"-cards",window.__AN.cards);}catch(e){}
   }catch(e){}
   metaBusy=false;_upd();refreshViews();
 }
@@ -2774,9 +2802,7 @@ const WTYPES={
   notes:{name:"Notes",desc:"Free text, saved with the deck or the collection.",def:{w:6,h:4}}
 };
 const DEF_LAYOUT={
-  deck:[["stat",3,2,{metric:"have"}],["stat",3,2,{metric:"proxy"}],["stat",3,2,{metric:"buy"}],["stat",3,2,{metric:"order"}],
-    ["progress",12,2,{}],["curve",7,6,{}],["top",5,6,{src:"buy",n:"5"}],
-    ["breakdown",6,6,{dim:"type",measure:"count",src:"all",style:"bars",n:"10"}],["breakdown",6,6,{dim:"cat",measure:"value",src:"all",style:"bars",n:"10"}]],
+  deck:[["progress",12,2,{}],["top",6,6,{src:"buy",n:"5"}],["breakdown",6,6,{dim:"cat",measure:"value",src:"all",style:"bars",n:"10"}]],
   coll:[["stat",3,2,{metric:"unique"}],["stat",3,2,{metric:"value"}],["stat",3,2,{metric:"wish"}],["stat",3,2,{metric:"complete"}],
     ["breakdown",7,6,{dim:"added",measure:"value",src:"have",style:"cols",n:"15"}],["top",5,6,{src:"have",n:"5"}],
     ["breakdown",4,6,{dim:"color",measure:"count",src:"have",style:"bars",n:"10"}],["breakdown",4,6,{dim:"rarity",measure:"value",src:"have",style:"bars",n:"10"}],["breakdown",4,6,{dim:"deck",measure:"value",src:"have",style:"bars",n:"10"}]]
@@ -2787,6 +2813,9 @@ const GRIDS={};
 function gridFor(g){
   if(GRIDS[g])return GRIDS[g];
   let items=lsGet(NS+"-layout-"+g);if(!Array.isArray(items)||!items.length)items=defaultLayout(g);
+  /* one-time tidy-up: the deck page no longer repeats what the status bar and Analytics already show */
+  if(g==="deck"&&!lsGet(NS+"-layout-v2")){items=items.filter(it=>!(it.type==="curve"||(it.type==="stat"&&["have","proxy","buy"].includes(it.cfg&&it.cfg.metric))||(it.type==="breakdown"&&it.cfg&&it.cfg.dim==="type")));
+    if(!items.some(it=>it.type==="progress"))items.unshift({id:newId(),type:"progress",w:12,h:2,cfg:{}});items.forEach(it=>{if(it.type==="top"||it.type==="breakdown")it.w=6;});lsSet(NS+"-layout-"+g,items);lsSet(NS+"-layout-v2",1);}
   items=items.filter(it=>WTYPES[it.type]&&!(g==="coll"&&WTYPES[it.type].deckOnly));
   const el=document.getElementById(g==="deck"?"gDeck":"gColl");
   const G=GRIDS[g]={g,el,items,editing:false,cols:12};
@@ -3130,7 +3159,7 @@ function renderHome(){const ids=Object.keys(DECKS.list);const R=collRecords();co
     statTile("3","Average completion",avg+"%","owned cards across decks",()=>setView("decks")),
     statTile("4","Still to buy",fmtE0(buy),(n=>n+(n===1?" card":" cards"))(R.filter(r=>r.status==="buy").length),()=>{setView("coll");setCollFilter("status","buy");}));
   const H=document.getElementById("homeDecks");H.innerHTML="";stats.slice(0,6).forEach(st=>H.appendChild(deckCard(st,false)));H.appendChild(newDeckCard());
-  const T=document.getElementById("homeTools");T.innerHTML="";TOOLS.forEach(t=>T.appendChild(toolCard(t,true)));}
+  const T=document.getElementById("homeTools");T.innerHTML=TOOLS.map(t=>'<button type="button" class="hchip" data-go="print"><span aria-hidden="true">'+t.ico+'</span>'+esc(t.t)+'</button>').join("");}
 function renderDecks(){const A=document.getElementById("allDecks");A.innerHTML="";const ids=Object.keys(DECKS.list).sort((a,b)=>DECKS.list[a].name.localeCompare(DECKS.list[b].name));
   ids.map(deckStats).forEach(st=>A.appendChild(deckCard(st,true)));A.appendChild(newDeckCard());
   document.getElementById("decksSub").textContent=ids.length?ids.length+(ids.length===1?" deck":" decks")+". Open one to mark cards, print proxies or find its tokens.":"No decks yet. Import one to begin.";}
@@ -3540,6 +3569,11 @@ const PIPC={W:"#f4eecd",U:"#a9d3ef",B:"#b9b2ad",R:"#f0a284",G:"#9fcf9b"};
 function gaugeSVG(v,big){const r=big?40:30,c=Math.PI*r,len=(v/100)*c;const w=big?100:76,h=big?58:44,cx=w/2,cy=h-4;
   return '<svg viewBox="0 0 '+w+' '+h+'" width="'+w+'" height="'+h+'" aria-hidden="true"><path d="M '+(cx-r)+' '+cy+' A '+r+' '+r+' 0 0 1 '+(cx+r)+' '+cy+'" class="gtrack"/><path d="M '+(cx-r)+' '+cy+' A '+r+' '+r+' 0 0 1 '+(cx+r)+' '+cy+'" class="gval" stroke-dasharray="'+len.toFixed(1)+' '+c.toFixed(1)+'"/></svg>';}
 let labDetail=null;
+/* the header shows the same power estimate and pillars as Analytics, one source for both */
+function labPower(){let a=null,P=null;try{if(typeof analyzeDeck==="function"){a=analyzeDeck();if(a.known>=a.total*0.8)P=pillars(a);}}catch(e){}
+  const g=P?[["Consistency",P.cons],["Efficiency",P.eff],["Interaction",P.inter],["Win conditions",P.win]]:[["Consistency",0],["Efficiency",0],["Interaction",0],["Win conditions",0]];
+  return '<button type="button" class="labpower" data-stats="1" aria-label="Power level '+(P?P.pl.toFixed(1):"not ready")+'. Open Analytics"><span class="lpl"><small>Power level</small><b>'+(P?P.pl.toFixed(1):"…")+'</b><em>'+(P?plName(P.pl):"Reading cards…")+'</em></span>'+
+    '<span class="lpills">'+g.map(([k,v])=>'<span class="lpr"><span>'+k+'</span><span class="anbar hot"><i style="width:'+(P?Math.round(v):0)+'%"></i></span><b>'+(P?Math.round(v):"–")+'</b></span>').join("")+'</span></button>';}
 function renderLabHead(){
   const H=document.getElementById("labHead");if(!H||!CUR)return;
   const a=analyze(),br=bracketOf(a),ci=deckCI(),cmd=[...CMDS][0];
@@ -3549,7 +3583,7 @@ function renderLabHead(){
     '<div class="labart"'+(cmd?' style="background-image:linear-gradient(90deg,rgba(13,17,23,.15),rgba(13,17,23,.65)),url(\''+esc(artURL(finalName(cmd)))+'\')"':'')+'>'+
       '<button type="button" class="bkt" data-d="bracket" aria-label="Estimated bracket '+br.b+', '+BRACKETS[br.b]+'. Show why"><b>['+br.b+']</b><small>'+BRACKETS[br.b]+'</small></button>'+
       '<div class="labcap"><small>Estimated bracket</small><span class="pips">'+(ci.length?ci:["C"]).map(c=>'<i style="background:'+(PIPC[c]||"#ccc")+'">'+c+'</i>').join("")+'</span></div></div>'+
-    '<div class="labgauges">'+G.map(([k,l,v,big])=>'<button type="button" class="gauge'+(big?" big":"")+(ready?"":" wait")+'" data-d="'+k+'" aria-label="'+l+' '+(ready?v:"not ready")+'. Show how it is calculated">'+gaugeSVG(ready?v:0,big)+'<b>'+(ready?v:"…")+'</b><small>'+l+'</small></button>').join("")+'</div>'+
+    labPower()+
     '<div class="labroles"><span class="lbl">Roles</span>'+ROLE_TAGS.filter(t=>t.min||a.cnt[t.k]).map(t=>'<button type="button" class="rchip'+(ready&&t.min&&a.cnt[t.k]<t.min?" low":"")+(extF&&extF.id==="role-"+t.k?" on":"")+'" data-role="'+t.k+'"'+(ready?'':' disabled')+'>'+(ready&&t.min&&a.cnt[t.k]<t.min?'<i aria-hidden="true"></i>':'')+t.label+' <b>'+(ready?a.cnt[t.k]:"–")+'</b>'+(t.min?'<span class="tgt">/'+t.min+'</span>':'')+'</button>').join("")+'</div>'+
     (LAB.prog?'<p class="labprog" role="status">'+esc(LAB.prog)+'</p>':'')+
     '<div class="labdetail" id="labDetail"'+(labDetail?'':' hidden')+'></div>';
@@ -3562,7 +3596,7 @@ function renderDetail(a,br){const D=document.getElementById("labDetail");if(!D)r
   if(labDetail==="power")h='<h4>Power '+a.power+'</h4><ul class="calc">'+row("Game Changers",a.cnt.gc,"+6 each, up to 4")+row("Tutors",a.cnt.tutor,"+3 each, up to 5")+row("Two-card combos",LAB.match?a.two:"not checked","+12 if any")+row("Ramp",a.cnt.ramp,"+1.5 each, up to 15")+row("Average mana value",a.avg.toFixed(2),"+10 per point under 3.6")+'</ul><p class="note">A rough guide made for this app, starting from 35. It is not the score other sites show.</p>';
   if(labDetail==="overall")h='<h4>Overall '+a.overall+'</h4><ul class="calc">'+row("Deck health",a.health,"40%")+row("Mana health",a.mana,"35%")+row("Power",a.power,"25%")+'</ul><p class="note">Roles come from Scryfall\'s card tags, so a card can count for more than one role. '+a.tagged+' of '+a.total+' cards are tagged.</p>';
   D.innerHTML=h+'<button type="button" class="ghostbtn" data-d="close">Close</button>';}
-document.addEventListener("click",e=>{const H=e.target.closest("#labHead");if(!H)return;
+document.addEventListener("click",e=>{const H=e.target.closest("#labHead");if(!H)return;if(e.target.closest("[data-stats]")){setDTab("stats");document.getElementById("dtabs").scrollIntoView({block:"start",behavior:"smooth"});return;}
   const d=e.target.closest("[data-d]");if(d){labDetail=(d.dataset.d==="close"||labDetail===d.dataset.d)?null:d.dataset.d;renderLabHead();return;}
   const rc=e.target.closest("[data-role]");if(rc){const k=rc.dataset.role,T=ROLE_TAGS.find(t=>t.k===k);
     extF=(extF&&extF.id==="role-"+k)?null:{id:"role-"+k,label:"Role: "+T.label,pred:x=>hasRole(x.name,k)};setDTab("cards");update();renderLabHead();
@@ -3707,7 +3741,7 @@ function renderCombos(){const B=document.getElementById("comboList"),T=document.
 
 /* ---------- start ---------- */
 function renderLab(){renderLabHead();if(DTAB==="sug"&&LAB.edh)renderSug();if(DTAB==="stats")renderAnalytics();}
-function startLab(){if(!CUR)return;renderLabHead();setDTab(DTAB);
+function startLab(){if(!CUR)return;renderLabHead();setDTab(DTAB);if(typeof loadCards==="function")loadCards().then(()=>renderLabHead());
   setTimeout(()=>{tagDeck(false);if(!LAB.combos)loadCombos().then(()=>{if(LAB.combos){LAB.match=matchCombos();renderLabHead();if(DTAB==="combo")renderCombos();}});},400);}
 
 /* ---------- import: tolerant list parser (quantities in any position, number words, basic-land plurals) ---------- */
@@ -4098,9 +4132,14 @@ document.addEventListener("click",e=>{const b=e.target.closest('[data-act="backu
 document.getElementById("dataModal").addEventListener("click",e=>{if(e.target.id==="dataModal")closeData();});
 /* an empty device (e.g. the freshly installed app) offers the restore right in the first screen */
 (function(){const R=document.getElementById("imRestore");if(R)R.hidden=Object.keys(DECKS.list).length>0;})();
+/* "⋯" menus: one open at a time, closed by a tap outside or on an item */
+document.addEventListener("click",e=>{const t=e.target.closest("[data-more]");const open=[...document.querySelectorAll(".mmenu:not([hidden])")];
+  if(t){const m=t.parentElement.querySelector(".mmenu");const was=!m.hidden;open.forEach(x=>{x.hidden=true;x.parentElement.querySelector("[data-more]").setAttribute("aria-expanded","false");});
+    if(!was){m.hidden=false;t.setAttribute("aria-expanded","true");}return;}
+  open.forEach(x=>{if(!x.contains(e.target)||e.target.closest("button")){x.hidden=true;x.parentElement.querySelector("[data-more]").setAttribute("aria-expanded","false");}});});
 
 /* ---------- deck analytics: power estimate, fingerprint, manabase, salt ---------- */
-const AN={cards:lsGet(NS+"-cards")||{},salt:lsGet(NS+"-salt")||{},busy:false,saltBusy:false,prog:""};
+const AN=window.__AN={cards:lsGet(NS+"-cards")||{},salt:lsGet(NS+"-salt")||{},busy:false,saltBusy:false,prog:""};
 const COLORS=["W","U","B","R","G"],CNAME={W:"White",U:"Blue",B:"Black",R:"Red",G:"Green",C:"Colorless"};
 /* full card text from Scryfall /cards/collection (75 per call), cached for 60 days */
 function slimCard(c){const f=c.card_faces||[];const ot=c.oracle_text!=null?c.oracle_text:f.map(x=>x.oracle_text||"").join("\n//\n");
@@ -4504,12 +4543,7 @@ function anBrief(a,Pw){const emi=AN.emi&&HAS_EMI(),cv=curveData(emi),base=curveD
   const g=[["Consistency",Pw.cons],["Efficiency",Pw.eff],["Interaction",Pw.inter],["Win conditions",Pw.win]];
   const nlands=a.lands.reduce((t,r)=>t+r.qty,0),nb=a.basics.reduce((t,r)=>t+r.qty,0);
   const stat=(k,v,s)=>'<div class="anstat"><small>'+k+'</small><b>'+v+'</b><span>'+s+'</span></div>';
-  return '<div class="anhero"><div><p class="ankick">Power level · estimate</p><h3>'+plName(Pw.pl)+'</h3><p class="ansub">'+(a.rolesReady?'':'Roles still loading: numbers will settle in a moment. ')+'Our own scale from the four pillars below, not the number another site gives.</p>'+
-      '<div class="anscale"><i style="left:'+(Pw.pl*10)+'%"></i></div><div class="anticks"><span>0</span><span>3</span><span>5</span><span>7</span><span>10</span></div></div>'+
-      '<div class="anpl"><small>Power level</small><b>'+Pw.pl.toFixed(1)+'</b><small>/ 10</small></div></div>'+
-    '<div class="anpillars">'+g.map(([k,v])=>'<div class="anp"><span>'+k+'</span>'+bar(v,100,"hot")+'<b>'+Math.round(v)+'</b></div>').join("")+'</div>'+
-    '<h3 class="anh">At a glance</h3><div class="anstats">'+stat("Average mana value",cv.avg.toFixed(2),emi?"with eminence":"printed costs")+stat("Lands",nlands,a.tapped.length+" enter tapped")+stat("Ramp",Pw.ramp,"rocks, dorks, land ramp, reducers")+
-      stat("Card draw",a.draw,level(a.draw,4,8,12).toLowerCase())+stat("Interaction",a.removal+a.counter+a.wipe,"removal, counters, wipes")+'</div>'+
+  return (a.rolesReady?'':'<p class="ansub">Roles still loading: numbers will settle in a moment.</p>')+
     '<h3 class="anh">What to look at</h3><ul class="anins">'+insightsOf(a,Pw,cv).map(([t,x])=>'<li class="'+t+'"><i></i><span>'+esc(x)+'</span></li>').join("")+'</ul><p class="note">Rules of thumb for a 100-card Commander deck, not hard limits.</p>'+
     '<div class="angrid two">'+tile("Mana curve",anCurve(cv.b,mx,"tall")+kv("Average mana value",cv.avg.toFixed(2),emi?'<em>was '+base.avg.toFixed(2)+'</em>':'')+(emi?kv("Dragons discounted",cv.red):'')+kv("Non-land cards",cv.n)+
         (HAS_EMI()?'<button type="button" class="emi" aria-pressed="'+emi+'" data-anemi="1">'+(emi?"Show without eminence":"Apply eminence")+'</button>':''),emi?"Every Dragon costs 1 less, except the commander.":"Printed costs, commander included."+(cv.est?" "+cv.est+" cards still without Scryfall data.":""))+
@@ -4534,7 +4568,7 @@ function anDeep(a,N){const call=anCallouts(a,N),maxC=Math.max(.0001,...N.classes
   const nlands=a.lands.reduce((t,r)=>t+r.qty,0);
   return salt+read+why+'<h3 class="anh">Deck fingerprint</h3><div class="angrid">'+
    tile("Composition",Object.keys(a.comp).filter(k=>a.comp[k]).map(k=>'<div class="anrow"><span>'+k+'</span>'+bar(a.comp[k],Math.max(...Object.values(a.comp)))+'<b>'+a.comp[k]+'</b></div>').join(""),a.nl+" nonland · "+Math.round(a.perm/Math.max(1,a.nl)*100)+"% permanents")+
-   tile("Curve and speed",anCurve(a.curve,Math.max(1,...a.curve))+kv("Average mana value",a.avg.toFixed(2))+kv("Cheap (2 or less)",a.cheap)+kv("Finishers (6+)",a.fin),"Printed costs")+
+   tile("Speed",kv("Cheap (2 or less)",a.cheap)+kv("Finishers (6+)",a.fin)+kv("Peak mana value",a.peak),"The curve is in Brief")+
    tile("Ramp",kv("Mana rocks",a.rocks.length)+kv("Mana creatures",a.dorks.length)+kv("Land ramp",a.landRamp.length)+kv("Treasure makers",a.treas.length)+kv("Rituals",a.rituals.length)+kv("Cost reducers",a.reducers.length),pillars(a).ramp+" pieces in total")+
    tile("Card advantage",kv("Card draw",a.draw,'<em>'+level(a.draw,4,8,12)+'</em>')+kv("Recursion",a.recur,'<em>'+level(a.recur,2,4,6)+'</em>')+kv("Tutors",a.tutor))+
    tile("Interaction",kv("Counterspells",a.counter,'<em>'+level(a.counter,2,4,6)+'</em>')+kv("Removal",a.removal,'<em>'+level(a.removal,4,8,12)+'</em>')+kv("Board wipes",a.wipe,'<em>'+level(a.wipe,2,3,5)+'</em>')+kv("Protection",a.protect,'<em>'+level(a.protect,2,4,6)+'</em>')+kv("Graveyard hate",a.gyhate,'<em>'+level(a.gyhate,1,2,4)+'</em>'))+
@@ -4559,7 +4593,7 @@ async function openAnalytics(){renderAnalytics();const ok=await loadCards();rend
   if(LAB.combos&&!LAB.match){LAB.match=matchCombos();}else if(!LAB.combos)loadCombos().then(()=>{if(LAB.combos){LAB.match=matchCombos();renderAnalytics();}});
   loadSalt();if(typeof loadEDH==='function')loadEDH().then(renderAnalytics).catch(()=>{});}
 /* the installed app can keep an old copy alive in the background: on open and on return, compare with the published build and reload if it is newer */
-const APP_BUILD=30;
+const APP_BUILD=31;
 function checkUpdate(){if(location.protocol!=="https:")return;fetch(location.href.split("#")[0],{cache:"no-store"}).then(r=>r.ok?r.text():"").then(t=>{const m=t.match(/const APP_BUILD=(\d+);/);
   if(m&&+m[1]>APP_BUILD){let last=0;try{last=+sessionStorage.getItem("cd-rl")||0;}catch(e){}if(Date.now()-last>30000){try{sessionStorage.setItem("cd-rl",String(Date.now()));}catch(e){}hardRefresh();}}}).catch(()=>{});}
 setTimeout(checkUpdate,2500);document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible")checkUpdate();});

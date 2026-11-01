@@ -11,7 +11,11 @@
   <div class="navr">
     <select id="deckSel" aria-label="Current deck"></select>
     <button id="playOpen" type="button" class="playBtn" aria-label="Life counter"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/></svg><span>Play</span></button>
-    <button id="themeOpen" type="button" class="themeBtn"><i aria-hidden="true"></i>Theme</button>
+    <span class="mwrap"><button type="button" class="morebtn" data-more aria-haspopup="true" aria-expanded="false" aria-label="More">⋯</button><span class="mmenu" role="menu" hidden>
+      <button id="themeOpen" type="button" role="menuitem" class="themeBtn"><i aria-hidden="true"></i>Theme</button>
+      <button type="button" role="menuitem" data-act="backup">Back up data</button>
+      <button type="button" role="menuitem" data-act="restore">Restore data</button>
+    </span></span>
     <button id="deckNew" type="button" class="btn-acc">New deck</button>
   </div>
 </div></nav>
@@ -40,14 +44,14 @@
       <h1 class="ttl" id="homeTitle">Good evening</h1>
       <p class="sub" id="homeSub"></p>
     </div>
-    <div class="vtools"><button type="button" class="btn-acc" data-act="new">New deck</button><button type="button" data-act="play">Life counter</button><button type="button" data-go="coll">My collection</button></div>
+    
   </div>
   <div class="installtip" id="installTip" hidden></div>
   <div class="bento" id="homeStats"></div>
   <div class="hsec"><h2>My decks</h2><button type="button" class="ghostbtn" data-go="decks">See all</button></div>
   <div class="deckcards" id="homeDecks"></div>
-  <div class="hsec"><h2>Print House</h2><button type="button" class="ghostbtn" data-go="print">Open</button></div>
-  <div class="toolcards mini" id="homeTools"></div>
+  <div class="hsec"><h2>Print House</h2></div>
+  <div class="hchips" id="homeTools"></div>
 </section>
 
 <section id="vDecks" class="view" aria-labelledby="decksTitle" hidden>
@@ -56,7 +60,7 @@
       <h1 class="ttl" id="decksTitle">My decks</h1>
       <p class="sub" id="decksSub">Every deck you imported. Open one to mark cards, print proxies or find its tokens.</p>
     </div>
-    <div class="vtools"><button type="button" class="btn-acc" data-act="new">New deck</button><button type="button" data-act="backup">Back up data</button><button type="button" data-act="restore">Restore</button></div>
+    <div class="vtools"><button type="button" class="btn-acc" data-act="new">New deck</button></div>
   </div>
   <div class="deckcards big" id="allDecks"></div>
 </section>
@@ -75,22 +79,23 @@
   <div class="vhead">
     <div class="vtitle" data-eyebrow="Deck checklist">
       <h1 class="ttl" id="deckTitle">Deck</h1>
-      <p class="sub">Mark each card as Owned, Proxy, Missing or Alternative. Proxy plus Missing means you own one copy but need a proxy for this deck. Hover a name to see the card.</p>
+      <p class="sub">Tap a card's status to mark it: Owned, Proxy, Missing or Alternative.</p>
     </div>
     <div class="vtools">
       <button id="openProxy" type="button">Proxy sheet</button>
       <button id="openTokens" type="button">Tokens</button>
       <button id="openExport" type="button">Export</button>
-      <button id="editLDeck" type="button" class="editL" data-grid="deck" aria-pressed="false">Edit layout</button>
       <button id="deckEdit" type="button">Edit list</button>
-      <button id="restore" type="button">Restore my data</button>
-      <button id="reset" type="button">Clear marks</button>
-      <button id="deckDel" type="button" class="danger">Delete deck</button>
+      <span class="mwrap"><button type="button" class="morebtn" data-more aria-haspopup="true" aria-expanded="false" aria-label="More deck actions">⋯</button><span class="mmenu" role="menu" hidden>
+        <button id="editLDeck" type="button" role="menuitem" class="editL" data-grid="deck" aria-pressed="false">Edit layout</button>
+        <button id="restore" type="button" role="menuitem">Restore my data</button>
+        <button id="reset" type="button" role="menuitem">Clear marks</button>
+        <button id="deckDel" type="button" role="menuitem" class="danger">Delete deck</button>
+      </span></span>
     </div>
   </div>
   <div class="card lab" id="labHead" aria-label="Deck insights"></div>
   <div class="dtabs" id="dtabs" role="tablist" aria-label="Deck sections"><button type="button" role="tab" data-t="cards" aria-selected="true">Cards</button><button type="button" role="tab" data-t="sug" aria-selected="false">Suggestions</button><button type="button" role="tab" data-t="combo" aria-selected="false">Combos</button><button type="button" role="tab" data-t="stats" aria-selected="false">Analytics</button></div>
-  <p id="combo" class="combo" role="status"></p>
   <p id="imMsg" class="combo" role="status"></p>
   <div class="wbar" data-grid="deck" hidden>
     <button type="button" class="addW btn-acc">Add widget</button>

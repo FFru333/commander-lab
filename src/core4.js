@@ -101,6 +101,11 @@ const PIPC={W:"#f4eecd",U:"#a9d3ef",B:"#b9b2ad",R:"#f0a284",G:"#9fcf9b"};
 function gaugeSVG(v,big){const r=big?40:30,c=Math.PI*r,len=(v/100)*c;const w=big?100:76,h=big?58:44,cx=w/2,cy=h-4;
   return '<svg viewBox="0 0 '+w+' '+h+'" width="'+w+'" height="'+h+'" aria-hidden="true"><path d="M '+(cx-r)+' '+cy+' A '+r+' '+r+' 0 0 1 '+(cx+r)+' '+cy+'" class="gtrack"/><path d="M '+(cx-r)+' '+cy+' A '+r+' '+r+' 0 0 1 '+(cx+r)+' '+cy+'" class="gval" stroke-dasharray="'+len.toFixed(1)+' '+c.toFixed(1)+'"/></svg>';}
 let labDetail=null;
+/* the header shows the same power estimate and pillars as Analytics, one source for both */
+function labPower(){let a=null,P=null;try{if(typeof analyzeDeck==="function"){a=analyzeDeck();if(a.known>=a.total*0.8)P=pillars(a);}}catch(e){}
+  const g=P?[["Consistency",P.cons],["Efficiency",P.eff],["Interaction",P.inter],["Win conditions",P.win]]:[["Consistency",0],["Efficiency",0],["Interaction",0],["Win conditions",0]];
+  return '<button type="button" class="labpower" data-stats="1" aria-label="Power level '+(P?P.pl.toFixed(1):"not ready")+'. Open Analytics"><span class="lpl"><small>Power level</small><b>'+(P?P.pl.toFixed(1):"…")+'</b><em>'+(P?plName(P.pl):"Reading cards…")+'</em></span>'+
+    '<span class="lpills">'+g.map(([k,v])=>'<span class="lpr"><span>'+k+'</span><span class="anbar hot"><i style="width:'+(P?Math.round(v):0)+'%"></i></span><b>'+(P?Math.round(v):"–")+'</b></span>').join("")+'</span></button>';}
 function renderLabHead(){
   const H=document.getElementById("labHead");if(!H||!CUR)return;
   const a=analyze(),br=bracketOf(a),ci=deckCI(),cmd=[...CMDS][0];
@@ -110,7 +115,7 @@ function renderLabHead(){
     '<div class="labart"'+(cmd?' style="background-image:linear-gradient(90deg,rgba(13,17,23,.15),rgba(13,17,23,.65)),url(\''+esc(artURL(finalName(cmd)))+'\')"':'')+'>'+
       '<button type="button" class="bkt" data-d="bracket" aria-label="Estimated bracket '+br.b+', '+BRACKETS[br.b]+'. Show why"><b>['+br.b+']</b><small>'+BRACKETS[br.b]+'</small></button>'+
       '<div class="labcap"><small>Estimated bracket</small><span class="pips">'+(ci.length?ci:["C"]).map(c=>'<i style="background:'+(PIPC[c]||"#ccc")+'">'+c+'</i>').join("")+'</span></div></div>'+
-    '<div class="labgauges">'+G.map(([k,l,v,big])=>'<button type="button" class="gauge'+(big?" big":"")+(ready?"":" wait")+'" data-d="'+k+'" aria-label="'+l+' '+(ready?v:"not ready")+'. Show how it is calculated">'+gaugeSVG(ready?v:0,big)+'<b>'+(ready?v:"…")+'</b><small>'+l+'</small></button>').join("")+'</div>'+
+    labPower()+
     '<div class="labroles"><span class="lbl">Roles</span>'+ROLE_TAGS.filter(t=>t.min||a.cnt[t.k]).map(t=>'<button type="button" class="rchip'+(ready&&t.min&&a.cnt[t.k]<t.min?" low":"")+(extF&&extF.id==="role-"+t.k?" on":"")+'" data-role="'+t.k+'"'+(ready?'':' disabled')+'>'+(ready&&t.min&&a.cnt[t.k]<t.min?'<i aria-hidden="true"></i>':'')+t.label+' <b>'+(ready?a.cnt[t.k]:"–")+'</b>'+(t.min?'<span class="tgt">/'+t.min+'</span>':'')+'</button>').join("")+'</div>'+
     (LAB.prog?'<p class="labprog" role="status">'+esc(LAB.prog)+'</p>':'')+
     '<div class="labdetail" id="labDetail"'+(labDetail?'':' hidden')+'></div>';
@@ -123,7 +128,7 @@ function renderDetail(a,br){const D=document.getElementById("labDetail");if(!D)r
   if(labDetail==="power")h='<h4>Power '+a.power+'</h4><ul class="calc">'+row("Game Changers",a.cnt.gc,"+6 each, up to 4")+row("Tutors",a.cnt.tutor,"+3 each, up to 5")+row("Two-card combos",LAB.match?a.two:"not checked","+12 if any")+row("Ramp",a.cnt.ramp,"+1.5 each, up to 15")+row("Average mana value",a.avg.toFixed(2),"+10 per point under 3.6")+'</ul><p class="note">A rough guide made for this app, starting from 35. It is not the score other sites show.</p>';
   if(labDetail==="overall")h='<h4>Overall '+a.overall+'</h4><ul class="calc">'+row("Deck health",a.health,"40%")+row("Mana health",a.mana,"35%")+row("Power",a.power,"25%")+'</ul><p class="note">Roles come from Scryfall\'s card tags, so a card can count for more than one role. '+a.tagged+' of '+a.total+' cards are tagged.</p>';
   D.innerHTML=h+'<button type="button" class="ghostbtn" data-d="close">Close</button>';}
-document.addEventListener("click",e=>{const H=e.target.closest("#labHead");if(!H)return;
+document.addEventListener("click",e=>{const H=e.target.closest("#labHead");if(!H)return;if(e.target.closest("[data-stats]")){setDTab("stats");document.getElementById("dtabs").scrollIntoView({block:"start",behavior:"smooth"});return;}
   const d=e.target.closest("[data-d]");if(d){labDetail=(d.dataset.d==="close"||labDetail===d.dataset.d)?null:d.dataset.d;renderLabHead();return;}
   const rc=e.target.closest("[data-role]");if(rc){const k=rc.dataset.role,T=ROLE_TAGS.find(t=>t.k===k);
     extF=(extF&&extF.id==="role-"+k)?null:{id:"role-"+k,label:"Role: "+T.label,pred:x=>hasRole(x.name,k)};setDTab("cards");update();renderLabHead();
@@ -268,5 +273,5 @@ function renderCombos(){const B=document.getElementById("comboList"),T=document.
 
 /* ---------- start ---------- */
 function renderLab(){renderLabHead();if(DTAB==="sug"&&LAB.edh)renderSug();if(DTAB==="stats")renderAnalytics();}
-function startLab(){if(!CUR)return;renderLabHead();setDTab(DTAB);
+function startLab(){if(!CUR)return;renderLabHead();setDTab(DTAB);if(typeof loadCards==="function")loadCards().then(()=>renderLabHead());
   setTimeout(()=>{tagDeck(false);if(!LAB.combos)loadCombos().then(()=>{if(LAB.combos){LAB.match=matchCombos();renderLabHead();if(DTAB==="combo")renderCombos();}});},400);}

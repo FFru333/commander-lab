@@ -42,3 +42,8 @@ document.addEventListener("click",e=>{const b=e.target.closest('[data-act="backu
 document.getElementById("dataModal").addEventListener("click",e=>{if(e.target.id==="dataModal")closeData();});
 /* an empty device (e.g. the freshly installed app) offers the restore right in the first screen */
 (function(){const R=document.getElementById("imRestore");if(R)R.hidden=Object.keys(DECKS.list).length>0;})();
+/* "⋯" menus: one open at a time, closed by a tap outside or on an item */
+document.addEventListener("click",e=>{const t=e.target.closest("[data-more]");const open=[...document.querySelectorAll(".mmenu:not([hidden])")];
+  if(t){const m=t.parentElement.querySelector(".mmenu");const was=!m.hidden;open.forEach(x=>{x.hidden=true;x.parentElement.querySelector("[data-more]").setAttribute("aria-expanded","false");});
+    if(!was){m.hidden=false;t.setAttribute("aria-expanded","true");}return;}
+  open.forEach(x=>{if(!x.contains(e.target)||e.target.closest("button")){x.hidden=true;x.parentElement.querySelector("[data-more]").setAttribute("aria-expanded","false");}});});

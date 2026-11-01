@@ -30,11 +30,11 @@ async function loadMeta(){
     for(let i=0;i<need.length;i+=75){
       const r=await fetch("https://api.scryfall.com/cards/collection",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({identifiers:need.slice(i,i+75).map(n=>({name:n}))})});
       if(!r.ok)break;const j=await r.json();
-      (j.data||[]).forEach(c=>{const rec=metaRec(c);META[norm(c.name)]=rec;META[norm(front(c.name))]=rec;});
+      (j.data||[]).forEach(c=>{const rec=metaRec(c);META[norm(c.name)]=rec;META[norm(front(c.name))]=rec;const A=window.__AN;if(A&&typeof slimCard==="function"){const sc=slimCard(c);A.cards[nk(c.name)]=sc;A.cards[nk(front(c.name))]=sc;}});
       (j.not_found||[]).forEach(x=>{if(x.name&&!META[norm(x.name)])META[norm(x.name)]={eur:null,cmc:0,land:false,dragon:false,type:"",ci:[],rarity:null,set:null,setName:null,missing:true};});
       await new Promise(r=>setTimeout(r,120));
     }
-    lsSet(NS+"-meta",META);
+    lsSet(NS+"-meta",META);if(window.__AN)try{lsSet(NS+"-cards",window.__AN.cards);}catch(e){}
   }catch(e){}
   metaBusy=false;_upd();refreshViews();
 }
@@ -143,9 +143,7 @@ const WTYPES={
   notes:{name:"Notes",desc:"Free text, saved with the deck or the collection.",def:{w:6,h:4}}
 };
 const DEF_LAYOUT={
-  deck:[["stat",3,2,{metric:"have"}],["stat",3,2,{metric:"proxy"}],["stat",3,2,{metric:"buy"}],["stat",3,2,{metric:"order"}],
-    ["progress",12,2,{}],["curve",7,6,{}],["top",5,6,{src:"buy",n:"5"}],
-    ["breakdown",6,6,{dim:"type",measure:"count",src:"all",style:"bars",n:"10"}],["breakdown",6,6,{dim:"cat",measure:"value",src:"all",style:"bars",n:"10"}]],
+  deck:[["progress",12,2,{}],["top",6,6,{src:"buy",n:"5"}],["breakdown",6,6,{dim:"cat",measure:"value",src:"all",style:"bars",n:"10"}]],
   coll:[["stat",3,2,{metric:"unique"}],["stat",3,2,{metric:"value"}],["stat",3,2,{metric:"wish"}],["stat",3,2,{metric:"complete"}],
     ["breakdown",7,6,{dim:"added",measure:"value",src:"have",style:"cols",n:"15"}],["top",5,6,{src:"have",n:"5"}],
     ["breakdown",4,6,{dim:"color",measure:"count",src:"have",style:"bars",n:"10"}],["breakdown",4,6,{dim:"rarity",measure:"value",src:"have",style:"bars",n:"10"}],["breakdown",4,6,{dim:"deck",measure:"value",src:"have",style:"bars",n:"10"}]]
@@ -156,6 +154,9 @@ const GRIDS={};
 function gridFor(g){
   if(GRIDS[g])return GRIDS[g];
   let items=lsGet(NS+"-layout-"+g);if(!Array.isArray(items)||!items.length)items=defaultLayout(g);
+  /* one-time tidy-up: the deck page no longer repeats what the status bar and Analytics already show */
+  if(g==="deck"&&!lsGet(NS+"-layout-v2")){items=items.filter(it=>!(it.type==="curve"||(it.type==="stat"&&["have","proxy","buy"].includes(it.cfg&&it.cfg.metric))||(it.type==="breakdown"&&it.cfg&&it.cfg.dim==="type")));
+    if(!items.some(it=>it.type==="progress"))items.unshift({id:newId(),type:"progress",w:12,h:2,cfg:{}});items.forEach(it=>{if(it.type==="top"||it.type==="breakdown")it.w=6;});lsSet(NS+"-layout-"+g,items);lsSet(NS+"-layout-v2",1);}
   items=items.filter(it=>WTYPES[it.type]&&!(g==="coll"&&WTYPES[it.type].deckOnly));
   const el=document.getElementById(g==="deck"?"gDeck":"gColl");
   const G=GRIDS[g]={g,el,items,editing:false,cols:12};
@@ -499,7 +500,7 @@ function renderHome(){const ids=Object.keys(DECKS.list);const R=collRecords();co
     statTile("3","Average completion",avg+"%","owned cards across decks",()=>setView("decks")),
     statTile("4","Still to buy",fmtE0(buy),(n=>n+(n===1?" card":" cards"))(R.filter(r=>r.status==="buy").length),()=>{setView("coll");setCollFilter("status","buy");}));
   const H=document.getElementById("homeDecks");H.innerHTML="";stats.slice(0,6).forEach(st=>H.appendChild(deckCard(st,false)));H.appendChild(newDeckCard());
-  const T=document.getElementById("homeTools");T.innerHTML="";TOOLS.forEach(t=>T.appendChild(toolCard(t,true)));}
+  const T=document.getElementById("homeTools");T.innerHTML=TOOLS.map(t=>'<button type="button" class="hchip" data-go="print"><span aria-hidden="true">'+t.ico+'</span>'+esc(t.t)+'</button>').join("");}
 function renderDecks(){const A=document.getElementById("allDecks");A.innerHTML="";const ids=Object.keys(DECKS.list).sort((a,b)=>DECKS.list[a].name.localeCompare(DECKS.list[b].name));
   ids.map(deckStats).forEach(st=>A.appendChild(deckCard(st,true)));A.appendChild(newDeckCard());
   document.getElementById("decksSub").textContent=ids.length?ids.length+(ids.length===1?" deck":" decks")+". Open one to mark cards, print proxies or find its tokens.":"No decks yet. Import one to begin.";}
