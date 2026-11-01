@@ -338,6 +338,16 @@ function wireGrid(G){
     if(e.target.closest(".wdel")){G.items=G.items.filter(x=>x!==it);saveLayout(G);buildGrid(G);return;}
     if(e.target.closest(".wgear")){openCfg(G,it);}
   });
+  /* hold a widget for half a second to enter edit mode */
+  let lp=null,lpFired=false;const lpStop=()=>{if(lp){clearTimeout(lp.t);lp.w.classList.remove("lp");lp=null;}};
+  el.addEventListener("pointerdown",e=>{if(G.editing||(e.button&&e.button!==0))return;const w=e.target.closest(".w");
+    if(!w||e.target.closest("input,select,textarea,.eyebtn,.wctl"))return;lpStop();lpFired=false;
+    lp={w,x:e.clientX,y:e.clientY,t:setTimeout(()=>{const W=lp&&lp.w;lpStop();if(!W)return;lpFired=true;try{navigator.vibrate&&navigator.vibrate(12);}catch(_){}setEditing(G.g,true);},500)};w.classList.add("lp");});
+  el.addEventListener("pointermove",e=>{if(lp&&Math.hypot(e.clientX-lp.x,e.clientY-lp.y)>8)lpStop();});
+  ["pointerup","pointercancel","pointerleave"].forEach(t=>el.addEventListener(t,lpStop));
+  window.addEventListener("scroll",lpStop,{passive:true});
+  el.addEventListener("contextmenu",e=>{if(lp||lpFired)e.preventDefault();});
+  el.addEventListener("click",e=>{if(lpFired){lpFired=false;e.preventDefault();e.stopPropagation();}},true);
   el.addEventListener("pointerdown",e=>{if(!G.editing)return;const w=e.target.closest(".w");if(!w)return;
     const it=G.items.find(x=>x.id===w.dataset.id);
     if(e.target.closest(".wrs")){if(G.cols===2)return;e.preventDefault();const r=w.getBoundingClientRect(),gs=getComputedStyle(el);

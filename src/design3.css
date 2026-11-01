@@ -377,6 +377,11 @@ details.anhow p{margin:8px 0 0;line-height:1.5}
 .eyebtn{position:absolute;top:10px;right:10px;z-index:3;width:30px;height:30px;min-height:0;padding:0;display:grid;place-items:center;border:0;border-radius:50%;background:color-mix(in srgb,var(--card) 70%,transparent);color:inherit;opacity:.75}
 .eyebtn:hover{opacity:1}
 .eyebtn svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
-.w .eyebtn{top:8px;right:44px}
+.w .eyebtn{top:8px;right:8px}.editing .eyebtn{display:none}
 .dcard .eyebtn{top:auto;bottom:12px;right:12px}
 .btile .eyebtn{top:auto;bottom:10px;right:10px;background:transparent}.btile .eyebtn:hover{background:color-mix(in srgb,currentColor 12%,transparent)}
+
+/* long press to edit */
+.wgrid:not(.editing) .w{-webkit-touch-callout:none;-webkit-user-select:none;user-select:none}
+.wgrid:not(.editing) .w textarea{-webkit-user-select:text;user-select:text}
+.w.lp{transition:transform .45s ease;transform:scale(.975)}
