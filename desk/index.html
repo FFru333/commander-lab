@@ -1376,6 +1376,16 @@ details.anhow p{margin:8px 0 0;line-height:1.5}
 .lpr b{text-align:right;font:600 13px/1 var(--fd);letter-spacing:0}
 @media (max-width:820px){.lpr{grid-template-columns:minmax(0,86px) 1fr 24px;font-size:9px}.labpower .lpl b{font-size:28px}}
 .hhead{min-height:0}#vHome .hhead{padding-top:28px;padding-bottom:28px}
+/* ===== hide prices ===== */
+.money{transition:filter .2s}
+html.hidevals .money{filter:blur(7px);-webkit-user-select:none;user-select:none}
+.btile,.w,.dcard{position:relative}
+.eyebtn{position:absolute;top:10px;right:10px;z-index:3;width:30px;height:30px;min-height:0;padding:0;display:grid;place-items:center;border:0;border-radius:50%;background:color-mix(in srgb,var(--card) 70%,transparent);color:inherit;opacity:.75}
+.eyebtn:hover{opacity:1}
+.eyebtn svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.w .eyebtn{top:8px;right:44px}
+.dcard .eyebtn{top:auto;bottom:12px;right:12px}
+.btile .eyebtn{top:auto;bottom:10px;right:10px;background:transparent}.btile .eyebtn:hover{background:color-mix(in srgb,currentColor 12%,transparent)}
 
 </style>
 </head>
@@ -3121,7 +3131,7 @@ function deckCard(st,big){const el=document.createElement("article");el.classNam
   const ring='<svg class="ring" viewBox="0 0 36 36" aria-hidden="true"><circle cx="18" cy="18" r="15.5" class="rb"/><circle cx="18" cy="18" r="15.5" class="rp" stroke-dasharray="'+(st.ready*0.974).toFixed(1)+' 100"/><circle cx="18" cy="18" r="15.5" class="rh" stroke-dasharray="'+(st.pct*0.974).toFixed(1)+' 100"/></svg>';
   el.innerHTML='<div class="dart"'+(st.cmd?' style="background-image:url(\''+esc(artURL(st.cmd))+'\'),linear-gradient(135deg,var(--a3),var(--a2) 60%,var(--accent))"':'')+'></div>'+
     '<div class="dbody"><div class="dtop"><div class="dname"><b></b><small></small></div><div class="dring">'+ring+'<span>'+st.pct+'<i>%</i></span></div></div>'+
-    '<div class="dmeta"><span><b>'+st.have+'</b>/'+st.total+' owned</span><span><b>'+st.proxy+'</b> to proxy</span><span><b>'+st.buy+'</b> to buy'+(st.buyCost?' · '+esc(fmtE0(st.buyCost)):'')+'</span></div>'+
+    '<div class="dmeta"><span><b>'+st.have+'</b>/'+st.total+' owned</span><span><b>'+st.proxy+'</b> to proxy</span><span><b>'+st.buy+'</b> to buy'+(st.buyCost?' · '+'<span class="money">'+esc(fmtE0(st.buyCost))+'</span>':'')+'</span></div>'+
     (big?'<div class="dact"><button type="button" class="btn-acc" data-i="">Open</button><button type="button" data-i="proxy">Proxies</button><button type="button" data-i="tokens">Tokens</button></div>':'')+'</div>';
   el.querySelector(".dname b").textContent=st.name;el.querySelector(".dname small").textContent=st.cmd||"No commander set";
   el.addEventListener("click",e=>{const b=e.target.closest("button[data-i]");openDeck(st.id,b?b.dataset.i:"");});
@@ -3152,7 +3162,7 @@ function renderHome(){const ids=Object.keys(DECKS.list);const R=collRecords();co
   document.getElementById("homeTitle").textContent=greet();
   const own=R.filter(r=>r.status==="have"),val=own.reduce((a,r)=>a+(r.price!=null?r.price*r.qty:0),0),buy=R.filter(r=>r.status==="buy").reduce((a,r)=>a+(r.price!=null?r.price*r.qty:0),0);
   const avg=stats.length?Math.round(stats.reduce((a,s)=>a+s.pct,0)/stats.length):0;
-  document.getElementById("homeSub").textContent=ids.length?(ids.length+(ids.length===1?" deck":" decks")+" · "+own.length+(own.length===1?" card":" cards")+" in your collection · "+fmtE0(val)+" in value."):"Import your first deck to start. Your collection builds itself from the cards you mark as Owned.";
+  document.getElementById("homeSub").innerHTML=ids.length?(ids.length+(ids.length===1?" deck":" decks")+" · "+own.length+(own.length===1?" card":" cards")+" in your collection · <span class=\"money\">"+fmtE0(val)+"</span> in value."):"Import your first deck to start. Your collection builds itself from the cards you mark as Owned.";
   const B=document.getElementById("homeStats");B.innerHTML="";
   B.append(statTile("2","Collection value",fmtE0(val),own.length+(own.length===1?" card owned":" cards owned"),()=>setView("coll")),
     statTile("1","Decks",String(ids.length),stats.filter(s=>s.pct===100).length+" complete",()=>setView("decks")),
@@ -4141,6 +4151,22 @@ document.addEventListener("click",e=>{const t=e.target.closest("[data-more]");co
   if(t){const m=t.parentElement.querySelector(".mmenu");const was=!m.hidden;open.forEach(x=>{x.hidden=true;x.parentElement.querySelector("[data-more]").setAttribute("aria-expanded","false");});
     if(!was){m.hidden=false;t.setAttribute("aria-expanded","true");}return;}
   open.forEach(x=>{if(!x.contains(e.target)||e.target.closest("button")){x.hidden=true;x.parentElement.querySelector("[data-more]").setAttribute("aria-expanded","false");}});});
+/* hide prices: an eye on every widget that shows money; one tap blurs every price in the app, another shows them */
+(function(){const R=document.documentElement;let hide=false;try{hide=localStorage.getItem(NS+"-hidevals")==="1";}catch(e){}R.classList.toggle("hidevals",hide);
+  const MONEY=/€\s?\d|\d\s?€/;
+  const EYE_OPEN='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>';
+  const EYE_SHUT='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 10c2.2 3 5.4 5 9 5s6.8-2 9-5"/><path d="M5.5 13.5 4 16M9 15l-.7 2.8M15 15l.7 2.8M18.5 13.5 20 16"/></svg>';
+  const paintEyes=()=>document.querySelectorAll(".eyebtn").forEach(b=>{b.innerHTML=hide?EYE_SHUT:EYE_OPEN;b.setAttribute("aria-pressed",String(hide));b.setAttribute("aria-label",hide?"Show prices":"Hide prices");});
+  function mark(root){if(!root||root.nodeType!==1)return;
+    root.querySelectorAll("*").forEach(el=>{if(el.classList.contains("money")||el.closest(".money,.eyebtn,script,style,textarea,select,option,input"))return;const t=el.textContent;
+      if(t.length>80||!MONEY.test(t))return;if([...el.children].some(c=>MONEY.test(c.textContent)))return;el.classList.add("money");});
+    root.querySelectorAll(".btile,.w,.dcard").forEach(box=>{if(!box.querySelector(".money")||box.querySelector(":scope > .eyebtn"))return;
+      const b=document.createElement("button");b.type="button";b.className="eyebtn";box.appendChild(b);});
+    paintEyes();}
+  let q=false;const run=()=>{q=false;mark(document.querySelector("main")||document.body);};
+  new MutationObserver(()=>{if(!q){q=true;requestAnimationFrame(run);}}).observe(document.body,{childList:true,subtree:true,characterData:true});
+  document.addEventListener("click",e=>{const b=e.target.closest(".eyebtn");if(!b)return;e.preventDefault();e.stopPropagation();hide=!hide;R.classList.toggle("hidevals",hide);try{localStorage.setItem(NS+"-hidevals",hide?"1":"0");}catch(x){}paintEyes();},true);
+  run();})();
 
 /* ---------- deck analytics: power estimate, fingerprint, manabase, salt ---------- */
 const AN=window.__AN={cards:lsGet(NS+"-cards")||{},salt:lsGet(NS+"-salt")||{},busy:false,saltBusy:false,prog:""};
@@ -4597,7 +4623,7 @@ async function openAnalytics(){renderAnalytics();const ok=await loadCards();rend
   if(LAB.combos&&!LAB.match){LAB.match=matchCombos();}else if(!LAB.combos)loadCombos().then(()=>{if(LAB.combos){LAB.match=matchCombos();renderAnalytics();}});
   loadSalt();if(typeof loadEDH==='function')loadEDH().then(renderAnalytics).catch(()=>{});}
 /* the installed app can keep an old copy alive in the background: on open and on return, compare with the published build and reload if it is newer */
-const APP_BUILD=32;
+const APP_BUILD=33;
 function checkUpdate(){if(location.protocol!=="https:")return;fetch(location.href.split("#")[0],{cache:"no-store"}).then(r=>r.ok?r.text():"").then(t=>{const m=t.match(/const APP_BUILD=(\d+);/);
   if(m&&+m[1]>APP_BUILD){let last=0;try{last=+sessionStorage.getItem("cd-rl")||0;}catch(e){}if(Date.now()-last>30000){try{sessionStorage.setItem("cd-rl",String(Date.now()));}catch(e){}hardRefresh();}}}).catch(()=>{});}
 setTimeout(checkUpdate,2500);document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible")checkUpdate();});

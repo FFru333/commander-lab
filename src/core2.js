@@ -462,7 +462,7 @@ function deckCard(st,big){const el=document.createElement("article");el.classNam
   const ring='<svg class="ring" viewBox="0 0 36 36" aria-hidden="true"><circle cx="18" cy="18" r="15.5" class="rb"/><circle cx="18" cy="18" r="15.5" class="rp" stroke-dasharray="'+(st.ready*0.974).toFixed(1)+' 100"/><circle cx="18" cy="18" r="15.5" class="rh" stroke-dasharray="'+(st.pct*0.974).toFixed(1)+' 100"/></svg>';
   el.innerHTML='<div class="dart"'+(st.cmd?' style="background-image:url(\''+esc(artURL(st.cmd))+'\'),linear-gradient(135deg,var(--a3),var(--a2) 60%,var(--accent))"':'')+'></div>'+
     '<div class="dbody"><div class="dtop"><div class="dname"><b></b><small></small></div><div class="dring">'+ring+'<span>'+st.pct+'<i>%</i></span></div></div>'+
-    '<div class="dmeta"><span><b>'+st.have+'</b>/'+st.total+' owned</span><span><b>'+st.proxy+'</b> to proxy</span><span><b>'+st.buy+'</b> to buy'+(st.buyCost?' · '+esc(fmtE0(st.buyCost)):'')+'</span></div>'+
+    '<div class="dmeta"><span><b>'+st.have+'</b>/'+st.total+' owned</span><span><b>'+st.proxy+'</b> to proxy</span><span><b>'+st.buy+'</b> to buy'+(st.buyCost?' · '+'<span class="money">'+esc(fmtE0(st.buyCost))+'</span>':'')+'</span></div>'+
     (big?'<div class="dact"><button type="button" class="btn-acc" data-i="">Open</button><button type="button" data-i="proxy">Proxies</button><button type="button" data-i="tokens">Tokens</button></div>':'')+'</div>';
   el.querySelector(".dname b").textContent=st.name;el.querySelector(".dname small").textContent=st.cmd||"No commander set";
   el.addEventListener("click",e=>{const b=e.target.closest("button[data-i]");openDeck(st.id,b?b.dataset.i:"");});
@@ -493,7 +493,7 @@ function renderHome(){const ids=Object.keys(DECKS.list);const R=collRecords();co
   document.getElementById("homeTitle").textContent=greet();
   const own=R.filter(r=>r.status==="have"),val=own.reduce((a,r)=>a+(r.price!=null?r.price*r.qty:0),0),buy=R.filter(r=>r.status==="buy").reduce((a,r)=>a+(r.price!=null?r.price*r.qty:0),0);
   const avg=stats.length?Math.round(stats.reduce((a,s)=>a+s.pct,0)/stats.length):0;
-  document.getElementById("homeSub").textContent=ids.length?(ids.length+(ids.length===1?" deck":" decks")+" · "+own.length+(own.length===1?" card":" cards")+" in your collection · "+fmtE0(val)+" in value."):"Import your first deck to start. Your collection builds itself from the cards you mark as Owned.";
+  document.getElementById("homeSub").innerHTML=ids.length?(ids.length+(ids.length===1?" deck":" decks")+" · "+own.length+(own.length===1?" card":" cards")+" in your collection · <span class=\"money\">"+fmtE0(val)+"</span> in value."):"Import your first deck to start. Your collection builds itself from the cards you mark as Owned.";
   const B=document.getElementById("homeStats");B.innerHTML="";
   B.append(statTile("2","Collection value",fmtE0(val),own.length+(own.length===1?" card owned":" cards owned"),()=>setView("coll")),
     statTile("1","Decks",String(ids.length),stats.filter(s=>s.pct===100).length+" complete",()=>setView("decks")),
