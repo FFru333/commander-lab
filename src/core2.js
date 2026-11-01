@@ -116,15 +116,15 @@ const METRICS={
     alts:{name:"Alternatives",val:()=>rows.filter(r=>st(r.name).alt).length,sub:()=>"cards replaced",filter:"alt",col:"var(--alt)"}
   },
   coll:{
-    unique:{name:"Cards owned",val:R=>R.filter(isS("have")).length,sub:R=>{const n=sumQ(R,isS("have"));return n+(n===1?" copy":" copies");},filter:"have",col:"var(--have)"},
+    unique:{name:"Cards owned",val:R=>R.filter(isS("have")).length,sub:R=>{const n=sumQ(R,isS("have")),u=R.filter(isS("have")).length;return n===u?"":n+" copies";},filter:"have",col:"var(--have)"},
     copies:{name:"Copies owned",val:R=>sumQ(R,isS("have")),sub:R=>R.filter(isS("have")).length+" different",filter:"have",col:"var(--have)"},
-    value:{name:"Collection value",val:R=>fmtE0(sumV(R,isS("have"))),sub:R=>{const m=missP(R,isS("have"));return m?m+" without price":"Cardmarket trend via Scryfall";},filter:"have"},
-    avg:{name:"Average price",val:R=>{const n=sumQ(R,r=>r.status==="have"&&r.price!=null);return fmtE0(n?sumV(R,isS("have"))/n:0);},sub:()=>"per owned copy"},
-    wish:{name:"Still to buy",val:R=>fmtE0(sumV(R,isS("buy"))),sub:R=>{const n=R.filter(isS("buy")).length;return n+(n===1?" card":" cards")+" across decks";},filter:"buy",col:"var(--buy)"},
-    proxy:{name:"To proxy",val:R=>R.filter(isS("proxy")).length,sub:()=>"cards across decks",filter:"proxy",col:"var(--proxy)"},
+    value:{name:"Collection value",val:R=>fmtE0(sumV(R,isS("have"))),sub:R=>{const m=missP(R,isS("have"));return m?m+" without price":"";},filter:"have"},
+    avg:{name:"Average price",val:R=>{const n=sumQ(R,r=>r.status==="have"&&r.price!=null);return fmtE0(n?sumV(R,isS("have"))/n:0);},sub:()=>""},
+    wish:{name:"Still to buy",val:R=>fmtE0(sumV(R,isS("buy"))),sub:R=>{const n=R.filter(isS("buy")).length;return n+(n===1?" card":" cards");},filter:"buy",col:"var(--buy)"},
+    proxy:{name:"To proxy",val:R=>R.filter(isS("proxy")).length,sub:()=>"",filter:"proxy",col:"var(--proxy)"},
     decks:{name:"Decks",val:()=>Object.keys(DECKS.list).length,sub:()=>Object.values(DECKS.list).map(d=>d.name).join(", ")},
-    sets:{name:"Sets",val:R=>new Set(R.filter(r=>r.status==="have"&&r.set).map(r=>r.set)).size,sub:()=>"among owned cards"},
-    complete:{name:"Decks completion",val:R=>{const t=R.reduce((a,r)=>a+r.decks.length,0),h=R.reduce((a,r)=>a+r.decks.filter(d=>d.status==="have").length,0);return t?Math.round(h/t*100)+"%":"–";},sub:()=>"deck slots owned"}
+    sets:{name:"Sets",val:R=>new Set(R.filter(r=>r.status==="have"&&r.set).map(r=>r.set)).size,sub:()=>""},
+    complete:{name:"Decks completion",val:R=>{const t=R.reduce((a,r)=>a+r.decks.length,0),h=R.reduce((a,r)=>a+r.decks.filter(d=>d.status==="have").length,0);return t?Math.round(h/t*100)+"%":"–";},sub:()=>""}
   }
 };
 
@@ -503,11 +503,11 @@ function renderHome(){const ids=Object.keys(DECKS.list);const R=collRecords();co
   document.getElementById("homeTitle").textContent=greet();try{document.querySelector("#vHome .vtitle").dataset.eyebrow=new Date().toLocaleDateString("en-GB",{weekday:"long",day:"numeric",month:"long"});}catch(e){}
   const own=R.filter(r=>r.status==="have"),val=own.reduce((a,r)=>a+(r.price!=null?r.price*r.qty:0),0),buy=R.filter(r=>r.status==="buy").reduce((a,r)=>a+(r.price!=null?r.price*r.qty:0),0);
   const avg=stats.length?Math.round(stats.reduce((a,s)=>a+s.pct,0)/stats.length):0;
-  document.getElementById("homeSub").innerHTML=ids.length?(ids.length+(ids.length===1?" deck":" decks")+" · "+own.length+(own.length===1?" card":" cards")+" in your collection · <span class=\"money\">"+fmtE0(val)+"</span> in value."):"Import your first deck to start. Your collection builds itself from the cards you mark as Owned.";
+  document.getElementById("homeSub").innerHTML=ids.length?"":"Import your first deck to start. Your collection builds itself from the cards you mark as Owned.";
   const B=document.getElementById("homeStats");B.innerHTML="";
   B.append(statTile("2","Collection value",fmtE0(val),own.length+(own.length===1?" card owned":" cards owned"),()=>setView("coll")),
     statTile("1","Decks",String(ids.length),stats.filter(s=>s.pct===100).length+" complete",()=>setView("decks")),
-    statTile("3","Average completion",avg+"%","owned cards across decks",()=>setView("decks")),
+    statTile("3","Average completion",avg+"%","",()=>setView("decks")),
     statTile("4","Still to buy",fmtE0(buy),(n=>n+(n===1?" card":" cards"))(R.filter(r=>r.status==="buy").length),()=>{setView("coll");setCollFilter("status","buy");}));
   const H=document.getElementById("homeDecks");H.innerHTML="";stats.slice(0,6).forEach(st=>H.appendChild(deckCard(st,false)));H.appendChild(newDeckCard());
   const T=document.getElementById("homeTools");T.innerHTML=TOOLS.map(t=>'<button type="button" class="hchip" data-go="print"><span aria-hidden="true">'+t.ico+'</span>'+esc(t.t)+'</button>').join("");}

@@ -13,6 +13,8 @@
   --fm:"Inter Tight",system-ui,-apple-system,"Helvetica Neue",sans-serif;
   --r:30px; --r-sm:20px; --r-xs:14px; --gap:6px;
   --shadow:none;
+  /* type scale: one step = one role; contrast from weight and colour, not size */
+  --t1:12px; --t2:13px; --t3:15px; --t4:18px; --t5:22px; --t6:30px; --n1:40px;
 }
 @media (prefers-color-scheme:dark){
   :root:not([data-theme="light"]){
@@ -42,29 +44,28 @@ b,strong{font-weight:600}
 .anp,.antile h4,.ankv em,.ancol em,.anstat small,.anbuild,.labpower .lpl small,.lpr,.dmeta,.vc .labs,.vc .col span,.hb .v,.tl .n,.bulkbar .blab,.role small,.tag{
   font-family:var(--fb)!important;text-transform:none!important;letter-spacing:-.005em!important;font-variant-numeric:tabular-nums}
 .filters label,.wcfg label,.wcfgform label,.pxctl label,.imgrid label,.vslider,.thsec,.wt,.thead,.ctbl th,.tcount,.lslbl,.lsfield,.ankick,.anstat small,.labroles .lbl,.maybe .lbl,.scanlist .lbl,.imlink{
-  font-size:13px!important;font-weight:400!important;color:var(--muted)}
-.cfgsep,.antile h4{font-size:13px!important;font-weight:500!important}
-.vtitle::before{content:attr(data-eyebrow);text-transform:none;letter-spacing:-.005em;font-size:14px;font-weight:400;color:var(--muted);opacity:1}
+  font-size:var(--t2)!important;font-weight:400!important;color:var(--muted)}
+.cfgsep,.antile h4{font-size:var(--t2)!important;font-weight:500!important}
+.vtitle::before{content:attr(data-eyebrow);text-transform:none;letter-spacing:-.005em;font-size:var(--t2);font-weight:400;color:var(--muted);opacity:1}
 
 /* --- page heads: no gradient card, type on the page --- */
 .vhead{background:none!important;padding:12px 4px 4px!important;min-height:0!important;border-radius:0;overflow:visible}
 .vhead::after{display:none}
 .hhead{padding-top:18px!important;padding-bottom:6px!important}
-.ttl{font-size:clamp(44px,7vw,76px)!important;font-weight:500!important;letter-spacing:-.05em!important;line-height:.94!important}
-.vtitle{display:flex;flex-direction:column;gap:12px}
-.vtitle .sub{font-size:15px;line-height:1.4;color:var(--muted);max-width:52ch}
-#homeSub{font-size:clamp(20px,3vw,28px);line-height:1.18;letter-spacing:-.03em;color:var(--ink);max-width:22ch}
-#homeSub b{font-weight:500}
+.ttl{font-size:var(--t6)!important;font-weight:600!important;letter-spacing:-.03em!important;line-height:1.05!important}
+.vtitle{display:flex;flex-direction:column;gap:6px}
+.vtitle .sub{font-size:var(--t3);line-height:1.4;color:var(--muted);max-width:52ch}
+#homeSub:empty{display:none}
 .vtools{gap:6px}
-.vtools button,.vtools .mwrap>button{background:var(--card)!important;border:0!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;height:40px;padding:0 18px;font-weight:500}
+.vtools button,.vtools .mwrap>button{background:var(--card)!important;border:0!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;height:38px;padding:0 16px;font-weight:500;font-size:var(--t3)}
 .vtools .btn-acc{background:var(--ink)!important;color:var(--card)!important}
-.vtools .morebtn{width:40px;padding:0!important}
-.hsec{margin:34px 4px 10px!important}
-.hsec h2{font-size:32px!important;font-weight:500!important;letter-spacing:-.04em!important}
+.vtools .morebtn{width:38px;padding:0!important}
+.hsec{margin:28px 4px 10px!important}
+.hsec h2{font-size:var(--t5)!important;font-weight:600!important;letter-spacing:-.025em!important}
 .ghostbtn{font-weight:500}
 
 /* --- top bar: plain wordmark, round grey buttons --- */
-.brand{font-weight:600;letter-spacing:-.03em;font-size:17px}
+.brand{font-weight:600;letter-spacing:-.02em;font-size:var(--t3)}
 .brand .mark{width:12px;height:12px;border-radius:50%;background:var(--accent)!important}
 .navr button:not(.btn-acc),.navr .morebtn{background:color-mix(in srgb,var(--ink) 8%,transparent)!important;border:0!important}
 .navr .btn-acc{font-weight:500}
@@ -83,22 +84,21 @@ button{font-weight:500}
 .dcard.cur{box-shadow:none!important}
 
 /* --- number tiles: caption top-left, ↗ top-right, huge light numeral bottom --- */
-.btile{min-height:172px;padding:18px 20px 20px;border-radius:var(--r)}
+.btile{min-height:132px;padding:16px 18px 18px;border-radius:var(--r)}
 .btile:hover{transform:none}
-.btile .bl{font-size:14px;font-weight:400;opacity:.62;max-width:9em;line-height:1.15}
-.btile .bv{font-size:clamp(54px,8vw,78px)!important;font-weight:300!important;letter-spacing:-.065em!important;line-height:.9!important;margin-top:auto}
+.btile .bl{font-size:var(--t2);font-weight:400;opacity:.62;line-height:1.2;padding-right:40px}
+.btile .bv{font-size:var(--n1)!important;font-weight:300!important;letter-spacing:-.045em!important;line-height:1!important;margin-top:auto}
 .btile .bv .u{font-size:.4em;font-weight:400;vertical-align:1.1em;letter-spacing:-.02em;opacity:.8}
-.btile .bs{font-size:13px;opacity:.62;margin-top:8px}
-button.btile::after{content:"↗";position:absolute;top:14px;right:14px;width:34px;height:34px;border-radius:50%;display:grid;place-items:center;font-size:16px;line-height:1;
-  background:color-mix(in srgb,currentColor 9%,transparent)}
+.btile .bs{font-size:var(--t2);opacity:.62;margin-top:4px}
+.btile .bs:empty{display:none}
 .btile[data-tone="2"]{--tbg:var(--tile-2);--tink:var(--tile-2-ink)}
 
-.w[data-type="stat"] .stat .sv{font-size:clamp(50px,6vw,72px)!important;font-weight:300!important;letter-spacing:-.065em!important;line-height:.9!important}
-.w[data-type="stat"] .stat .ss{font-size:13px!important;letter-spacing:0!important;opacity:.62}
+.w[data-type="stat"] .stat .sv{font-size:var(--n1)!important;font-weight:300!important;letter-spacing:-.045em!important;line-height:1!important}
+.w[data-type="stat"] .stat .ss{font-size:var(--t2)!important;letter-spacing:0!important;opacity:.62}
 
 /* --- widgets: caption header, no caps --- */
-.wh{padding:16px 18px 4px!important;border:0!important;background:transparent!important}
-.wt{font-size:14px!important;color:var(--muted)!important}
+.wh{padding:16px 54px 4px 18px!important;border:0!important;background:transparent!important}
+.wt{font-size:var(--t2)!important;color:var(--muted)!important}
 .w[data-tone] .wt,.w[data-type="stat"] .wt{color:inherit!important;opacity:.62}
 .wb{padding:6px 18px 18px}
 .editing .w{outline:1.5px solid color-mix(in srgb,var(--ink) 20%,transparent)!important;outline-offset:-1.5px}
@@ -116,7 +116,7 @@ button.btile::after{content:"↗";position:absolute;top:14px;right:14px;width:34
 .hb li:first-child .t span{background:var(--accent)!important}
 .vc .col i{background:color-mix(in srgb,var(--ink) 14%,var(--card))!important;border-radius:14px!important}
 .vc .col.max i{background:var(--ink)!important}
-.vc .foot b{font-weight:400!important;letter-spacing:-.04em}
+.vc .foot b{font-weight:500!important;font-size:var(--t4)!important;letter-spacing:-.02em}
 .pbar{height:10px!important;gap:4px!important}
 .pbar span{border-radius:2px!important}
 .anbar.hot i,.anbar.salt i{background:var(--ink)!important}
@@ -125,38 +125,38 @@ button.btile::after{content:"↗";position:absolute;top:14px;right:14px;width:34
 /* --- deck cards: art as image block, big name --- */
 .dcard{border-radius:var(--r)!important}
 .dcard:hover{transform:none}
-.dart{height:150px;background-color:var(--accent)!important;margin:6px 6px 0;border-radius:calc(var(--r) - 6px)}
+.dart{height:120px;background-color:var(--accent)!important;margin:6px 6px 0;border-radius:calc(var(--r) - 6px)}
 .dbody{padding:16px 18px 20px;gap:14px}
-.dname b{font-size:26px!important;font-weight:500!important;letter-spacing:-.04em!important;line-height:1.02!important}
-.dname small{font-size:14px;margin-top:6px}
-.dmeta{font-size:13px!important;gap:4px 16px}
+.dname b{font-size:var(--t4)!important;font-weight:600!important;letter-spacing:-.02em!important;line-height:1.2!important}
+.dname small{font-size:var(--t2);margin-top:2px}
+.dmeta{font-size:var(--t2)!important;gap:4px 16px}
 .dmeta b{font-weight:600}
 .dring .ring .rh{stroke:var(--ink)}
 .dring .ring .rp{stroke:var(--a2)}
-.dcard.add{outline:0!important;background:color-mix(in srgb,var(--ink) 5%,transparent)!important;min-height:150px}
-.dcard.add b{font-size:26px;font-weight:500;letter-spacing:-.04em}
-.dcard.add .plus{width:44px;height:44px}
+.dcard.add{outline:0!important;background:color-mix(in srgb,var(--ink) 5%,transparent)!important;min-height:132px}
+.dcard.add b{font-size:var(--t4);font-weight:600;letter-spacing:-.02em}
+.dcard.add small{font-size:var(--t2)}
 
 /* --- print house chips --- */
-.hchip{border:0!important;background:var(--card)!important;height:48px;padding:0 20px;font-weight:500;letter-spacing:-.015em}
+.hchip{border:0!important;background:var(--card)!important;height:40px;padding:0 16px;font-weight:500;font-size:var(--t3)}
 .hchip span{display:none}
-.hchip::after{content:"↗";margin-left:4px;opacity:.5}
 .tcard{border-radius:var(--r)}
-.tcard h3{font-size:30px!important;font-weight:500!important;letter-spacing:-.045em!important;line-height:1}
+.tcard h3{font-size:var(--t4)!important;font-weight:600!important;letter-spacing:-.02em!important;line-height:1.2}
+.tcard p{font-size:var(--t3)!important}
 .tcard .tico{display:none}
 
 /* --- deck section tabs as pills --- */
 .dtabs{border:0!important;gap:6px!important;padding:4px 0!important;overflow-x:auto;scrollbar-width:none}
 .dtabs::-webkit-scrollbar{display:none}
-.dtabs button{flex:0 0 auto!important;height:42px!important;padding:0 18px!important;border-radius:999px!important;border:0!important;background:var(--card)!important;color:var(--ink)!important;font-weight:500!important;margin:0!important}
+.dtabs button{flex:0 0 auto!important;height:38px!important;padding:0 16px!important;font-size:var(--t3)!important;border-radius:999px!important;border:0!important;background:var(--card)!important;color:var(--ink)!important;font-weight:500!important;margin:0!important}
 .dtabs button[aria-selected="true"]{background:var(--ink)!important;color:var(--card)!important}
 
 /* --- checklist table --- */
-.grp{font-size:32px!important;font-weight:500!important;letter-spacing:-.045em!important}
-.grp small{background:transparent!important;padding:0!important;font-size:14px!important}
+.grp{font-size:var(--t5)!important;font-weight:600!important;letter-spacing:-.025em!important}
+.grp small{background:transparent!important;padding:0!important;font-size:var(--t2)!important}
 .tr{border-bottom-color:var(--line)}
 .tr:hover{background:var(--head)!important}
-.pill{font-size:12px!important;font-weight:500!important;letter-spacing:0!important;padding:5px 11px!important}
+.pill{font-size:var(--t1)!important;font-weight:500!important;letter-spacing:0!important;padding:5px 11px!important}
 .opt{border:0!important;background:var(--head)!important}
 .opt[aria-pressed="true"]{background:var(--c)!important;color:var(--ci)!important}
 
@@ -164,9 +164,14 @@ button.btile::after{content:"↗";position:absolute;top:14px;right:14px;width:34
 .labart{background-color:#111!important;color:#f4f4f1;border-radius:calc(var(--r) - 8px)!important}
 .labart:not([style]){background-image:none!important}
 .labart .bkt{background:var(--card)!important;color:var(--ink)!important;border:0!important;border-radius:18px!important;padding:10px 16px!important;align-items:flex-start!important;min-width:0!important}
-.labart .bkt b{color:var(--ink)!important;font-family:var(--fd)!important;font-size:36px!important;font-weight:300!important;letter-spacing:-.05em;line-height:1!important}
-.labart .bkt small{font-size:12px!important;color:var(--muted)}
-.labpower .lpl b{font-weight:300!important;letter-spacing:-.06em!important}
+.labart .bkt b{color:var(--ink)!important;font-family:var(--fd)!important;font-size:var(--n1)!important;font-weight:300!important;letter-spacing:-.05em;line-height:1!important}
+.labart .bkt small{font-size:var(--t1)!important;color:var(--muted)}
+.labpower .lpl b{font-size:var(--n1)!important;font-weight:300!important;letter-spacing:-.045em!important}
+.anpl b,.anvgauge b,.ansaltbig b{font-size:var(--n1)!important;font-weight:300!important;letter-spacing:-.045em!important}
+.anverdict h3,.anhero h3{font-size:var(--t5)!important;font-weight:600!important;letter-spacing:-.025em!important}
+.anstat b{font-size:var(--t4)!important;font-weight:600!important}
+.tl .t{font-size:var(--t3)!important;font-weight:500!important}.tl .t small{font-size:var(--t2)!important}.tl .e{font-size:var(--t3)!important}
+.hb li{font-size:var(--t2)!important}
 .ttl + .sub{margin-top:0}
 
 /* --- inputs --- */
@@ -187,12 +192,15 @@ textarea{border-radius:var(--r-sm)}
   .tab{border-radius:999px!important;height:54px!important;font-weight:500!important;font-size:10.5px!important}
   .tab[aria-current="page"]{background:var(--nav-ink)!important;color:var(--nav)!important}
   .scantab{width:54px!important;height:54px!important;margin:0 auto!important;box-shadow:none!important;background:var(--accent)!important}
-  .ttl{font-size:clamp(44px,13vw,60px)!important}
-  .btile{min-height:160px;padding:16px 16px 18px}
-  .btile .bv{font-size:clamp(50px,15vw,64px)!important}
-  .hsec h2{font-size:28px!important}
+  .btile{min-height:124px;padding:14px 16px 16px}
 }
-@media (max-width:520px){.dart{height:132px}}
-.stchip{font-family:var(--fb)!important;text-transform:none!important;letter-spacing:0!important;font-size:12px!important}
-.cmdtag{border:0!important;background:var(--accent)!important;color:var(--accent-ink)!important;text-transform:none!important;letter-spacing:0!important;font-size:11px!important;border-radius:999px!important;padding:2px 8px!important}
+@media (min-width:900px){:root{--t6:36px;--n1:44px}}
+.stchip{font-family:var(--fb)!important;text-transform:none!important;letter-spacing:0!important;font-size:var(--t1)!important}
+.cmdtag{border:0!important;background:var(--accent)!important;color:var(--accent-ink)!important;text-transform:none!important;letter-spacing:0!important;font-size:var(--t1)!important;border-radius:999px!important;padding:2px 8px!important}
 .vc .cols{justify-content:center}.vc .col{max-width:72px}
+
+/* --- one fixed slot: the eye always sits top-right, same size, same offset --- */
+.eyebtn{top:12px!important;right:12px!important;bottom:auto!important;width:30px!important;height:30px!important;background:color-mix(in srgb,currentColor 9%,transparent)!important;opacity:.8}
+.dcard .eyebtn{background:color-mix(in srgb,var(--card) 80%,transparent)!important;color:var(--ink)}
+.stat .ss:empty{display:none}
+.lpr{font-size:var(--t1)!important}
