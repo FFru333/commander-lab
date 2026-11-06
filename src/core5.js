@@ -14,18 +14,26 @@ function splitQty(l){let m;
   if((m=l.match(/^(.+?)\s*[x×](\d+)$/i)))return {qty:+m[2],rest:m[1]};
   if((m=l.match(NUMWRX))){const w=m[1].toLowerCase();const rest=l.slice(m[0].length);if((w==="a"||w==="an"||w==="un"||w==="una")&&!basicName(rest))return null;return {qty:NUMW[w],rest};}
   return null;}
+/* the format picked in the import window: formats with a sideboard keep it (header "Sideboard", "SB:" lines, Arena "Companion", or the MTGO blank-line block) */
+const imFmtKey=()=>{const s=document.getElementById("imFmt");return s&&FORMATS[s.value]?s.value:"commander";};
+const SIDE_SEC=/^(side ?board|sb|companion)$/i;
 function parseList(txt){
-  const lines=txt.split(/\r?\n/).map(x=>x.replace(/^\s*[-•*·]\s+/,"").trim());
+  const keepSide=FORMATS[imFmtKey()].side!==0;
+  let lines=txt.split(/\r?\n/).map(x=>x.replace(/^\s*[-•*·]\s+/,"").trim());
+  /* MTGO / plain exports: main deck, one blank line, sideboard, with no header at all */
+  let mtgoSide=-1;if(keepSide&&!lines.some(l=>SIDE_SEC.test(cleanHeader(l))||/^SB:/i.test(l))){const blocks=[];let cur=null;lines.forEach((l,i)=>{if(!l){cur=null;return;}if(!cur)blocks.push(cur={start:i,n:0,hdr:0});const m=splitQty(l);if(m)cur.n+=m.qty;else cur.hdr++;});
+    const last=blocks[blocks.length-1];if(blocks.length>=2&&last.hdr===0&&last.n>0&&last.n<=15&&blocks.slice(0,-1).reduce((t,b)=>t+b.n,0)>=40)mtgoSide=last.start;}
   const isQ=l=>!!splitQty(l.replace(/^SB:\s*/i,""));
   const numbered=lines.filter(l=>l&&isQ(l)).length;
   const plain=lines.filter(l=>l&&!isQ(l)&&!/^(\/\/|#)/.test(l)&&!/:$/.test(l)).length;
   const numMode=numbered>0&&numbered>=plain;
-  let sec=null,skip=false;const out=[];
-  lines.forEach(l=>{
-    if(!l)return;l=l.replace(/^SB:\s*/i,"");
+  let sec=null,skip=false,inSide=false;const out=[];
+  lines.forEach((l,li)=>{
+    if(!l)return;if(li===mtgoSide)inSide=true;const sbl=/^SB:\s*/i.test(l);l=l.replace(/^SB:\s*/i,"");
     const m=splitQty(l);
-    const isHeader=!m&&!basicName(l)&&(numMode||/^(\/\/|#)/.test(l)||/:$/.test(l)||/\(\d+\)$/.test(l));
-    if(isHeader){const hd=cleanHeader(l);if(!hd)return;skip=SKIP_SEC.test(hd);sec=hd;return;}
+    const isHeader=!m&&!basicName(l)&&(numMode||/^(\/\/|#)/.test(l)||/:$/.test(l)||/\(\d+\)$/.test(l)||(keepSide&&SIDE_SEC.test(cleanHeader(l))));
+    if(isHeader){const hd=cleanHeader(l);if(!hd)return;if(keepSide&&SIDE_SEC.test(hd)){inSide=true;skip=false;sec=null;return;}inSide=false;skip=SKIP_SEC.test(hd);sec=hd;return;}
+    if(sbl&&!keepSide)return;
     if(skip)return;
     let qty=1,rest=l;if(m){qty=Math.max(1,Math.min(99,m.qty));rest=m.rest;}
     let cat=null,cmd=false,set=null,cn=null;
@@ -39,7 +47,7 @@ function parseList(txt){
     const b=basicName(name);if(b)name=b;
     if(sec&&CMD_SEC.test(sec))cmd=true;
     if(cat&&GEN_SEC.test(cat))cat=null;
-    out.push({name,qty,cat:cat||(sec&&!CMD_SEC.test(sec)&&!GEN_SEC.test(sec)?sec:null),cmd,set,cn});
+    out.push({name,qty,cat:cat||(sec&&!CMD_SEC.test(sec)&&!GEN_SEC.test(sec)?sec:null),cmd,set,cn,side:keepSide&&(inSide||sbl)});
   });
   return out;
 }
@@ -58,9 +66,18 @@ async function scryLookup(entries){
 function imPreview(){const P=document.getElementById("imPrev");if(!P)return;const E=parseList(document.getElementById("imText").value);
   const G=document.getElementById("imGo");if(G){const base=imTarget?"Update":"Create deck";const n0=E.reduce((a,e)=>a+e.qty,0);G.textContent=n0?base+" · "+n0+" card"+(n0===1?"":"s"):base;}
   if(!E.length){P.innerHTML="";return;}
-  const tot=E.reduce((a,e)=>a+e.qty,0),multi=E.filter(e=>e.qty>1);
-  P.innerHTML='<b>'+tot+' card'+(tot===1?"":"s")+'</b> on '+E.length+' line'+(E.length===1?"":"s")+(multi.length?' · '+multi.slice(0,6).map(e=>esc(e.qty+"× "+e.name)).join(", ")+(multi.length>6?"…":""):"")+(E.some(e=>e.cmd)?' · commander: '+esc(E.filter(e=>e.cmd).map(e=>e.name).join(", ")):"");}
+  const tot=E.filter(e=>!e.side).reduce((a,e)=>a+e.qty,0),multi=E.filter(e=>e.qty>1&&!e.side);
+  P.innerHTML='<b>'+tot+' card'+(tot===1?"":"s")+'</b> on '+E.length+' line'+(E.length===1?"":"s")+(multi.length?' · '+multi.slice(0,6).map(e=>esc(e.qty+"× "+e.name)).join(", ")+(multi.length>6?"…":""):"")+(E.some(e=>e.side)?' · sideboard: '+E.filter(e=>e.side).reduce((a,e)=>a+e.qty,0):"")+(FORMATS[imFmtKey()].cmd&&E.some(e=>e.cmd)?' · commander: '+esc(E.filter(e=>e.cmd).map(e=>e.name).join(", ")):"");}
 document.getElementById("imText").addEventListener("input",imPreview);
+/* format picker: grouped, remembers the last one used for new decks, hides the commander field where there is none */
+(function(){const S=document.getElementById("imFmt");if(!S)return;
+  S.innerHTML=FMT_GROUPS.map(([g,ks])=>'<optgroup label="'+esc(g)+'">'+ks.map(k=>'<option value="'+k+'">'+esc(FORMATS[k].n)+'</option>').join("")+'</optgroup>').join("");
+  const sync=()=>{const F=FORMATS[S.value]||FORMATS.commander,W=document.getElementById("imCmdWrap"),L=document.getElementById("imCmdLbl");
+    if(W)W.hidden=!F.cmd;if(L)L.textContent=(F.cmdLabel||"Commander")+" (if the list does not mark it)";
+    const n=document.querySelector("#importModal .imhelp");if(n)n.textContent='Accepted: "1 Sol Ring", "10x Mountain", "Forest x5", "two Plains", "1 Sol Ring (CMM) 400", categories in square brackets ("[Ramp]") and section titles ("// Ramp", "Lands (35)").'+(F.side!==0?' Sideboard: a "Sideboard" title, "SB:" in front of a line, or the last block after an empty line.':'');
+    imPreview();};
+  S.addEventListener("change",()=>{if(!imTarget)lsSet(NS+"-lastfmt",S.value);sync();});
+  const base=openImport;openImport=function(edit){base(edit);S.value=imTarget&&CUR?fmtKeyOf(CUR):(FORMATS[lsGet(NS+"-lastfmt")]?lsGet(NS+"-lastfmt"):"commander");sync();};})();
 
 /* ---------- import from a link: Moxfield and Archidekt block requests from other sites, so guide the copy instead ---------- */
 const LINK_HELP={
@@ -232,3 +249,9 @@ async function scanPhoto(f){SC.busy=true;scMsg("Reading the photo…");
     else if(b.id==="scFind"){const n=document.getElementById("scName").value.trim();if(!n)return;const c=await sfJSON("cards/named?fuzzy="+encodeURIComponent(n));if(c){SC.cur=null;onName({name:c.name,from:"en"},c);}}});
   P.addEventListener("change",e=>{if(e.target.id!=="scPrint"||!SC.cur||!SC.cur.prints)return;const p=SC.cur.prints[+e.target.value];if(p)applyCard(p,true);});})();
 let imWasOpen=false;new MutationObserver(()=>{const o=imM.classList.contains("open");if(!o){stopScan();SC.mode=null;scanCls(false);}if(o&&!imWasOpen){setImTab(SC.openScan?"scan":"text");SC.openScan=false;setTimeout(imPreview,0);}scanCls(o&&SC.mode==="scan");imWasOpen=o;}).observe(imM,{attributes:true,attributeFilter:["class"]});
+
+/* text form of a deck for Edit list and backups: categories, then the sideboard */
+function deckToText(d){const side=d.sbq||{},Q=d.qty||{},P=d.prints||{};const ln=(n,k)=>k+" "+n+(P[n]&&P[n].set?" ("+P[n].set.toUpperCase()+") "+P[n].cn:"");
+  const out=d.deck.filter(([cat])=>!isSideCat(cat)).map(([cat,cards])=>"// "+cat+"\n"+cards.map(n=>ln(n,Q[n]||1)).join("\n"));
+  const sn=Object.keys(side);if(sn.length)out.push("Sideboard\n"+sn.map(n=>ln(n,side[n])).join("\n"));
+  return out.join("\n\n");}

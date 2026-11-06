@@ -301,8 +301,9 @@
       <p class="note">Fit the card in the frame. Only the two marked areas are read: the name at the top, and the set code, collector number and language at the bottom left. Tap the card shown below to add another copy. The camera image stays on this device.</p>
     </div>
     <div class="imgrid">
+      <label>Format<select id="imFmt"></select></label>
       <label>Deck name<input id="imName" placeholder="e.g. Atraxa superfriends"></label>
-      <label class="acwrap">Commander (if the list does not mark it)<input id="imCmd" placeholder="Start typing, e.g. atraxa" autocomplete="off" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="cmdList"><ul id="cmdList" class="aclist" role="listbox" hidden></ul></label>
+      <label class="acwrap" id="imCmdWrap"><span id="imCmdLbl">Commander (if the list does not mark it)</span><input id="imCmd" placeholder="Start typing, e.g. atraxa" autocomplete="off" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="cmdList"><ul id="cmdList" class="aclist" role="listbox" hidden></ul></label>
       <label>Categories<select id="imCat"><option value="auto">From the list when present, otherwise by card type</option><option value="type">Always by card type</option></select></label>
     </div>
     <div class="exrow"><button id="imGo" type="button" class="btn-acc">Create</button><button id="imClose" type="button">Cancel</button><span id="imStatus" class="note" role="status"></span></div>

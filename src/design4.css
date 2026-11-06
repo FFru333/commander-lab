@@ -214,3 +214,7 @@ textarea{border-radius:var(--r-sm)}
 .animname{height:40px!important;border:0!important;border-radius:999px!important;background:var(--card)!important;font-size:var(--t3)!important}
 .animact{width:100%;gap:6px!important}.animact button{flex:1;height:44px!important;border-radius:999px}
 .animact .ghostbtn{background:var(--card);border:0;color:var(--ink)}
+/* format check pill in the deck header */
+.fmtpill{height:30px;padding:0 12px;border:0!important;border-radius:999px;background:color-mix(in srgb,#fff 16%,transparent)!important;color:inherit!important;font-size:var(--t2)!important;font-weight:500;white-space:nowrap;margin-right:8px}
+.fmtpill.bad{background:var(--accent)!important;color:var(--accent-ink)!important}
+.labcap{display:flex;align-items:center;flex-wrap:wrap;gap:6px}

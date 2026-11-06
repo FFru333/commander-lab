@@ -17,13 +17,13 @@ i=h.index("<body>");j=h.index("<script>")
 h=h[:i]+rd("body.html")+h[j:]
 # core 1: from <script> to /* preview */
 i=h.index("<script>");j=h.index("/* preview */")
-h=h[:i]+rd("core1.js")+"\n\n"+h[j:]
+h=h[:i]+rd("core1.js")+"\n"+rd("formats.js")+"\n\n"+h[j:]
 # core 2: curve/meta/widgets/collection
 i=h.index("/* mana curve */");j=h.index("const _upd=update;");j=h.index("\n",j)+1
 h=h[:i]+rd("core2.js")+"\n"+h[j:]
 # core 3: boot
 i=h.index('(function(){const sel=document.getElementById("deckSel");');j=h.index("update();\n</script>")+len("update();\n")
-h=h[:i]+rd("core4.js")+"\n"+rd("core5.js")+"\n"+rd("core6.js")+"\n"+rd("core7.js")+"\n"+rd("core8.js")+"\n"+rd("core3.js")+h[j:]
+h=h[:i]+rd("core4.js")+"\n"+rd("core5.js")+"\n"+rd("core6.js")+"\n"+rd("core7.js")+"\n"+rd("voices.js")+"\n"+rd("core8.js")+"\n"+rd("core3.js")+h[j:]
 
 rep('function parseList(txt){','function parseListBase(txt){')
 rep('async function scryLookup(entries){','async function scryLookupBase(entries){')
@@ -57,6 +57,16 @@ function openImport''','''  lsSet(NS+"-view","deck");history.replaceState(null,"
 }
 function deckToText(d){return d.deck.map(([cat,cards])=>"// "+cat+"\\n"+cards.map(n=>((d.qty||{})[n]||1)+" "+n+((d.prints||{})[n]&&d.prints[n].set?" ("+d.prints[n].set.toUpperCase()+") "+d.prints[n].cn:"")).join("\\n")).join("\\n\\n");}
 function openImport''')
+# formats: the import keeps the format, drops the commander where there is none, keeps the sideboard apart
+rep('''  const extra=document.getElementById("imCmd").value.split(/\\n|;/).map(s=>s.trim()).filter(Boolean);''','''  const FK=(document.getElementById("imFmt")||{}).value||"commander",FD=FORMATS[FK]||FORMATS.commander;
+  const extra=FD.cmd?document.getElementById("imCmd").value.split(/\\n|;/).map(s=>s.trim()).filter(Boolean):[];if(!FD.cmd)entries.forEach(e=>e.cmd=false);''')
+rep('''  // unisci duplicati''','''  const sbq={},sideE=entries.filter(e=>e.side);entries=entries.filter(e=>!e.side);sideE.forEach(e=>{sbq[e.name]=(sbq[e.name]||0)+e.qty;});
+  // unisci duplicati''')
+rep('''  let deck=[...cats.entries()];''','''  sideE.forEach(e=>{if(list.some(x=>norm(x.name)===norm(e.name))||(cats.get(SIDE_CAT)||[]).includes(e.name))return;add(SIDE_CAT,e.name);if(sbq[e.name]>1)qty[e.name]=sbq[e.name];
+    if(e.card&&e.set&&e.cn&&e.card.set===e.set)prints[e.name]=printFrom(e.card);if(e.type&&typeCat(e.type)==="Lands")lands.push(e.name);});
+  let deck=[...cats.entries()];''')
+rep('''  deck.forEach(d=>d[1].sort((a,b)=>a.localeCompare(b)));''','''  deck.forEach(d=>d[1].sort((a,b)=>a.localeCompare(b)));deck.sort((a,b)=>isSideCat(a[0])-isSideCat(b[0]));''')
+rep('''newTags:old&&old.newTags||[]};''','''newTags:old&&old.newTags||[],format:FK,sbq};''')
 rep('''document.getElementById("imText").value=imTarget?(CUR.src||""):"";''','''document.getElementById("imText").value=imTarget?(CUR.src||deckToText(CUR)):"";
   if(imTarget&&!CUR.src&&CUR.cmd&&CUR.cmd.length)document.getElementById("imCmd").value=CUR.cmd.join("; ");''')
 rep('''document.getElementById("deckDel").addEventListener("click",()=>{if(!CUR)return;if(!confirm("Eliminare il mazzo \\""+CUR.name+"\\" e tutti i suoi segni? Non si può annullare."))return;''','''document.getElementById("deckDel").addEventListener("click",async()=>{if(!CUR)return;if(!await ask("Delete the deck \\""+CUR.name+"\\" and all its marks? This cannot be undone.","Delete deck"))return;''')

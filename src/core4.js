@@ -71,7 +71,7 @@ function analyze(){
   C.forEach(c=>{const k=c.qty||1;cards+=k;const r=rolesOf(c.name);if(r){tagged++;r.forEach(x=>{cnt[x]+=k;(who[x]=who[x]||[]).push(c.name);});}
     const m=cardMeta(c.name);const land=m?m.land:LANDS.has(c.orig);if(land&&!c.cmd)lands+=k;});
   const cv=curveData(HAS_EMI());const avg=cv.avg;
-  const R=cnt.ramp,tL=38-Math.floor(Math.max(0,R-8)/3);
+  const R=cnt.ramp,tL=FP.landT(avg,R);
   const landS=clamp(100-12*Math.max(0,Math.abs(lands-tL)-1)),rampS=clamp(R/10*100),curveS=clamp(100-Math.max(0,avg-3)*35);
   const mana=Math.round(.4*landS+.35*rampS+.25*curveS);
   const parts=[["draw",10,.3],["removal",8,.3],["wipe",2,.15],["protect",3,.15],["recur",2,.1]];
@@ -104,24 +104,32 @@ let labDetail=null;
 /* the header shows the same power estimate and pillars as Analytics, one source for both */
 function labPower(){let a=null,P=null;try{if(typeof analyzeDeck==="function"){a=analyzeDeck();if(a.known>=a.total*0.8)P=pillars(a);}}catch(e){}
   const g=P?[["Consistency",P.cons],["Efficiency",P.eff],["Interaction",P.inter],["Win conditions",P.win]]:[["Consistency",0],["Efficiency",0],["Interaction",0],["Win conditions",0]];
-  return '<button type="button" class="labpower" data-stats="1" aria-label="Power level '+(P?P.pl.toFixed(1):"not ready")+'. Open Analytics"><span class="lpl"><small>Power level</small><b>'+(P?P.pl.toFixed(1):"…")+'</b><em>'+(P?plName(P.pl):"Reading cards…")+'</em></span>'+
+  return '<button type="button" class="labpower" data-stats="1" aria-label="Power level '+(P?P.pl.toFixed(1):"not ready")+'. Open Analytics"><span class="lpl"><small>Power level</small><b>'+(P?P.pl.toFixed(1):"…")+'</b><em>'+(P?plNameF(P.pl):"Reading cards…")+'</em></span>'+
     '<span class="lpills">'+g.map(([k,v])=>'<span class="lpr"><span>'+k+'</span><span class="anbar hot"><i style="width:'+(P?Math.round(v):0)+'%"></i></span><b>'+(P?Math.round(v):"–")+'</b></span>').join("")+'</span></button>';}
 function renderLabHead(){
   const H=document.getElementById("labHead");if(!H||!CUR)return;
-  const a=analyze(),br=bracketOf(a),ci=deckCI(),cmd=[...CMDS][0];
+  const a=analyze(),br=bracketOf(a),ci=deckCI(),cmd=[...CMDS][0],fr=fmtReport();
+  const face=cmd?finalName(cmd):((DECK.find(([cat,cs])=>cs.length&&!/^lands?$/i.test(cat)&&!isSideCat(cat))||[,[]])[1][0])||null;
+  const vt=document.querySelector("#vDeck .vtitle");if(vt)vt.dataset.eyebrow=FMT.n;
+  const bk=FMT.edh?'<button type="button" class="bkt" data-d="bracket" aria-label="Estimated bracket '+br.b+', '+BRACKETS[br.b]+'. Show why"><b>['+br.b+']</b><small>'+BRACKETS[br.b]+'</small></button>'
+    :'<button type="button" class="bkt" data-d="format" aria-label="'+fr.mainN+' cards in the main deck. Show the format check"><b>'+fr.mainN+'</b><small>'+(FMT.side!==0&&fr.sideN?'+'+fr.sideN+' side':FMT.exact?'of '+FMT.size:'cards')+'</small></button>';
+  const fpill='<button type="button" class="fmtpill'+(fr.ok?'':' bad')+'" data-d="format">'+(fr.ok?(fr.ready?'Legal in ':'Checking ')+esc(FMT.n):fr.issues.length+(fr.issues.length===1?' problem':' problems')+' · '+esc(FMT.n))+'</button>';
   const ready=a.tagged>=a.total*0.9;
   const G=[["overall","Overall",a.overall,true],["power","Power",a.power],["mana","Mana health",a.mana],["health","Deck health",a.health]];
   H.innerHTML=
-    '<div class="labart"'+(cmd?' style="background-image:linear-gradient(90deg,rgba(13,17,23,.15),rgba(13,17,23,.65)),url(\''+esc(artURL(finalName(cmd)))+'\')"':'')+'>'+
-      '<button type="button" class="bkt" data-d="bracket" aria-label="Estimated bracket '+br.b+', '+BRACKETS[br.b]+'. Show why"><b>['+br.b+']</b><small>'+BRACKETS[br.b]+'</small></button>'+
-      '<div class="labcap"><small>Estimated bracket</small><span class="pips">'+(ci.length?ci:["C"]).map(c=>'<i style="background:'+(PIPC[c]||"#ccc")+'">'+c+'</i>').join("")+'</span></div></div>'+
+    '<div class="labart"'+(face?' style="background-image:linear-gradient(90deg,rgba(13,17,23,.15),rgba(13,17,23,.65)),url(\''+esc(artURL(face))+'\')"':'')+'>'+
+      bk+'<div class="labcap">'+fpill+'<small>'+(FMT.edh?'Estimated bracket':FMT.cmd?esc(FMT.cmdLabel||"Commander")+' deck':'Main deck')+'</small><span class="pips">'+(ci.length?ci:["C"]).map(c=>'<i style="background:'+(PIPC[c]||"#ccc")+'">'+c+'</i>').join("")+'</span></div></div>'+
     labPower()+
-    '<div class="labroles"><span class="lbl">Roles</span>'+ROLE_TAGS.filter(t=>t.min||a.cnt[t.k]).map(t=>'<button type="button" class="rchip'+(ready&&t.min&&a.cnt[t.k]<t.min?" low":"")+(extF&&extF.id==="role-"+t.k?" on":"")+'" data-role="'+t.k+'"'+(ready?'':' disabled')+'>'+(ready&&t.min&&a.cnt[t.k]<t.min?'<i aria-hidden="true"></i>':'')+t.label+' <b>'+(ready?a.cnt[t.k]:"–")+'</b>'+(t.min?'<span class="tgt">/'+t.min+'</span>':'')+'</button>').join("")+'</div>'+
+    '<div class="labroles"><span class="lbl">Roles</span>'+ROLE_TAGS.filter(t=>roleMin(t.k)||a.cnt[t.k]).map(t=>{const mn=roleMin(t.k);return '<button type="button" class="rchip'+(ready&&mn&&a.cnt[t.k]<mn?" low":"")+(extF&&extF.id==="role-"+t.k?" on":"")+'" data-role="'+t.k+'"'+(ready?'':' disabled')+'>'+(ready&&mn&&a.cnt[t.k]<mn?'<i aria-hidden="true"></i>':'')+t.label+' <b>'+(ready?a.cnt[t.k]:"–")+'</b>'+(mn?'<span class="tgt">/'+mn+'</span>':'')+'</button>';}).join("")+'</div>'+
     (LAB.prog?'<p class="labprog" role="status">'+esc(LAB.prog)+'</p>':'')+
     '<div class="labdetail" id="labDetail"'+(labDetail?'':' hidden')+'></div>';
   if(labDetail)renderDetail(a,br);
 }
 function renderDetail(a,br){const D=document.getElementById("labDetail");if(!D)return;const row=(l,v,n)=>'<li><span>'+l+'</span><b>'+v+'</b>'+(n?'<small>'+n+'</small>':'')+'</li>';let h="";
+  if(labDetail==="format"){const fr=fmtReport();
+    h='<h4>'+esc(FMT.n)+'</h4><ul class="calc">'+row("Main deck",fr.mainN,FMT.exact?"exactly "+FMT.size:"at least "+FMT.size)+(FMT.side!==0?row("Sideboard",fr.sideN,FMT.side>0?"up to "+FMT.side:"any number"):'')+row("Copies per card",FMT.copies===1?"1":FMT.copies?"up to "+FMT.copies:"no limit",FMT.copies?"basic lands excepted":"")+row("Starting life",FMT.life)+'</ul>'+
+      (fr.issues.length?'<ul class="why">'+fr.issues.map(i=>'<li><b>'+esc(i.label)+'</b>'+(i.names.length?': '+esc(i.names.join(", ")):'')+'</li>').join("")+'</ul>':'<p class="note">'+(fr.ready?'No problems found.':'Reading legality from Scryfall…')+'</p>')+
+      (fr.unknown?'<p class="note">'+fr.unknown+' card'+(fr.unknown===1?" is":"s are")+' not checked yet.</p>':'')+'<p class="note">Legality from Scryfall. '+(FMT.leg?'':'Limited has no banned list: only size counts. ')+'It cannot check house rules.</p>';}
   if(labDetail==="bracket")h='<h4>Why bracket '+br.b+'</h4><ul class="why">'+br.why.map(w=>'<li>'+esc(w)+'</li>').join("")+'</ul><p class="note">An estimate from the published bracket rules: Game Changers, mass land denial, extra turns, tutors, and the bracket Commander Spellbook gives each combo. It cannot judge how early your combos land.</p>';
   if(labDetail==="mana")h='<h4>Mana health '+a.mana+'</h4><ul class="calc">'+row("Lands",a.lands,"target "+a.targetLands+" with "+a.cnt.ramp+" ramp · score "+Math.round(a.landS))+row("Ramp",a.cnt.ramp,"10 or more is full marks · score "+Math.round(a.rampS))+row("Average mana value",a.avg.toFixed(2),(HAS_EMI()?"after the Ur-Dragon discount · ":"")+"3.0 or lower is full marks · score "+Math.round(a.curveS))+'</ul><p class="note">Weights: lands 40%, ramp 35%, curve 25%.</p>';
   if(labDetail==="health")h='<h4>Deck health '+a.health+'</h4><ul class="calc">'+a.parts.map(([k,t,w])=>{const T=ROLE_TAGS.find(x=>x.k===k);return row(T.label,a.cnt[k],"target "+t+" · weight "+Math.round(w*100)+"%");}).join("")+'</ul><p class="note">Each role scores its share of the target, capped at 100%.</p>';
@@ -136,7 +144,7 @@ document.addEventListener("click",e=>{const H=e.target.closest("#labHead");if(!H
 
 /* ---------- deck sub-tabs ---------- */
 let DTAB=(()=>{try{const t=sessionStorage.getItem(NS+"-dtab");sessionStorage.removeItem(NS+"-dtab");return t||"cards";}catch(e){return "cards";}})();try{localStorage.removeItem(NS+"-dtab");}catch(e){}if(!["cards","sug","combo","stats"].includes(DTAB))DTAB="cards";
-function setDTab(t){DTAB=t;document.getElementById("vDeck").dataset.tab=t;
+function setDTab(t){if(t==="sug"&&FMT.voice==="draft")t="cards";DTAB=t;document.getElementById("vDeck").dataset.tab=t;
   document.querySelectorAll("#vDeck [data-dtab]").forEach(el=>el.hidden=el.dataset.dtab!==t);
   document.querySelectorAll("#dtabs [data-t]").forEach(b=>b.setAttribute("aria-selected",b.dataset.t===t));
   if(t==="sug")openSug();if(t==="combo")openCombos();if(t==="stats")openAnalytics();}
@@ -171,13 +179,24 @@ async function loadGC(){if(LAB.gc&&Date.now()-LAB.gc.t<14*864e5)return;
   try{const c=await sfSearch("is:gamechanger",2);LAB.gc={t:Date.now(),n:c.map(x=>nk(x.name))};lsSet(NS+"-gc",LAB.gc);}catch(e){}}
 const isGC=n=>!!(LAB.gc&&LAB.gc.n.includes(nk(n)));
 function ownedSet(){const s=new Set();collRecords().forEach(r=>{if(r.ownedQty>0||r.status==="have")s.add(nk(r.name));});return s;}
+/* outside Commander there is no EDHREC page: build the lists from Scryfall, legal in the deck's format and colours */
+function sfBase(){const ci=deckCI().join("").toLowerCase()||"c";return "legal:"+FMT.leg+" -t:basic "+(FMT.cmd?"id<=":"c<=")+ci;}
+function deckTribe(){const st={};finalCards().forEach(f=>{const c=AN.cards[nk(f.name)];if(!c||!/Creature/.test(c.tl))return;(c.tl.split(" // ")[0].split("—")[1]||"").trim().split(/\s+/).filter(Boolean).forEach(s=>st[s]=(st[s]||0)+(f.qty||1));});
+  const t=Object.keys(st).sort((a,b)=>st[b]-st[a])[0];return t&&st[t]>=FMT.size*.15?t:null;}
+async function loadSfSug(){const key="sf:"+FMTK+":"+deckCI().join("");if(LAB.edh&&LAB.edh.slug===key)return;
+  const base=sfBase(),tribe=deckTribe();
+  const defs=[["Popular in your colours",base],tribe?["Your "+tribe+"s",base+" t:"+tribe]:null,["Cheap interaction",base+" (otag:removal or otag:counterspell) mv<=2"],["Card advantage",base+" otag:draw"],["Lands",(FMT.cmd?"id<=":"id<=")+(deckCI().join("").toLowerCase()||"c")+" legal:"+FMT.leg+" t:land -t:basic"]].filter(Boolean);
+  const lists=[];for(const [h,q] of defs){try{const cs=await sfSearch(q+" order:edhrec",1);lists.push({h,tag:"sf"+lists.length,cards:cs.map(x=>{rememberImg(x.name,imgOfCard(x));return {name:x.name,img:imgOfCard(x),syn:null,inc:0,rank:null,eur:x.prices&&x.prices.eur?+x.prices.eur:null};})});}catch(e){}}
+  saveImgs();LAB.edh={slug:key,lists,by:{},name:null,sf:true};LAB.edhErr=lists.length?null:"Scryfall could not be reached. Try again in a moment.";}
 async function openSug(){renderMaybe();const B=document.getElementById("sugGrid");
-  if(!LAB.edh){B.innerHTML='<p class="w-empty">Loading suggestions from EDHREC…</p>';await Promise.all([loadEDH(),loadGC()]);}
+  if(FMT.voice==="draft"){document.getElementById("sugInfo").textContent="";B.innerHTML='<p class="w-empty">In Draft and Sealed you play what you opened, so there is nothing to suggest.</p>';return;}
+  if(!FMT.edh){if(!LAB.edh||!LAB.edh.sf){B.innerHTML='<p class="w-empty">Loading suggestions from Scryfall…</p>';await loadSfSug();}}
+  else if(!LAB.edh){B.innerHTML='<p class="w-empty">Loading suggestions from EDHREC…</p>';await Promise.all([loadEDH(),loadGC()]);}
   if(!SUG.list&&LAB.edh.lists.length)SUG.list=(LAB.edh.lists.find(l=>l.tag==="highsynergycards")||LAB.edh.lists[0]).tag;
   renderSug();}
 async function loadRole(k){if(SUG.roleCards[k])return;const T=ROLE_TAGS.find(t=>t.k===k);const ci=deckCI().join("").toLowerCase()||"c";
   SUG.loading=true;renderSug();
-  try{const cs=await sfSearch(T.q+" id<="+ci+" legal:commander -t:basic order:edhrec",1);
+  try{const cs=await sfSearch(T.q+" "+(FMT.edh?"id<="+ci+" legal:commander -t:basic":sfBase())+" order:edhrec",1);
     SUG.roleCards[k]=cs.map(c=>{rememberImg(c.name,imgOfCard(c));const e=LAB.edh&&LAB.edh.by[norm(c.name)];
       return {name:c.name,img:imgOfCard(c),syn:e?e.syn:null,inc:e?e.inc:null,decks:e?e.decks:null,rank:c.edhrec_rank||null,eur:c.prices&&c.prices.eur?+c.prices.eur:null};});saveImgs();}
   catch(e){SUG.roleCards[k]=[];flash("Scryfall could not be reached. Try again in a moment.");}
@@ -186,7 +205,7 @@ function renderSug(){
   const T=document.getElementById("sugTabs"),RC=document.getElementById("sugRoles"),B=document.getElementById("sugGrid"),I=document.getElementById("sugInfo");if(!T)return;
   const E=LAB.edh||{lists:[]};const a=analyze();
   T.innerHTML=E.lists.map(l=>'<button type="button" role="tab" data-list="'+esc(l.tag)+'" aria-selected="'+(!SUG.role&&SUG.list===l.tag)+'">'+esc(l.h.replace(/ Cards$/,""))+'</button>').join("");
-  RC.innerHTML='<span class="lbl">Roles</span>'+ROLE_TAGS.map(t=>{const low=t.min&&a.cnt[t.k]<t.min&&a.tagged;return '<button type="button" class="rchip'+(low?" low":"")+(SUG.role===t.k?" on":"")+'" data-srole="'+t.k+'">'+(low?'<i aria-hidden="true"></i>':'')+t.label+(a.tagged?' <b>'+a.cnt[t.k]+'</b>':'')+'</button>';}).join("");
+  RC.innerHTML='<span class="lbl">Roles</span>'+ROLE_TAGS.map(t=>{const low=roleMin(t.k)&&a.cnt[t.k]<roleMin(t.k)&&a.tagged;return '<button type="button" class="rchip'+(low?" low":"")+(SUG.role===t.k?" on":"")+'" data-srole="'+t.k+'">'+(low?'<i aria-hidden="true"></i>':'')+t.label+(a.tagged?' <b>'+a.cnt[t.k]+'</b>':'')+'</button>';}).join("");
   const inDeck=new Set(finalCards().map(c=>norm(c.name)).concat(finalCards().map(c=>nk(c.name))));
   let items;
   if(SUG.role){items=SUG.roleCards[SUG.role]||[];}
@@ -198,7 +217,8 @@ function renderSug(){
   if(SUG.noGC)items=items.filter(c=>!isGC(c.name));
   const key={syn:c=>-(c.syn==null?-9:c.syn),inc:c=>-(c.inc||0),name:c=>0}[SUG.sort];
   if(SUG.sort==="name")items.sort((x,y)=>x.name.localeCompare(y.name));else if(!SUG.role||SUG.sort!=="syn"||items.some(c=>c.syn!=null))items.sort((x,y)=>key(x)-key(y));
-  const src=SUG.role?"Scryfall cards tagged "+ROLE_TAGS.find(t=>t.k===SUG.role).label.toLowerCase()+" in your colors, most played first":(E.name?"EDHREC, "+(E.decks?E.decks.toLocaleString("en")+" "+E.name+" decks":E.name):"");
+  const src=!FMT.edh?"Scryfall, cards legal in "+FMT.n+" in your colours"+(SUG.role?" tagged "+ROLE_TAGS.find(t=>t.k===SUG.role).label.toLowerCase():"")+", ordered by Scryfall's popularity rank (which comes from Commander play, so treat it as a rough guide)"
+    :SUG.role?"Scryfall cards tagged "+ROLE_TAGS.find(t=>t.k===SUG.role).label.toLowerCase()+" in your colors, most played first":(E.name?"EDHREC, "+(E.decks?E.decks.toLocaleString("en")+" "+E.name+" decks":E.name):"");
   I.textContent=(LAB.edhErr&&!SUG.role?LAB.edhErr+" ":"")+(src?"Source: "+src+". ":"")+items.length+" card"+(items.length===1?"":"s")+" not in the deck.";
   if(SUG.loading){B.innerHTML='<p class="w-empty">Loading…</p>';return;}
   if(!items.length){B.innerHTML='<p class="w-empty">'+(own?"None of these are in your collection.":"Nothing to suggest here.")+'</p>';return;}
@@ -206,7 +226,7 @@ function renderSug(){
   B.innerHTML=items.slice(0,60).map(c=>{const gc=isGC(c.name),ow=own||ownedSet();
     return '<article class="stile"><button type="button" class="simg" data-view="'+esc(c.name)+'" aria-label="View '+esc(c.name)+'"><img loading="lazy" alt="" src="'+esc(c.img||labImg(c.name))+'">'+
       '<span class="sbad">'+(c.isNew?'<em class="new">New</em>':'')+(gc?'<em class="gcb">Game Changer</em>':'')+(ow.has(nk(c.name))?'<em class="own">Owned</em>':'')+'</span></button>'+
-      '<b class="sname">'+esc(c.name)+'</b><small class="sstat">'+(c.syn!=null?'<span class="syn'+(c.syn>=0.2?" hi":"")+'">'+pct(c.syn)+' synergy</span>':'')+(c.inc?'<span>'+Math.round(c.inc*100)+'% of decks</span>':'')+(c.syn==null&&!c.inc&&c.rank?'<span>EDHREC rank '+c.rank.toLocaleString("en")+'</span>':'')+'</small>'+
+      '<b class="sname">'+esc(c.name)+'</b><small class="sstat">'+(c.syn!=null?'<span class="syn'+(c.syn>=0.2?" hi":"")+'">'+pct(c.syn)+' synergy</span>':'')+(c.inc?'<span>'+Math.round(c.inc*100)+'% of decks</span>':'')+(c.syn==null&&!c.inc&&c.rank&&FMT.edh?'<span>EDHREC rank '+c.rank.toLocaleString("en")+'</span>':'')+(!FMT.edh&&c.eur!=null?'<span class="money">€'+c.eur.toFixed(2)+'</span>':'')+'</small>'+
       '<span class="sact"><button type="button" class="btn-acc" data-add="'+esc(c.name)+'">Add</button><button type="button" data-maybe="'+esc(c.name)+'"'+(maybe().includes(c.name)?' disabled':'')+'>'+(maybe().includes(c.name)?"On maybeboard":"Maybe")+'</button></span></article>';}).join("")+
     (items.length>60?'<p class="w-empty">Showing the first 60. Search or pick a role to narrow down.</p>':'');
 }
@@ -252,7 +272,7 @@ function renderCombos(){const B=document.getElementById("comboList"),T=document.
   const M=LAB.match;if(!M)return;
   T.innerHTML='<button type="button" role="tab" data-cshow="in" aria-selected="'+(CB.show==="in")+'">In your deck <b>'+M.inDeck.length+'</b></button><button type="button" role="tab" data-cshow="one" aria-selected="'+(CB.show==="one")+'">One card away <b>'+M.oneAway.length+'</b></button>';
   const L=(CB.show==="in"?M.inDeck:M.oneAway).slice().sort((a,b)=>b.pop-a.pop);
-  I.textContent="Source: Commander Spellbook, data from "+(LAB.combos.built?new Date(LAB.combos.built).toLocaleDateString("en-GB",{day:"numeric",month:"short",year:"numeric"}):"their latest export")+". Most played first. Tap a combo for the steps.";
+  I.textContent="Source: Commander Spellbook, data from "+(LAB.combos.built?new Date(LAB.combos.built).toLocaleDateString("en-GB",{day:"numeric",month:"short",year:"numeric"}):"their latest export")+". Most played first. Tap a combo for the steps."+(FMT.edh?"":" Combo popularity comes from Commander decks: check that the missing piece is legal in "+FMT.n+".");
   if(!L.length){B.innerHTML='<p class="w-empty">'+(CB.show==="in"?"No known combo is fully in the deck.":"No combo is one card away.")+'</p>';return;}
   const shown=L.slice(0,CB.limit);resolveImgs(shown.flatMap(v=>v.cards)).then(()=>{document.querySelectorAll("#comboList img[data-n]").forEach(im=>{const u=LAB.img[nk(im.dataset.n)];if(u&&im.src!==u)im.src=u;});});
   B.innerHTML=shown.map(v=>'<article class="cbx'+(v.miss?" away":"")+'">'+
@@ -260,7 +280,7 @@ function renderCombos(){const B=document.getElementById("comboList"),T=document.
     '<div class="cbody"><b>'+esc(v.feats.slice(0,3).join(" · ")||"Combo")+'</b>'+
       '<small class="cnames">'+v.cards.map(n=>'<span class="'+(n===v.miss?"m":"")+'">'+esc(n)+'</span>').join(" + ")+'</small>'+
       (v.req&&v.req.length?'<small class="creq">Also needs: '+esc(v.req.join(", "))+'</small>':'')+
-      '<small class="cmeta">'+(v.pop?v.pop.toLocaleString("en")+" decks":"")+(CSB_BR[v.br]?" · fits bracket "+CSB_BR[v.br]+(CSB_BR[v.br]<4?" and up":""):"")+(v.mv!=null?" · "+v.mv+" mana to start":"")+'</small>'+
+      '<small class="cmeta">'+(v.pop?v.pop.toLocaleString("en")+" decks":"")+(FMT.edh&&CSB_BR[v.br]?" · fits bracket "+CSB_BR[v.br]+(CSB_BR[v.br]<4?" and up":""):"")+(v.mv!=null?" · "+v.mv+" mana to start":"")+'</small>'+
       '<span class="sact"><a class="btnlink" target="_blank" rel="noopener" href="https://commanderspellbook.com/combo/'+encodeURIComponent(v.id)+'/">Steps on Commander Spellbook</a>'+(v.miss?'<button type="button" data-maybe="'+esc(v.miss)+'"'+(maybe().includes(v.miss)?' disabled':'')+'>'+(maybe().includes(v.miss)?"On maybeboard":"Maybe "+esc(front(v.miss)))+'</button>':'')+'</span></div></article>').join("")+
     (L.length>CB.limit?'<button type="button" class="ghostbtn more" data-cmore="1">Show more ('+(L.length-CB.limit)+' left)</button>':'');
 }
@@ -275,3 +295,5 @@ function renderCombos(){const B=document.getElementById("comboList"),T=document.
 function renderLab(){renderLabHead();if(DTAB==="sug"&&LAB.edh)renderSug();if(DTAB==="stats")renderAnalytics();}
 function startLab(){if(!CUR)return;renderLabHead();setDTab(DTAB);if(typeof loadCards==="function")loadCards().then(()=>renderLabHead());
   setTimeout(()=>{tagDeck(false);if(!LAB.combos)loadCombos().then(()=>{if(LAB.combos){LAB.match=matchCombos();renderLabHead();if(DTAB==="combo")renderCombos();}});},400);}
+
+(function(){const s=document.querySelector('#dtabs [data-t="sug"]');if(s)s.hidden=FMT.voice==="draft";const g=document.getElementById("sugGC");if(g&&!FMT.edh){const l=g.closest("label");(l||g).hidden=true;SUG.noGC=false;}})();

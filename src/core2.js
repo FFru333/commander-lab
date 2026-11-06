@@ -9,9 +9,9 @@ function metaRec(c){
     dragon:/\bDragon\b/.test(tl)&&/Creature/.test(tl),land:/\bLand\b/.test(tl)&&!/Creature/.test(tl),
     type:c.type_line||tl,ci:c.color_identity||[],rarity:c.rarity||null,set:c.set||null,setName:c.set_name||null};
 }
-function finalCards(){const out=[];DECK.forEach(([cat,cards])=>cards.forEach(n=>{
+function finalCards(withSide){const out=[];DECK.forEach(([cat,cards])=>{if(!withSide&&isSideCat(cat))return;cards.forEach(n=>{
   const s=st(n);const alt=!!(s.alt&&s.altName&&s.altName.trim());const name=alt?s.altName.trim():n;
-  out.push({orig:n,name,alt,qty:q(n),cmd:CMDS.has(n)});}));return out;}
+  out.push({orig:n,name,alt,qty:q(n),cmd:CMDS.has(n)});});});return out;}
 function metaOf(c){
   const m=META[norm(front(c.name))];
   if(m) return {mv:m.cmc,dragon:m.dragon,land:m.land,est:false};
@@ -459,7 +459,8 @@ function renderChip(id,ext,clear){const el=document.getElementById(id);if(!el)re
   el.innerHTML='<span>Filtered by <b></b></span><button type="button" aria-label="Remove this filter">✕</button>';el.querySelector("b").textContent=ext.label;el.querySelector("button").onclick=clear;}
 /* ---------- per-deck figures (for home, decks and print house) ---------- */
 function deckStats(id){const d=DECKS.list[id];const S=id===DECKS.current?state:loadState(id);const Q=d.qty||{};
-  const o={id,name:d.name,cmd:(d.cmd||[])[0]||null,total:0,have:0,proxy:0,buy:0,u:0,buyCost:0,value:0,proxyItems:0};
+  const F=fmtOf(d),face=(d.cmd||[])[0]||((d.deck.find(([cat,cs])=>cs.length&&!/^lands?$/i.test(cat)&&!isSideCat(cat))||[,[]])[1][0])||null;
+  const o={id,name:d.name,cmd:(d.cmd||[])[0]||null,fmt:F,face,total:0,have:0,proxy:0,buy:0,u:0,buyCost:0,value:0,proxyItems:0};
   d.deck.forEach(([,cards])=>cards.forEach(n=>{const x=S[n]||{},k=clsOf(x),qn=Q[n]||1;o.total+=qn;o[k]+=qn;
     const alt=x.alt&&x.altName&&x.altName.trim();const nm=alt?x.altName.trim():n;const p=priceOf(nm,alt?x.altPrint:x.print);
     if(p!=null){o.value+=p*qn;if(k==="buy")o.buyCost+=p*qn;}}));
@@ -470,11 +471,11 @@ function openDeck(id,intent){if(id===DECKS.current){setView("deck");if(intent)ru
 function runIntent(k){const b={proxy:"openProxy",tokens:"openTokens",export:"openExport"}[k];if(b)setTimeout(()=>document.getElementById(b).click(),60);}
 function deckCard(st,big){const el=document.createElement("article");el.className="dcard";el.dataset.deck=st.id;el.tabIndex=0;el.setAttribute("aria-label","Open "+st.name);
   const ring='<svg class="ring" viewBox="0 0 36 36" aria-hidden="true"><circle cx="18" cy="18" r="15.5" class="rb"/><circle cx="18" cy="18" r="15.5" class="rp" stroke-dasharray="'+(st.ready*0.974).toFixed(1)+' 100"/><circle cx="18" cy="18" r="15.5" class="rh" stroke-dasharray="'+(st.pct*0.974).toFixed(1)+' 100"/></svg>';
-  el.innerHTML='<div class="dart"'+(st.cmd?' style="background-image:url(\''+esc(artURL(st.cmd))+'\'),linear-gradient(135deg,var(--a3),var(--a2) 60%,var(--accent))"':'')+'></div>'+
+  el.innerHTML='<div class="dart"'+(st.face?' style="background-image:url(\''+esc(artURL(st.face))+'\'),linear-gradient(135deg,var(--a3),var(--a2) 60%,var(--accent))"':'')+'></div>'+
     '<div class="dbody"><div class="dtop"><div class="dname"><b></b><small></small></div><div class="dring">'+ring+'<span>'+st.pct+'<i>%</i></span></div></div>'+
     '<div class="dmeta"><span><b>'+st.have+'</b>/'+st.total+' owned</span><span><b>'+st.proxy+'</b> to proxy</span><span><b>'+st.buy+'</b> to buy'+(st.buyCost?' · '+'<span class="money">'+esc(fmtE0(st.buyCost))+'</span>':'')+'</span></div>'+
     (big?'<div class="dact"><button type="button" class="btn-acc" data-i="">Open</button><button type="button" data-i="proxy">Proxies</button><button type="button" data-i="tokens">Tokens</button></div>':'')+'</div>';
-  el.querySelector(".dname b").textContent=st.name;el.querySelector(".dname small").textContent=st.cmd||"No commander set";
+  el.querySelector(".dname b").textContent=st.name;el.querySelector(".dname small").textContent=st.fmt.cmd?(st.cmd||"No commander set")+(st.fmt.edh?"":" · "+st.fmt.n):st.fmt.n;
   el.addEventListener("click",e=>{const b=e.target.closest("button[data-i]");openDeck(st.id,b?b.dataset.i:"");});
   el.addEventListener("keydown",e=>{if(e.key==="Enter"&&e.target===el)openDeck(st.id,"");});
   if(st.id===DECKS.current)el.classList.add("cur");return el;}
